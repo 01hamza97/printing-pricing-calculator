@@ -30,6 +30,10 @@ $is_edit = isset($_GET['id']);
             );
             ?>
         </div>
+        <div style="margin-bottom: 20px;">
+            <label for="front_name" style="font-weight: 400; display: block; font-size: 24px; margin-bottom:10px;">Front Name</label>
+            <input id="front_name" type="text" name="front_name" value="<?php echo esc_attr($data['front_name'] ?? ''); ?>" placeholder="Front Screen Name" required>
+        </div>
 
         <!-- Options Section -->
         <hr>

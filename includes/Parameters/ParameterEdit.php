@@ -36,17 +36,20 @@ class ParameterEdit {
         // Handle form submission
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && check_admin_referer('save_parameter')) {
             $title = sanitize_text_field($_POST['title']);
+            $front_name = sanitize_text_field($_POST['front_name']);
             $content = wp_kses_post($_POST['content']);
 
             if ($is_edit) {
                 $wpdb->update($table, [
                     'title' => $title,
+                    'front_name' => $front_name,
                     'content' => $content,
                     'updated_at' => current_time('mysql'),
                 ], ['id' => $id]);
             } else {
                 $wpdb->insert($table, [
                     'title' => $title,
+                    'front_name' => $front_name,
                     'content' => $content,
                     'created_at' => current_time('mysql'),
                     'updated_at' => current_time('mysql'),

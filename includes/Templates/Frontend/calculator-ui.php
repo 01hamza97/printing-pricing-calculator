@@ -5,29 +5,29 @@
     </div>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div class="col-span-2 bg-gray-50 rounded-lg p-6 shadow">
-            <h4 class="text-lg font-semibold mb-4">Parameters</h4>
-            <?php foreach ($parameters as $param): ?>
+            <h4 class="text-lg font-semibold mb-4">Parameters</h4>	
+            <?php foreach ($parameters as $p): ?>
                 <div class="mb-6">
-                    <label for="param_<?php echo $param['id']; ?>" class="font-semibold text-base block mb-1">
-                        <?php echo esc_html($param['title']); ?>
+                    <label for="param_<?php echo $p['id']; ?>" class="font-semibold text-base block mb-1">
+                        <?php echo esc_html($p['title']); ?>
                     </label>
                     <select
-                        id="param_<?php echo $param['id']; ?>"
-                        name="parameters[<?php echo $param['id']; ?>]"
+                        id="param_<?php echo $p['id']; ?>"
+                        name="parameters[<?php echo $p['id']; ?>]"
                         class="border rounded px-3 py-1"
-                        data-param-id="<?php echo $param['id']; ?>"
-                        data-param-title="<?php echo esc_attr($param['title']); ?>"
+                        data-param-id="<?php echo $p['id']; ?>"
+                        data-param-title="<?php echo esc_attr($p['title']); ?>"
                     >
                         <option value="" data-cost="0">Select an option</option>
-                        <?php foreach ($param['options'] as $opt): ?>
+                        <?php foreach ($p['options'] as $o): ?>
                             <?php
                             $cost = !empty($opt['override_price'])
-                                ? $opt['override_price']
-                                : (!empty($opt['meta_value']['cost']) ? $opt['meta_value']['cost'] : 0);
+                                ? $o['override_price']
+                                : (!empty($o['meta_value']['cost']) ? $o['meta_value']['cost'] : 0);
                             ?>
-                            <option value="<?php echo esc_attr($opt['meta_value']['option'] ?? ''); ?>"
+                            <option value="<?php echo esc_attr($o['meta_value']['option'] ?? ''); ?>"
                                     data-cost="<?php echo esc_attr($cost); ?>">
-                                <?php echo esc_html($opt['meta_value']['option'] ?? ''); ?>
+                                <?php echo esc_html($o['meta_value']['option'] ?? ''); ?>
                                 <?php if ($cost > 0): ?>
                                     (<?php echo number_format((float)$cost, 2); ?>)
                                 <?php endif; ?>
@@ -67,12 +67,12 @@
                       <td>1</td>
                       <td id="ppc-base-price"><?php echo number_format((float)$product['base_price'], 2); ?></td>
                     </tr>
-                    <?php foreach ($parameters as $param): ?>
-                      <tr data-param-id="<?php echo $param['id']; ?>">
-                        <td><?php echo esc_html($param['title']); ?>(<span class="ppc-selected-option" id="ppc-selected-option-<?php echo $param['id']; ?>">—</span>)</td>
+                    <?php foreach ($parameters as $p): ?>
+                      <tr data-param-id="<?php echo $p['id']; ?>">
+                        <td><?php echo esc_html($p['title']); ?>(<span class="ppc-selected-option" id="ppc-selected-option-<?php echo $p['id']; ?>">—</span>)</td>
                         <td>1</td>
                         <td>
-                          <span class="ppc-option-cost text-gray-500" id="ppc-option-cost-<?php echo $param['id']; ?>">0.00</span>
+                          <span class="ppc-option-cost text-gray-500" id="ppc-option-cost-<?php echo $p['id']; ?>">0.00</span>
                         </td>
                       </tr>
                     <?php endforeach; ?>

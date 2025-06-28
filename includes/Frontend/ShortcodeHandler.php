@@ -72,8 +72,8 @@ class ShortcodeHandler
             foreach ($parameters as &$param) {
                 $param['options'] = $wpdb->get_results(
                     $wpdb->prepare(
-                        "SELECT * FROM " . PRODUCT_PARAM_META_TABLE . " AS param_product_price LEFT JOIN ". META_TABLE ." AS meta ON param_product_price.option_id = meta.id WHERE product_id = %d",
-                        $product_id
+                        "SELECT * FROM " . PRODUCT_PARAM_META_TABLE . " AS param_product_price LEFT JOIN ". META_TABLE ." AS meta ON param_product_price.option_id = meta.id WHERE product_id = %d AND parameter_id = %d",
+                        $product_id, $param['id']
                     ),
                     ARRAY_A
                 );
@@ -84,8 +84,6 @@ class ShortcodeHandler
         } else {
             $parameters = [];
         }
-
-        var_dump($parameters);
 
         ob_start();
         include plugin_dir_path(__FILE__) . '../Templates/Frontend/calculator-ui.php';

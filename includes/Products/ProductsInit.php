@@ -31,6 +31,7 @@ class ProductsInit
             dbDelta("CREATE TABLE IF NOT EXISTS " . PRODUCT_PARAMETERS_TABLE ." (
               id INT AUTO_INCREMENT PRIMARY KEY,
               product_id INT NOT NULL,
+              is_required TINYINT(1) NOT NULL DEFAULT 0,
               parameter_id BIGINT UNSIGNED NOT NULL,
               FOREIGN KEY (product_id) REFERENCES " . PRODUCT_TABLE . "(id) ON DELETE CASCADE,
               FOREIGN KEY (parameter_id) REFERENCES ". PARAM_TABLE ."(id) ON DELETE CASCADE

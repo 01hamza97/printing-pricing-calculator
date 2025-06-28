@@ -18,6 +18,7 @@ class ParametersInit
             dbDelta("CREATE TABLE IF NOT EXISTS ". PARAM_TABLE ." (
             id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
             title VARCHAR(255) NOT NULL,
+            front_name VARCHAR(255) DEFAULT NULL,
             content TEXT DEFAULT NULL,
             status ENUM('active', 'inactive') DEFAULT 'active',
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
