@@ -20,6 +20,26 @@ class ProductEdit {
         );
     }
 
+    public function ppc_generate_unique_slug($title, $wpdb, $product_table, $current_id = null) {
+        $slug = sanitize_title($title);
+        $original_slug = $slug;
+        $i = 2;
+
+        // Loop until slug is unique (ignore current ID if editing)
+        while (true) {
+            $query = "SELECT id FROM $product_table WHERE slug = %s";
+            $params = [$slug];
+            if ($current_id) {
+                $query .= " AND id != %d";
+                $params[] = $current_id;
+            }
+            $exists = $wpdb->get_var($wpdb->prepare($query, ...$params));
+            if (!$exists) break;
+            $slug = $original_slug . '-' . $i++;
+        }
+        return $slug;
+    }
+
     public function render() {
         global $wpdb;
 
@@ -33,12 +53,14 @@ class ProductEdit {
         $id = $is_edit ? intval($_GET['id']) : 0;
         $data = [
             'title' => '',
+            'slug' => '',
             'content' => '',
             'base_price' => '',
             'status' => 'active',
             'image_url' => '',
             'params' => [],
             'option_prices' => [],
+            'min_order_qty' => null
         ];
 
         // Load existing data
@@ -48,8 +70,8 @@ class ProductEdit {
                 $data = array_merge($data, $row);
 
                 // Load selected parameters
-                $data['params'] = $wpdb->get_col($wpdb->prepare(
-                    "SELECT parameter_id FROM $pivot_table WHERE product_id = %d",
+                $data['params'] = $wpdb->get_results($wpdb->prepare(
+                    "SELECT parameter_id, is_required FROM $pivot_table WHERE product_id = %d",
                     $id
                 ));
 
@@ -70,12 +92,30 @@ class ProductEdit {
             $content = wp_kses_post($_POST['content']);
             $base_price = floatval($_POST['base_price']);
             $status = in_array($_POST['status'], ['active', 'inactive']) ? $_POST['status'] : 'inactive';
+            $express_delivery_value = isset($_POST['express_delivery_value']) && $_POST['express_delivery_value'] !== '' 
+                ? floatval($_POST['express_delivery_value']) 
+                : null;
+            $express_delivery_type = in_array($_POST['express_delivery_type'], ['percent', 'flat']) 
+                ? $_POST['express_delivery_type'] 
+                : null;
+            $min_order_qty = isset($_POST['min_order_qty']) && $_POST['min_order_qty'] !== '' 
+                ? floatval($_POST['min_order_qty']) 
+                : null;
 
-            // Handle file upload for base product image
+            $slug = null;
+            if($is_edit) {
+                $slug = $this->ppc_generate_unique_slug($title, $wpdb, $product_table, $id);
+            } else {
+                $slug = $this->ppc_generate_unique_slug($title, $wpdb, $product_table);
+            }
+
             $image_url = '';
             if (!empty($_FILES['image_file']['name'])) {
                 require_once ABSPATH . 'wp-admin/includes/file.php';
-                // Remove old file if exists
+                require_once ABSPATH . 'wp-admin/includes/media.php';
+                require_once ABSPATH . 'wp-admin/includes/image.php';
+
+                // Remove old file if exists (same as before)
                 if ($is_edit && !empty($data['image_url'])) {
                     $upload_dir = wp_upload_dir();
                     $old_file_path = str_replace($upload_dir['baseurl'], $upload_dir['basedir'], $data['image_url']);
@@ -83,9 +123,30 @@ class ProductEdit {
                         unlink($old_file_path);
                     }
                 }
+
+                // Handle upload
                 $uploaded = wp_handle_upload($_FILES['image_file'], ['test_form' => false]);
                 if (!isset($uploaded['error'])) {
-                    $image_url = esc_url_raw($uploaded['url']);
+                    $file_path = $uploaded['file'];
+                    $file_name = basename($file_path);
+
+                    // Prepare attachment data
+                    $attachment = [
+                        'post_mime_type' => $uploaded['type'],
+                        'post_title'     => sanitize_file_name($file_name),
+                        'post_content'   => '',
+                        'post_status'    => 'inherit'
+                    ];
+                    // Insert attachment
+                    $attach_id = wp_insert_attachment($attachment, $file_path);
+
+                    // Generate metadata and update
+                    require_once ABSPATH . 'wp-admin/includes/image.php';
+                    $attach_data = wp_generate_attachment_metadata($attach_id, $file_path);
+                    wp_update_attachment_metadata($attach_id, $attach_data);
+
+                    // Get the attachment URL
+                    $image_url = wp_get_attachment_url($attach_id);
                 }
             }
 
@@ -94,6 +155,10 @@ class ProductEdit {
                     'title' => $title,
                     'content' => $content,
                     'base_price' => $base_price,
+                    'slug' => $slug,
+                    'express_delivery_value' => $express_delivery_value,
+                    'express_delivery_type'  => $express_delivery_type,
+                    'min_order_qty' => $min_order_qty,
                     'status' => $status,
                     'image_url' => $image_url,
                     'updated_at' => current_time('mysql'),
@@ -103,6 +168,10 @@ class ProductEdit {
                     'title' => $title,
                     'content' => $content,
                     'base_price' => $base_price,
+                    'express_delivery_value' => $express_delivery_value,
+                    'express_delivery_type'  => $express_delivery_type,
+                    'min_order_qty' => $min_order_qty,
+                    'slug' => $slug,
                     'status' => $status,
                     'image_url' => $image_url,
                     'created_at' => current_time('mysql'),
@@ -115,9 +184,11 @@ class ProductEdit {
             $wpdb->delete($pivot_table, ['product_id' => $id]);
             if (!empty($_POST['parameters'])) {
                 foreach ($_POST['parameters'] as $param_id) {
+                    $is_required = (!empty($_POST['is_required'][$param_id]) && $_POST['is_required'][$param_id] == 1) ? 1 : 0;
                     $wpdb->insert($pivot_table, [
                         'product_id' => $id,
-                        'parameter_id' => intval($param_id)
+                        'parameter_id' => intval($param_id),
+                        'is_required' => $is_required // Save the required flag!
                     ]);
                 }
             }
@@ -140,7 +211,7 @@ class ProductEdit {
         }
 
         // Fetch parameters and their options
-        $raw_params = $wpdb->get_results("SELECT p.id AS param_id, p.title AS param_title, m.id AS meta_id, m.meta_value
+        $raw_params = $wpdb->get_results("SELECT p.id AS param_id, p.title AS param_title, p.front_name AS front_name, m.id AS meta_id, m.meta_value
             FROM $param_table p
             LEFT JOIN $meta_table m ON p.id = m.parameter_id
             WHERE p.status = 'active'
@@ -153,6 +224,7 @@ class ProductEdit {
                 $parameters[$row['param_id']] = [
                     'id' => $row['param_id'],
                     'title' => $row['param_title'],
+                    'front_name' => $row['front_name'],
                     'options' => [],
                 ];
             }
@@ -162,6 +234,7 @@ class ProductEdit {
                     'title' => $meta_value['option'] ?? '',
                     'image' => $meta_value['image'] ?? '',
                     'cost' => $meta_value['cost'] ?? '',
+                    'slug' => $meta_value['slug'] ?? '',
                 ];
             }
         }

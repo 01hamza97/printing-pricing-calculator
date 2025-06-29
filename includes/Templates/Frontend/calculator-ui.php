@@ -9,7 +9,7 @@
             <?php foreach ($parameters as $p): ?>
                 <div class="mb-6">
                     <label for="param_<?php echo $p['id']; ?>" class="font-semibold text-base block mb-1">
-                        <?php echo esc_html($p['title']); ?>
+                        <?php echo esc_html($p['front_name']); ?>
                     </label>
                     <select
                         id="param_<?php echo $p['id']; ?>"
@@ -43,15 +43,32 @@
         <div class="flex flex-col gap-4">
             <div class="bg-blue-50 text-blue-900 rounded-lg px-6 py-5 text-center text-xl font-bold shadow">
               <div class="mb-3">
-                <label for="ppc-qty" class="font-medium block mb-1">Quantity</label>
-                <input type="number" value="100" id="ppc-qty" class="border rounded px-3 py-1 w-24 text-center" />
+                  <label for="ppc-qty" class="font-medium block mb-1">Quantity</label>
+                  <input 
+                      type="number" 
+                      value="<?php echo (int)$min_order_qty; ?>" 
+                      id="ppc-qty" 
+                      class="border rounded px-3 py-1 w-24 text-center"
+                      min="<?php echo (int)$min_order_qty; ?>"
+                  />
+                  <small class="text-gray-500">Minimum order: <?php echo (int)$min_order_qty; ?></small>
               </div>
               <div class="mb-3">
-                  <label class="inline-flex items-center">
-                      <input type="checkbox" id="ppc-express" class="accent-green-700 mr-2" />
-                      <span class="font-medium">Express Delivery (+15%)</span>
-                  </label>
-              </div>
+                <label class="inline-flex items-center">
+                    <input type="checkbox" id="ppc-express" class="accent-green-700 mr-2" />
+                    <span class="font-medium">
+                        Express Delivery (
+                        <?php
+                            if ($express_delivery['type'] === 'percent') {
+                                echo '+' . floatval($express_delivery['value']) . '%';
+                            } else {
+                                echo '+'.number_format((float)$express_delivery['value'], 2);
+                            }
+                        ?>
+                        )
+                    </span>
+                </label>
+            </div>
               <div>
                 <table class="alignleft text-base text-left w-full" id="ppc-summary-table">
                   <thead>
@@ -83,6 +100,10 @@
                   </tbody>
                   <tfoot>
                     <tr class="font-bold">
+                      <td colspan="2">Tax(<?php echo $tax ?>%) </td>
+                      <td id="ppc-tax-amount"></td>
+                    </tr>
+                    <tr class="font-bold">
                       <td colspan="2">Total</td>
                       <td id="ppc-grand-total">0.00</td>
                     </tr>
@@ -104,10 +125,15 @@ document.addEventListener('DOMContentLoaded', function () {
     const basePrice = parseFloat('<?php echo (float)$product['base_price']; ?>');
     const paramIds = <?php echo json_encode(array_column($parameters, 'id')); ?>;
     const paramsTable = document.getElementById('ppc-selected-params-table');
+    const tax = <?php echo $tax; ?>;
+    // These are PHP values printed into JS.
+    const expressValue = <?php echo json_encode((float)$express_delivery['value']); ?>;
+    const expressType = <?php echo json_encode($express_delivery['type']); ?>;
+    const discountRules = <?php echo json_encode($discount_rules); ?>;
 
     function updateSummary() {
-        let qty = Math.max(100, parseInt(qtyInput.value) || 100);
-        qtyInput.value = qty;
+       let qty = Math.max(<?php echo (int)$min_order_qty; ?>, parseInt(qtyInput.value) || <?php echo (int)$min_order_qty; ?>);
+       qtyInput.value = qty;
 
         let paramSum = 0;
         paramIds.forEach(paramId => {
@@ -127,14 +153,17 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
         // Discount calculation
-        let discount = 0;
-        if (qty === 200) discount = 0.10;
-        else if (qty > 250) discount = 0.15;
+        let discount = getDiscountPercent(qty, discountRules)/100;
 
         const paramsTotal = paramSum * qty;
         const preDiscountTotal = basePrice + paramsTotal;
         const discountAmount = preDiscountTotal * discount;
         let finalTotal = preDiscountTotal - discountAmount;
+        let taxAmount = 0;
+        if (tax > 0) {
+            taxAmount = finalTotal * (tax / 100);
+            finalTotal += taxAmount;
+        }
 
         document.getElementById('ppc-discount').textContent = '-' + discountAmount.toFixed(2);
 
@@ -142,23 +171,33 @@ document.addEventListener('DOMContentLoaded', function () {
         let expressAmount = 0;
         let expressRow = document.getElementById('ppc-express-row');
         if (expressCheckbox.checked) {
-            expressAmount = finalTotal * 0.15;
+            if (expressType === 'percent') {
+                expressAmount = finalTotal * (expressValue / 100);
+            } else {
+                expressAmount = expressValue;
+            }
             finalTotal += expressAmount;
+            if (tax > 0) {
+                taxAmount = finalTotal * (tax / 100);
+                finalTotal += taxAmount;
+            }
             if (!expressRow) {
                 expressRow = document.createElement('tr');
                 expressRow.id = 'ppc-express-row';
-                expressRow.innerHTML = `<td>Express Delivery (+15%)</td><td id=\"ppc-express-cost\">+${expressAmount.toFixed(2)}</td>`;
+                expressRow.innerHTML = `<td>Express Delivery (${expressType === 'percent' ? expressValue + '%' : '+' + expressValue})</td><td id="ppc-express-cost">+${expressAmount.toFixed(2)}</td>`;
                 // Insert before discount row
                 const discountRow = document.getElementById('ppc-discount').parentElement;
                 paramsTable.insertBefore(expressRow, discountRow);
             } else {
                 document.getElementById('ppc-express-cost').textContent = '+' + expressAmount.toFixed(2);
+                expressRow.cells[0].textContent = `Express Delivery (${expressType === 'percent' ? expressValue + '%' : '+' + expressValue})`;
             }
         } else if (expressRow) {
             expressRow.remove();
         }
 
         document.getElementById('ppc-grand-total').textContent = finalTotal.toFixed(2);
+        document.getElementById('ppc-tax-amount').textContent = taxAmount.toFixed(2);
     }
 
     selects.forEach(sel => sel.addEventListener('change', updateSummary));
@@ -166,4 +205,11 @@ document.addEventListener('DOMContentLoaded', function () {
     expressCheckbox.addEventListener('change', updateSummary);
     updateSummary();
 });
+
+function getDiscountPercent(qty, discountRules) {
+  for (var i = 0; i < discountRules.length; i++) {
+    if (qty >= parseInt(discountRules[i].qty)) return parseFloat(discountRules[i].percent);
+  }
+  return 0;
+}
 </script>

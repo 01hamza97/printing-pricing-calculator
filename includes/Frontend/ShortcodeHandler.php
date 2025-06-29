@@ -18,12 +18,6 @@ class ShortcodeHandler
         if (is_singular()) {
             global $post;
             if (is_a($post, 'WP_Post') && has_shortcode($post->post_content, 'ppc_calculator')) {
-                // wp_enqueue_style(
-                //     'ppc-tailwind',
-                //     'https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4',
-                //     [],
-                //     '3.4.3'
-                // );
                 wp_enqueue_script('ppc-admin-script', 'https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4', ['jquery'], null, true);
             }
         }
@@ -37,20 +31,59 @@ class ShortcodeHandler
         global $wpdb;
 
         $atts = shortcode_atts([
-            'id' => 0,
+            'id'   => 0,
+            'slug' => '',
         ], $atts);
 
-        $product_id = intval($atts['id']);
+        if(empty($atts['slug'])) {
+            $atts['slug'] = get_query_var('ppc_slug', '');
+        }
 
-        // Fetch product
-        $product = $wpdb->get_row(
-            $wpdb->prepare("SELECT * FROM " . PRODUCT_TABLE . " WHERE id = %d AND status = 'active'", $product_id),
-            ARRAY_A
-        );
+        $product = null;
+        if (!empty($atts['slug'])) {
+            $product = $wpdb->get_row(
+                $wpdb->prepare("SELECT * FROM " . PRODUCT_TABLE . " WHERE slug = %s AND status = 'active'", $atts['slug']),
+                ARRAY_A
+            );
+        } elseif (!empty($atts['id'])) {
+            $product = $wpdb->get_row(
+                $wpdb->prepare("SELECT * FROM " . PRODUCT_TABLE . " WHERE id = %d AND status = 'active'", $atts['id']),
+                ARRAY_A
+            );
+        }
 
         if (! $product) {
             return '<div class="ppc-calc-error">Product not found.</div>';
         }
+        $product_id = $product['id'];
+
+        // Express Delivery Calculation Settings (product-specific, fallback to global)
+        $express_delivery_value = null;
+        $express_delivery_type = null;
+        // Check if the product has specific express settings
+        if (isset($product['express_delivery_value']) && $product['express_delivery_value'] !== null && $product['express_delivery_value'] !== '') {
+            $express_delivery_value = $product['express_delivery_value'];
+            $express_delivery_type = $product['express_delivery_type'] ?? 'percent';
+        } else {
+            // Fall back to global settings
+            $express_delivery_value = get_option('ppc_express_delivery_charges', 15);
+            $express_delivery_type = get_option('ppc_express_delivery_type', 'percent');
+        }
+
+        // Pass these values to the template
+        // ... right before ob_start();
+        $express_delivery = [
+            'value' => $express_delivery_value,
+            'type'  => $express_delivery_type,
+        ];
+
+        $min_order_qty = isset($product['min_order_qty']) && $product['min_order_qty'] !== null && $product['min_order_qty'] !== ''
+            ? intval($product['min_order_qty'])
+            : intval(get_option('ppc_minimum_order_quantity', 100));
+
+        $tax = floatval(get_option('ppc_tax_percentage', 0));
+
+        $discount_rules = get_option('ppc_discount_rules', []);
 
         // Fetch parameters related to this product
         $parameter_ids = $wpdb->get_col(

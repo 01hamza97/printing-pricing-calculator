@@ -39,9 +39,33 @@ register_activation_hook(
     ['\PPC\Products\ProductsInit', 'create_tables']
 );
 
+register_activation_hook(__FILE__, function() {
+    // ... any other install tasks ...
+    flush_rewrite_rules();
+});
+
+register_deactivation_hook(__FILE__, function() {
+    flush_rewrite_rules();
+});
+
 function ppc_bootstrap_plugin() {
     $loader = new \PPC\Core\Loader();
     $loader->init();
 }
 
 add_action('plugins_loaded', 'ppc_bootstrap_plugin');
+
+// Register the custom query var for pretty calculator URLs
+add_filter('query_vars', function($vars) {
+    $vars[] = 'ppc_slug';
+    return $vars;
+});
+
+add_action('init', function() {
+    add_rewrite_rule(
+        '^product/([^/]+)/?',
+        'index.php?pagename=product&ppc_slug=$matches[1]',
+        'top'
+    );
+});
+

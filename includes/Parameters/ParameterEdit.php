@@ -38,12 +38,29 @@ class ParameterEdit {
             $title = sanitize_text_field($_POST['title']);
             $front_name = sanitize_text_field($_POST['front_name']);
             $content = wp_kses_post($_POST['content']);
+            $slug = isset($_POST['slug']) && trim($_POST['slug']) !== '' ? sanitize_title($_POST['slug']) : sanitize_title($title);
+            $original_slug = $slug;
+            $i = 2;
+
+            // Ensure slug uniqueness for parameters
+            while (true) {
+                $query = "SELECT id FROM $table WHERE slug = %s";
+                $params = [$slug];
+                if ($is_edit && $id) {
+                    $query .= " AND id != %d";
+                    $params[] = $id;
+                }
+                $exists = $wpdb->get_var($wpdb->prepare($query, ...$params));
+                if (!$exists) break;
+                $slug = $original_slug . '-' . $i++;
+            }
 
             if ($is_edit) {
                 $wpdb->update($table, [
                     'title' => $title,
                     'front_name' => $front_name,
                     'content' => $content,
+                    'slug' => $slug,
                     'updated_at' => current_time('mysql'),
                 ], ['id' => $id]);
             } else {
@@ -51,6 +68,7 @@ class ParameterEdit {
                     'title' => $title,
                     'front_name' => $front_name,
                     'content' => $content,
+                    'slug' => $slug,
                     'created_at' => current_time('mysql'),
                     'updated_at' => current_time('mysql'),
                 ]);
@@ -61,53 +79,83 @@ class ParameterEdit {
             error_log(__LINE__.'  '.print_r($_FILES, true)); // always use print_r with true for readable output
 
             if (!empty($_POST['options']) && is_array($_POST['options'])) {
-                foreach ($_POST['options'] as $key => $opt) {
-                    $meta_id = isset($opt['meta_id']) ? intval($opt['meta_id']) : 0;
+            $existing_slugs = [];
 
-                    $value = [
-                        'option' => sanitize_text_field($opt['option']),
-                        'cost'   => floatval($opt['cost']),
-                        'image'  => $opt['existing_image'] ?? '',
+            // (1) First pass: collect all provided slugs or generate from option titles for uniqueness
+            foreach ($_POST['options'] as $key => $opt) {
+                // Always sanitize and generate base slug from option title
+                $base_slug = sanitize_title($opt['option']);
+                $slug = $base_slug;
+                $i = 2;
+                // Ensure uniqueness within this parameter's options
+                while (in_array($slug, $existing_slugs)) {
+                    $slug = $base_slug . '-' . $i++;
+                }
+                $existing_slugs[] = $slug;
+
+                $meta_id = isset($opt['meta_id']) ? intval($opt['meta_id']) : 0;
+
+                $value = [
+                    'option' => sanitize_text_field($opt['option']),
+                    'slug'   => $slug, // <-- ADD SLUG HERE!
+                    'cost'   => floatval($opt['cost']),
+                    'image'  => $opt['existing_image'] ?? '',
+                ];
+
+                $file_input_name = isset($opt['meta_id']) ? $opt['meta_id'] : $key;
+                if (
+                    isset($_FILES['option_files']['name'][$file_input_name]) &&
+                    !empty($_FILES['option_files']['name'][$file_input_name])
+                ) {
+                    require_once ABSPATH . 'wp-admin/includes/file.php';
+                    require_once ABSPATH . 'wp-admin/includes/media.php';
+                    require_once ABSPATH . 'wp-admin/includes/image.php';
+
+                    $file_array = [
+                        'name'     => $_FILES['option_files']['name'][$file_input_name],
+                        'type'     => $_FILES['option_files']['type'][$file_input_name],
+                        'tmp_name' => $_FILES['option_files']['tmp_name'][$file_input_name],
+                        'error'    => $_FILES['option_files']['error'][$file_input_name],
+                        'size'     => $_FILES['option_files']['size'][$file_input_name],
                     ];
 
+                    $upload = wp_handle_upload($file_array, ['test_form' => false]);
+                    if (!isset($upload['error'])) {
+                        $file_path = $upload['file'];
+                        $file_name = basename($file_path);
 
-
-                    // Handle file upload
-                    $file_input_name = isset($opt['meta_id']) ? $opt['meta_id'] : $key;
-                    error_log(__LINE__.'  '.$file_input_name);
-                    if (isset($_FILES['option_files']['name'][$file_input_name]) && !empty($_FILES['option_files']['name'][$file_input_name])) {
-                        require_once ABSPATH . 'wp-admin/includes/file.php';
-
-                        $file_array = [
-                            'name'     => $_FILES['option_files']['name'][$file_input_name],
-                            'type'     => $_FILES['option_files']['type'][$file_input_name],
-                            'tmp_name' => $_FILES['option_files']['tmp_name'][$file_input_name],
-                            'error'    => $_FILES['option_files']['error'][$file_input_name],
-                            'size'     => $_FILES['option_files']['size'][$file_input_name],
+                        // Prepare attachment data
+                        $attachment = [
+                            'post_mime_type' => $upload['type'],
+                            'post_title'     => sanitize_file_name($file_name),
+                            'post_content'   => '',
+                            'post_status'    => 'inherit'
                         ];
-                        error_log(__LINE__.'  '.print_r($file_array, true));
-                        $upload = wp_handle_upload($file_array, ['test_form' => false]);
 
-                        if (!isset($upload['error'])) {
-                            $value['image'] = esc_url_raw($upload['url']);
-                        }
-                    }
+                        $attach_id = wp_insert_attachment($attachment, $file_path);
+                        $attach_data = wp_generate_attachment_metadata($attach_id, $file_path);
+                        wp_update_attachment_metadata($attach_id, $attach_data);
 
-                    if ($meta_id) {
-                        // update
-                        $wpdb->update($meta_table, [
-                            'meta_value' => maybe_serialize($value),
-                        ], ['id' => $meta_id]);
-                    } else {
-                        // insert
-                        $wpdb->insert($meta_table, [
-                            'parameter_id' => $id,
-                            'meta_key'     => 'option',
-                            'meta_value'   => maybe_serialize($value),
-                        ]);
+                        $value['image'] = wp_get_attachment_url($attach_id);
                     }
                 }
+
+                if ($meta_id) {
+                    // update
+                    $wpdb->update($meta_table, [
+                        'meta_value' => maybe_serialize($value),
+                    ], ['id' => $meta_id]);
+                } else {
+                    // insert
+                    $wpdb->insert($meta_table, [
+                        'parameter_id' => $id,
+                        'meta_key'     => 'option',
+                        'meta_value'   => maybe_serialize($value),
+                    ]);
+                }
             }
+        }
+
               echo("<script>location.href = '".admin_url('admin.php?page=ppc-parameter-edit&id='.$id)."'</script>");
               exit;
         }

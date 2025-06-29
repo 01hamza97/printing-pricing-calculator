@@ -19,6 +19,7 @@ class ParametersInit
             id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
             title VARCHAR(255) NOT NULL,
             front_name VARCHAR(255) DEFAULT NULL,
+            slug VARCHAR(200) NOT NULL UNIQUE,
             content TEXT DEFAULT NULL,
             status ENUM('active', 'inactive') DEFAULT 'active',
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,

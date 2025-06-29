@@ -1,9 +1,18 @@
 <?php
-// Ensure this file is included in a context where $data and $parameters are defined.
+    // Ensure this file is included in a context where $data and $parameters are defined.
+
+    function ppc_get_param($params, $id, $key) {
+        foreach ($params as $p) {
+            if ($p->parameter_id == $id) {
+                return $p->{$key};
+            }
+        }
+        return null;
+    }
 ?>
 <div class="wrap">
     <h1><?php echo isset($_GET['id']) ? 'Edit' : 'Add'; ?> Product</h1>
-    
+
     <?php if (isset($_GET['updated'])): ?>
         <div class="notice notice-success"><p>Product saved successfully.</p></div>
     <?php endif; ?>
@@ -13,26 +22,39 @@
 
         <h2 class="wp-heading-inline">Title</h2>
         <input type="text" name="title" class="widefat" value="<?php echo esc_attr($data['title']); ?>" required />
+        <h2 class="wp-heading-inline">Slug</h2>
+        <input type="text" name="slug" class="widefat" value="<?php echo esc_attr($data['slug']); ?>" />
 
         <h2 class="wp-heading-inline">Content</h2>
         <?php
-        wp_editor($data['content'], 'content', [
-            'textarea_name' => 'content',
-            'textarea_rows' => 6
-        ]);
+            wp_editor($data['content'], 'content', [
+                'textarea_name' => 'content',
+                'textarea_rows' => 6,
+            ]);
         ?>
 
         <h2 class="wp-heading-inline">Base Price</h2>
         <input type="number" step="0.01" name="base_price" class="regular-text" value="<?php echo esc_attr($data['base_price']); ?>" required />
 
+        <h2 class="wp-heading-inline">Express Delivery Charges</h2>
+        <input type="number" step="0.01" name="express_delivery_value" class="regular-text" value="<?php echo esc_attr($data['express_delivery_value'] ?? ''); ?>" />
+        <select name="express_delivery_type">
+            <option value="percent" <?php selected(($data['express_delivery_type'] ?? '') === 'percent'); ?>>Percent (%)</option>
+            <option value="flat" <?php selected(($data['express_delivery_type'] ?? '') === 'flat'); ?>>Flat Amount</option>
+        </select>
+        <p class="description">Leave blank to use the global setting.</p>
+
+        <h2 class="wp-heading-inline">Minimum Order Quantity</h2>
+        <input type="number" step="1" name="min_order_qty" class="regular-text" value="<?php echo esc_attr(isset($data['min_order_qty']) ? $data['min_order_qty'] : ''); ?>"/>
+
         <h2 class="wp-heading-inline">Status</h2>
         <select name="status">
-            <option value="active" <?php selected($data['status'], 'active'); ?>>Active</option>
-            <option value="inactive" <?php selected($data['status'], 'inactive'); ?>>Inactive</option>
+            <option value="active"                                   <?php selected($data['status'], 'active'); ?>>Active</option>
+            <option value="inactive"                                     <?php selected($data['status'], 'inactive'); ?>>Inactive</option>
         </select>
 
         <h2 class="wp-heading-inline">Base Product Image</h2>
-        <?php if (!empty($data['image_url'])): ?>
+        <?php if (! empty($data['image_url'])): ?>
             <img src="<?php echo esc_url($data['image_url']); ?>" style="max-width: 150px; display:block; margin-bottom: 10px;" />
         <?php endif; ?>
         <input type="file" name="image_file" accept="image/*" />
@@ -43,14 +65,30 @@
             <fieldset style="margin-bottom: 20px; padding: 10px; border: 1px solid #ccc;">
                 <legend><strong><?php echo esc_html($param['title']); ?></strong></legend>
                 <label>
-                    <input type="checkbox" name="parameters[]" value="<?php echo esc_attr($param['id']); ?>" <?php checked(in_array($param['id'], $data['params'])); ?> /> Use this parameter
+                    <input type="checkbox" name="parameters[]" value="<?php echo esc_attr($param['id']); ?>"<?php checked(ppc_get_param($data['params'], $param['id'], 'parameter_id') == $param['id']); ?> /> Use this parameter
                 </label>
 
-                <?php if (!empty($param['options'])): ?>
+                <!-- IS REQUIRED CHECKBOX -->
+                <label style="margin-left:20px;">
+                    <input
+                        type="checkbox"
+                        name="is_required[<?php echo esc_attr($param['id']); ?>]"
+                        value="1"
+                        <?php
+                            // Checked if parameter is required for this product
+                            checked(ppc_get_param($data['params'], $param['id'], 'is_required') == 1);
+                        ?>
+                    />
+                    Required
+                </label>
+                <!-- /IS REQUIRED CHECKBOX -->
+
+                <?php if (! empty($param['options'])): ?>
                     <table class="widefat fixed striped">
                         <thead>
                             <tr>
                                 <th>Option</th>
+                                <th>Slug</th>
                                 <th>Image</th>
                                 <th>Base Cost</th>
                                 <th>Override Price</th>
@@ -61,8 +99,9 @@
                             <?php foreach ($param['options'] as $opt): ?>
                                 <tr>
                                     <td><?php echo esc_html($opt['title']); ?></td>
+                                    <td><?php echo esc_html($opt['slug']); ?></td>
                                     <td>
-                                        <?php if (!empty($opt['image'])): ?>
+                                        <?php if (! empty($opt['image'])): ?>
                                             <img src="<?php echo esc_url($opt['image']); ?>" style="width: 50px; height: auto;" />
                                         <?php endif; ?>
                                     </td>
@@ -71,7 +110,7 @@
                                         <input type="number" step="0.01" name="override_prices[<?php echo esc_attr($opt['id']); ?>]" value="<?php echo esc_attr($data['option_prices'][$opt['id']] ?? $opt['cost']); ?>" class="small-text" />
                                     </td>
                                     <td>
-                                        <input type="checkbox" name="selected_options[]" value="<?php echo esc_attr($opt['id']); ?>" <?php checked(isset($data['option_prices'][$opt['id']])); ?> />
+                                        <input type="checkbox" name="selected_options[]" value="<?php echo esc_attr($opt['id']); ?>"<?php checked(isset($data['option_prices'][$opt['id']])); ?> />
                                     </td>
                                 </tr>
                             <?php endforeach; ?>

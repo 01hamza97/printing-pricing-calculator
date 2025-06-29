@@ -10,6 +10,7 @@
                 <th>ID</th>
                 <th>Title</th>
                 <th>Content</th>
+                <th>Slug</th>
                 <th>Status</th>
                 <th>Actions</th>
             </tr>
@@ -21,6 +22,7 @@
                     <td><?php echo esc_html($param->id); ?></td>
                     <td><?php echo esc_html($param->title); ?></td>
                     <td><?php echo esc_html($param->content); ?></td>
+                    <td><?php echo esc_html($param->slug); ?></td>
                     <td>
                         <?php if ($param->status === 'active'): ?>
                             <a href="<?php echo admin_url('admin.php?page=ppc-parameters&action=deactivate&id=' . $param->id); ?>" class="button">Deactivate</a>
