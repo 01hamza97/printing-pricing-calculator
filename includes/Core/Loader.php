@@ -2,6 +2,8 @@
 namespace PPC\Core;
 
 use PPC\Admin\AdminInit;
+use PPC\Calculator\Quotation;
+use PPC\Checkout\CheckoutInit;
 use PPC\Frontend\ShortcodeHandler;
 use PPC\Parameters\ParameterEdit;
 use PPC\Parameters\ParametersInit;
@@ -20,5 +22,9 @@ class Loader {
         new ProductEdit();
         new ProductList();
         new ShortcodeHandler();
+        new Quotation();
+        HideWooPages::init();
+        new CheckoutInit();
+        
     }
 }

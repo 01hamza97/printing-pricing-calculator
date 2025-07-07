@@ -51,6 +51,8 @@ class AdminInit {
         update_option('ppc_tax_percentage', floatval($_POST['ppc_tax_percentage']));
         update_option('ppc_default_currency', in_array($_POST['ppc_default_currency'], ['CZK', 'EUR']) ? $_POST['ppc_default_currency'] : 'CZK');
         update_option('ppc_czk_eur_rate', floatval($_POST['ppc_czk_eur_rate']));
+        update_option('ppc_file_check_price', floatval($_POST['ppc_file_check_price']));
+        update_option('ppc_cart_expiry_days', floatval($_POST['ppc_cart_expiry_days']));
         $discounts = [];
         if (!empty($_POST['discount_qty']) && !empty($_POST['discount_percent'])) {
             $qtys = $_POST['discount_qty'];

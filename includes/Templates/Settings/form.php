@@ -60,6 +60,21 @@
                 </td>
             </tr>
             <tr>
+                <th scope="row">Cart Expiration (days)</th>
+                <td>
+                    <input type="number" min="1" name="ppc_cart_expiry_days"
+                        value="<?php echo esc_attr(get_option('ppc_cart_expiry_days', 2)); ?>" class="regular-text" />
+                    <p class="description">Custom product uploads & cart items will be deleted after this number of days if not ordered.</p>
+                </td>
+            </tr>
+            <tr>
+                <th><label for="ppc_file_check_price">File Check Price</label></th>
+                <td>
+                    <input type="number" step="0.01" min="0" name="ppc_file_check_price" id="ppc_file_check_price" value="<?php echo esc_attr(get_option($data['ppc_file_check_price'] ?? '')); ?>" class="regular-text" />
+                    <span class="description">Leave blank to use global setting.</span>
+                </td>
+            </tr>
+            <tr>
                 <th scope="row">Discount Rules</th>
                 <td>
                     <table id="discount-rules-table" style="min-width:300px;">

@@ -69,7 +69,7 @@ $is_edit = isset($_GET['id']);
                 <div class="pc-option-group" style="margin-bottom: 15px; padding: 15px; border: 1px solid #ccc;">
                     <input type="hidden" name="options[<?php echo $index; ?>][meta_id]" value="<?php echo $opt->id; ?>">
                     <input type="text" name="options[<?php echo $index; ?>][option]" value="<?php echo esc_attr($opt_values['option'] ?? ''); ?>" placeholder="Option title" required>
-                    <input type="text" name="options[<?php echo $index; ?>][slug]" value="<?php echo esc_attr($opt_values['slug'] ?? ''); ?>" placeholder="Auto-generated if left blank" required>
+                    <input type="text" name="options[<?php echo $index; ?>][slug]" value="<?php echo esc_attr($opt_values['slug'] ?? ''); ?>" placeholder="Auto-generated if left blank">
                     <input type="number" step="0.01" name="options[<?php echo $index; ?>][cost]" value="<?php echo esc_attr($opt_values['cost'] ?? ''); ?>" placeholder="Cost" required>
                     <input type="file" name="option_files[<?php echo $opt->id; ?>]">
                     <?php if (!empty($opt_values['image'])): ?>
@@ -84,7 +84,7 @@ $is_edit = isset($_GET['id']);
         <template id="pc-option-template">
             <div class="pc-option-group" style="margin-bottom: 15px; padding: 15px; border: 1px solid #ccc;">
                 <input type="text" name="options[new_{{i}}][option]" placeholder="Option title" required>
-                <input type="text" name="options[new_{{i}}][slug]" placeholder="Auto-generated if left blank" required>
+                <input type="text" name="options[new_{{i}}][slug]" placeholder="Auto-generated if left blank">
                 <input type="number" step="0.01" name="options[new_{{i}}][cost]" placeholder="Cost" required>
                 <input type="file" name="option_files[new_{{i}}]">
                 <button type="button" class="button remove-option">Remove</button>
