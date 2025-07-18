@@ -111,6 +111,21 @@ class ShortcodeHandler
                 ARRAY_A
             );
 
+            // --- Sort parameters according to $parameter_ids order ---
+            // Build a map id => parameter
+            $param_map = [];
+            foreach ($parameters as $param) {
+                $param_map[$param['id']] = $param;
+            }
+            // Now order the parameters by the order in $parameter_ids
+            $parameters = [];
+            foreach ($parameter_ids as $pid) {
+                if (isset($param_map[$pid])) {
+                    $parameters[] = $param_map[$pid];
+                }
+            }
+
+            // Fetch options as before
             foreach ($parameters as &$param) {
                 $param['options'] = $wpdb->get_results(
                     $wpdb->prepare(

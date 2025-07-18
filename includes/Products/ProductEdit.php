@@ -8,7 +8,15 @@ class ProductEdit
         add_action('admin_menu', [$this, 'register_menu']);
         add_action('wp_ajax_ppc_param_search', [$this, 'ajax_param_search']);
         add_action('wp_ajax_ppc_param_row_markup', [$this, 'ppc_param_row_markup_handler']);
+        add_action('wp_ajax_ppc_save_param_order', [$this, 'ppc_save_param_order']);
+        add_action('admin_enqueue_scripts', [$this, 'enqueue_admin_scripts']);
 
+    }
+
+    public function enqueue_admin_scripts($hook) {
+        // Only enqueue on your product edit page
+        if ($hook !== 'admin_page_ppc-product-edit') return;
+        wp_enqueue_script('jquery-ui-sortable');
     }
 
     public function register_menu()
@@ -80,9 +88,12 @@ class ProductEdit
                 $data = array_merge($data, $row);
 
                 // Parameters (get all attached)
-                $data['params'] = $wpdb->get_results($wpdb->prepare(
-                    "SELECT parameter_id, is_required FROM $pivot_table WHERE product_id = %d", $id
-                ));
+                $data['params'] = $wpdb->get_results(
+                    $wpdb->prepare(
+                        "SELECT parameter_id, is_required, position FROM $pivot_table WHERE product_id = %d ORDER BY position ASC, id ASC", 
+                        $id
+                    )
+                );
 
                 // Option prices
                 $existing_prices = $wpdb->get_results(
@@ -212,12 +223,13 @@ class ProductEdit
             // Sync parameters (unchanged)
             $wpdb->delete($pivot_table, ['product_id' => $id]);
             if (!empty($_POST['parameters'])) {
-                foreach ($_POST['parameters'] as $param_id) {
+                foreach ($_POST['parameters'] as $position => $param_id) {
                     $is_required = (!empty($_POST['is_required'][$param_id]) && $_POST['is_required'][$param_id] == 1) ? 1 : 0;
                     $wpdb->insert($pivot_table, [
                         'product_id' => $id,
                         'parameter_id' => intval($param_id),
-                        'is_required' => $is_required
+                        'is_required' => $is_required,
+                        'position' => $_POST['param_positions'][$position]
                     ]);
                 }
             }
@@ -274,16 +286,28 @@ class ProductEdit
             }
         }
 
-        // Now split to selected and available
-        $selectedParameters  = [];
+        $param_positions = [];
+        foreach ($data['params'] as $p) {
+            $param_positions[$p->parameter_id] = isset($p->position) ? intval($p->position) : 0;
+        }
+
+        // Step 2: Separate selected and available parameters, attach position
+        $selectedParameters = [];
         $availableParameters = [];
+
         foreach ($parameters as $param) {
             if (in_array($param['id'], $selected_ids)) {
+                $param['position'] = $param_positions[$param['id']] ?? 0;
                 $selectedParameters[] = $param;
             } else {
                 $availableParameters[] = $param;
             }
         }
+
+        // Step 3: Sort $selectedParameters by position ASC
+        usort($selectedParameters, function($a, $b){
+            return $a['position'] <=> $b['position'];
+        });
 
         // Pass both to the template
         include plugin_dir_path(__FILE__) . '/../Templates/Products/form.php';
@@ -358,4 +382,25 @@ class ProductEdit
         $html = ob_get_clean();
         wp_send_json_success(['html' => $html]);
     }   
+
+    public function ppc_save_param_order() {
+        global $wpdb;
+        $product_id = intval($_POST['product_id']);
+        $param_ids = $_POST['param_ids'] ?? [];
+        $positions = $_POST['positions'] ?? [];
+
+        // Save new positions to pivot table
+        foreach ($param_ids as $i => $param_id) {
+            $position = isset($positions[$i]) ? intval($positions[$i]) : $i;
+            $wpdb->update(
+                PRODUCT_PARAMETERS_TABLE,
+                ['position' => $position],
+                [
+                    'product_id' => $product_id,
+                    'parameter_id' => $param_id
+                ]
+            );
+        }
+        wp_send_json_success();
+    }
 }

@@ -121,6 +121,8 @@ function ppc_get_param($params, $id, $key) {
             <?php foreach ($selectedParameters as $param): ?>
                 <?php include __DIR__ . '/param-row.php'; ?>
             <?php endforeach; ?>
+
+            <!-- <button type="button" id="save-param-order" class="button button-secondary">Save Parameter Order</button> -->
         </div>
         <h2 class="wp-heading-inline">Search Parameters</h2>
         <div style="margin-bottom:16px;">
@@ -133,7 +135,23 @@ function ppc_get_param($params, $id, $key) {
         </p>
     </form>
 </div>
+<style>
+/* Highlight on drag */
+.ppc-param-placeholder {
+    border: 2px dashed #2196F3;
+    background: #e3f2fd;
+    min-height: 48px;
+}
+.ppc-param-row { transition: box-shadow 0.1s; }
+.ppc-param-row.ui-sortable-helper { box-shadow: 0 4px 12px rgba(60,60,100,0.08); }
 
+.ppc-param-toggle {
+    transition: transform 0.2s;
+}
+.ppc-param-toggle.rotated {
+    transform: rotate(180deg);
+}
+</style>
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -152,7 +170,7 @@ function ppc_get_param($params, $id, $key) {
                 e.target.closest('tr').remove();
             }
         });
-});
+    });
 </script>
 <script>
 (function($) {
@@ -223,4 +241,63 @@ function ppc_get_param($params, $id, $key) {
         });
     });
 })(jQuery);
+</script>
+
+<script>
+    jQuery(document).ready(function($){
+        function updateParamPositions() {
+            $('#ppc-selected-params .ppc-param-row').each(function(i) {
+                $(this).find('.ppc-param-position').val(i);
+            });
+        }
+
+        // When sorting stops, update the positions
+        $('#ppc-selected-params').sortable({
+            handle: '.ppc-param-drag',
+            items: '.ppc-param-row',
+            placeholder: 'ppc-param-placeholder',
+            forcePlaceholderSize: true,
+            cursor: 'move',
+            stop: function(event, ui) {
+                updateParamPositions();
+            }
+        });
+
+        // Also update on page load (for any reason)
+        updateParamPositions();
+
+        // Handle "Save Parameter Order" button click
+        $('#save-param-order').on('click', function(){
+            // Build data array
+            var paramIds = [];
+            var positions = [];
+            $('#ppc-selected-params .ppc-param-row').each(function(){
+                paramIds.push($(this).data('param-id'));
+                positions.push($(this).find('.ppc-param-position').val());
+            });
+
+            // Send AJAX request to save order
+            $.post(ajaxurl, {
+                action: 'ppc_save_param_order',
+                product_id: <?php echo json_encode($_GET['id'] ?? 0); ?>,
+                param_ids: paramIds,
+                positions: positions
+            }, function(resp){
+                if (resp.success) {
+                    alert('Parameter order saved!');
+                } else {
+                    alert('Failed to save order.');
+                }
+            });
+        });
+        // Accordion toggle
+        $('#ppc-selected-params').on('click', '.ppc-param-header', function(e){
+            // Prevent drag, remove from triggering accordion
+            if ($(e.target).hasClass('ppc-param-drag') || $(e.target).hasClass('ppc-param-remove')) return;
+            var $row = $(this).closest('.ppc-param-row');
+            $row.find('.ppc-param-details').slideToggle(120);
+            $row.find('.ppc-param-toggle').toggleClass('rotated');
+        });
+    });
+    
 </script>

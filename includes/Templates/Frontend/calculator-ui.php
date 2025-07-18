@@ -34,8 +34,21 @@
                             </option>
                         <?php endforeach; ?>
                     </select>
+                    <span class="inline-block align-middle relative group ml-2 cursor-pointer">
+                        <!-- Heroicons Exclamation Circle -->
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="#FEF3C7"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01" />
+                        </svg>
+                        <span class="absolute left-6 top-1/2 -translate-y-1/2 bg-gray-900 text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition pointer-events-none z-10 whitespace-nowrap min-w-max shadow-lg">
+                            <?php echo esc_html($p['content']); ?>
+                        </span>
+                    </span>
                 </div>
             <?php endforeach; ?>
+            <div id="ppc-file-upload-wrapper" class="bg-gray-200 button px-6 py-6 rounded-lg w-full">
+                <input type="file" id="ppc-file-upload" />
+            </div>
         </div>
         <div class="flex flex-col gap-4">
             <div class="bg-blue-50 text-blue-900 rounded-lg px-6 py-5 text-center text-xl font-bold shadow">
@@ -43,12 +56,11 @@
                     <label for="ppc-qty" class="font-medium block mb-1">Quantity</label>
                     <input
                         type="number"
-                        value="<?php echo (int)$min_order_qty; ?>"
                         id="ppc-qty"
                         class="border rounded px-3 py-1 w-24 text-center"
-                        min="<?php echo (int)$min_order_qty; ?>"
                     />
                     <small class="text-gray-500">Minimum order: <?php echo (int)$min_order_qty; ?></small>
+                    <small class="text-red-600 hidden block" id="ppc-qty-error"></small>
                 </div>
                 <div class="mb-3">
                     <label class="inline-flex items-center">
@@ -112,6 +124,10 @@
                         </tbody>
                         <tfoot>
                             <tr class="font-bold">
+                                <td colspan="2">Total W/O Tax</td>
+                                <td id="ppc-no-tax-total">0.00</td>
+                            </tr>
+                            <tr class="font-bold">
                                 <td colspan="2">Tax(<?php echo $tax ?>%) </td>
                                 <td id="ppc-tax-amount"></td>
                             </tr>
@@ -124,9 +140,6 @@
                 </div>
             </div>
             <div class="bg-gray-200 rounded-lg px-6 py-4 text-center cursor-pointer shadow" id="ppc-download-pdf">download calculation (pdf?)</div>
-            <div id="ppc-file-upload-wrapper" style="display: none;" class="bg-gray-200 button px-6 py-6 rounded-lg text-center w-full">
-                <input type="file" id="ppc-file-upload" />
-            </div>
             <button id="ppc-add-to-cart" type="button"
                 class="bg-green-700 hover:bg-green-800 text-white rounded-lg px-6 py-6 text-center font-bold text-lg cursor-pointer shadow transition"
             >
@@ -149,9 +162,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const fileUploadWrapper = document.getElementById('ppc-file-upload-wrapper');
     const fileUpload = document.getElementById('ppc-file-upload');
     const addToCartBtn = document.getElementById('ppc-add-to-cart');
+    const paramsTable = document.getElementById('ppc-selected-params-table');
+    const qtyError = document.getElementById('ppc-qty-error');
     const basePrice = parseFloat('<?php echo (float)$product['base_price']; ?>');
     const paramIds = <?php echo json_encode(array_column($parameters, 'id')); ?>;
-    const paramsTable = document.getElementById('ppc-selected-params-table');
     const tax = settings.tax ? parseFloat(settings.tax) : 0;
     const expressValue = settings.express_delivery_value ? parseFloat(settings.express_delivery_value) : 0;
     const expressType = settings.express_delivery_type || 'percent';
@@ -161,27 +175,27 @@ document.addEventListener('DOMContentLoaded', function () {
         : (settings.global_discount_rules || []);
     const fileCheckPrice = settings.file_check_price ? parseFloat(settings.file_check_price) : 0;
     const fileCheckRequired = settings.file_check_required ? parseInt(settings.file_check_required) : 0;
-
+    qtyInput.value = minQty;
     
-    // Helper to check state and toggle file upload/add to cart
-    function updateFileUploadAndCart() {
-        // If file check is checked or required
-        if (fileCheckBox && fileCheckBox.checked) {
-            fileUploadWrapper.style.display = '';
-            // If no file selected, disable Add to Cart
-            if (!fileUpload.value) {
-                addToCartBtn.disabled = true;
-                addToCartBtn.classList.add('opacity-50', 'cursor-not-allowed');
-            } else {
-                addToCartBtn.disabled = false;
-                addToCartBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-            }
-        } else {
-            fileUploadWrapper.style.display = 'none';
-            addToCartBtn.disabled = false;
-            addToCartBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-        }
-    }
+    // // Helper to check state and toggle file upload/add to cart
+    // function updateFileUploadAndCart() {
+    //     // If file check is checked or required
+    //     if (fileCheckBox && fileCheckBox.checked) {
+    //         fileUploadWrapper.style.display = '';
+    //         // If no file selected, disable Add to Cart
+    //         if (!fileUpload.value) {
+    //             addToCartBtn.disabled = true;
+    //             addToCartBtn.classList.add('opacity-50', 'cursor-not-allowed');
+    //         } else {
+    //             addToCartBtn.disabled = false;
+    //             addToCartBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+    //         }
+    //     } else {
+    //         fileUploadWrapper.style.display = 'none';
+    //         addToCartBtn.disabled = false;
+    //         addToCartBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+    //     }
+    // }
 
     // On load, set correct state if required
     if (fileCheckBox) {
@@ -193,11 +207,11 @@ document.addEventListener('DOMContentLoaded', function () {
             addToCartBtn.classList.add('opacity-50', 'cursor-not-allowed');
         }
         // Listen for change
-        fileCheckBox.addEventListener('change', updateFileUploadAndCart);
+        // fileCheckBox.addEventListener('change', updateFileUploadAndCart);
     }
 
     if (fileUpload) {
-        fileUpload.addEventListener('change', updateFileUploadAndCart);
+        // fileUpload.addEventListener('change', updateFileUploadAndCart);
     }
 
     function getDiscountPercent(qty, discountRules) {
@@ -208,8 +222,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function updateSummary() {
-        let qty = Math.max(minQty, parseInt(qtyInput.value) || minQty);
-        qtyInput.value = qty;
+        let qty = qtyInput.value;
 
         let paramSum = 0;
         paramIds.forEach(paramId => {
@@ -277,6 +290,7 @@ document.addEventListener('DOMContentLoaded', function () {
             paramsTable.insertBefore(expressRow, discountRow);
         }
 
+        document.getElementById('ppc-no-tax-total').textContent = finalTotal.toFixed(2);
         // Tax
         let taxAmount = 0;
         if (tax > 0) {
@@ -293,15 +307,37 @@ document.addEventListener('DOMContentLoaded', function () {
             discountAmount,
             taxAmount,
             total: finalTotal,
+            totalWithoutTax: finalTotal - taxAmount
         };
     }
 
     selects.forEach(sel => sel.addEventListener('change', updateSummary));
-    qtyInput.addEventListener('input', updateSummary);
+    // qtyInput.addEventListener('input', updateSummary);
     if (expressCheckbox) expressCheckbox.addEventListener('change', updateSummary);
     if (fileCheckBox) fileCheckBox.addEventListener('change', updateSummary);
 
     updateSummary();
+
+    qtyInput.addEventListener('blur', function() {
+        let val = parseInt(qtyInput.value, 10);
+        console.log(val)
+        if (isNaN(val) || val < minQty) {
+            qtyInput.value = minQty;
+            qtyError.textContent = `Minimum order is ${minQty}`;
+            qtyError.classList.remove('hidden');
+        } else {
+            qtyError.textContent = '';
+            qtyError.classList.add('hidden');
+        }
+        updateSummary();
+    });
+
+    qtyInput.addEventListener('input', function() {
+        console.log(123);
+        qtyError.textContent = '';
+        qtyError.classList.add('hidden');
+        updateSummary();
+    });
 
     // PDF generation: include file check, express, etc.
     document.getElementById('ppc-download-pdf').addEventListener('click', function() {
