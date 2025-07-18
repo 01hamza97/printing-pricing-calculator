@@ -114,6 +114,41 @@ class ProductEdit
             }
         }
 
+        // Check for duplication request
+    if (isset($_GET['duplicate_id'])) {
+        $duplicate_id = intval($_GET['duplicate_id']);
+        $orig = $wpdb->get_row($wpdb->prepare("SELECT * FROM $product_table WHERE id = %d", $duplicate_id), ARRAY_A);
+        if ($orig) {
+            // Remove id, slug, created/updated dates
+            unset($orig['id'], $orig['slug'], $orig['created_at'], $orig['updated_at']);
+            // Add (Copy) to title
+            $orig['title'] .= ' (Copy)';
+            // Insert new product
+            $wpdb->insert($product_table, $orig);
+            $new_id = $wpdb->insert_id;
+            // Generate unique slug
+            $new_slug = $this->ppc_generate_unique_slug($orig['title'], $wpdb, $product_table, $new_id);
+            $wpdb->update($product_table, ['slug' => $new_slug], ['id' => $new_id]);
+            // Copy parameter relations
+            $param_rels = $wpdb->get_results($wpdb->prepare("SELECT * FROM $pivot_table WHERE product_id = %d", $duplicate_id), ARRAY_A);
+            foreach ($param_rels as $rel) {
+                unset($rel['id']);
+                $rel['product_id'] = $new_id;
+                $wpdb->insert($pivot_table, $rel);
+            }
+            // Copy option prices
+            $opt_prices = $wpdb->get_results($wpdb->prepare("SELECT * FROM $option_price_table WHERE product_id = %d", $duplicate_id), ARRAY_A);
+            foreach ($opt_prices as $price) {
+                unset($price['id']);
+                $price['product_id'] = $new_id;
+                $wpdb->insert($option_price_table, $price);
+            }
+            // Redirect to edit page for new product
+            echo("<script>location.href = '" . admin_url('admin.php?page=ppc-product-edit&id=' . $new_id . '&duplicated=1') . "'</script>");
+            exit;
+        }
+    }
+
         // ----- HANDLE FORM SUBMISSION (unchanged from your previous code) -----
         // ----- HANDLE FORM SUBMISSION -----
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && check_admin_referer('save_product')) {

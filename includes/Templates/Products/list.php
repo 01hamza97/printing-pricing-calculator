@@ -67,6 +67,7 @@
                         <td>
                             <a href="<?php echo admin_url('admin.php?page=ppc-product-edit&id=' . $product['id']); ?>" class="button">Edit</a>
                             <a href="<?php echo wp_nonce_url(admin_url('admin.php?page=ppc-products&action=delete&id=' . $product['id']), 'delete_product_' . $product['id']); ?>" class="button delete" onclick="return confirm('Are you sure you want to delete this product?');">Delete</a>
+                            <a href="<?php echo admin_url('admin.php?page=ppc-product-edit&duplicate_id=' . intval($product['id'])); ?>" class="button ppc-duplicate-link">Duplicate</a>
                         </td>
                     </tr>
                 <?php endforeach; ?>

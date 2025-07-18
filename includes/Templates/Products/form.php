@@ -10,6 +10,9 @@ function ppc_get_param($params, $id, $key) {
 }
 ?>
 <div class="wrap">
+    <?php if (isset($_GET['duplicated'])): ?>
+        <div class="notice notice-success"><p>Product duplicated successfully. You are editing the new copy.</p></div>
+    <?php endif; ?>
     <h1><?php echo isset($_GET['id']) ? 'Edit' : 'Add'; ?> Product</h1>
 
     <?php if (isset($_GET['updated'])): ?>
