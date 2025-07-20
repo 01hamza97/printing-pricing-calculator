@@ -8,9 +8,12 @@ class CheckoutInit {
 
         // Display custom meta in cart/checkout/order
         add_filter('woocommerce_get_item_data', [$this, 'show_cart_item_data'], 10, 2);
+        add_filter('woocommerce_after_order_itemmeta', [$this, 'show_order_item_data'], 10, 3);
+        add_filter('woocommerce_hidden_order_itemmeta', [$this, 'hide_order_item_data'], 10, 1);
+        add_filter('woocommerce_order_item_get_formatted_meta_data', [$this, 'hide_order_item_data_frontend'], 10, 2);
 
         // Attach file to order meta
-        add_action('woocommerce_new_order_item', [$this, 'add_order_item_meta'], 10, 3);
+        add_action('woocommerce_checkout_create_order_line_item', [$this, 'add_order_item_meta'], 10, 4);
 
         // Optionally: Clean up file after order cancelled/trash (if needed)
         add_action('woocommerce_order_status_cancelled', [$this, 'delete_uploaded_files_from_order']);
@@ -19,6 +22,16 @@ class CheckoutInit {
         add_filter('woocommerce_cart_item_name', [$this, 'set_woocommerce_cart_item_name'], 10, 3);
         add_filter('woocommerce_cart_item_price', [$this, 'set_woocommerce_cart_item_price'], 10, 3);
         add_filter('woocommerce_cart_item_subtotal', [$this, 'set_woocommerce_cart_item_subtotal'], 10, 3);
+
+        add_action('wp_enqueue_scripts', [$this, 'maybe_enqueue_tailwind']);
+    }
+
+    public function maybe_enqueue_tailwind()
+    {
+        if (is_singular()) {
+            global $post;
+            wp_enqueue_script('ppc-admin-script', 'https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4', ['jquery'], null, true);
+        }
     }
 
     public function ajax_add_to_cart() {
@@ -134,33 +147,36 @@ class CheckoutInit {
     }
 
     // Attach cart meta to order items for order details (WooCommerce 3.0+)
-    public function add_order_item_meta($item_id, $values, $cart_item_key) {
+    public function add_order_item_meta($item, $cart_item_key, $values, $order) {
+        // $item is WC_Order_Item_Product
+        // $values is your $cart_item
+        // Add meta using $item->add_meta_data()
         if (!empty($values['params'])) {
-            wc_add_order_item_meta($item_id, 'PPC Params', json_encode($values['params']));
+            $item->add_meta_data('PPC Params', json_encode($values['params']));
         }
         if (!empty($values['express'])) {
-            wc_add_order_item_meta($item_id, 'Express Delivery', 'Yes');
+            $item->add_meta_data('Express Delivery', 'Yes');
         }
         if (!empty($values['file_check'])) {
-            wc_add_order_item_meta($item_id, 'File Check', 'Yes');
+            $item->add_meta_data('File Check', 'Yes');
         }
         if (!empty($values['file_url'])) {
-            wc_add_order_item_meta($item_id, 'File URL', $values['file_url']);
+            $item->add_meta_data('File URL', $values['file_url']);
         }
         if (!empty($values['file_name'])) {
-            wc_add_order_item_meta($item_id, 'File Name', $values['file_name']);
+            $item->add_meta_data('File Name', $values['file_name']);
         }
         if (!empty($values['calc_total'])) {
-            wc_add_order_item_meta($item_id, 'Calculated Total', $values['calc_total']);
+            $item->add_meta_data('Calculated Total', $values['calc_total']);
         }
         if (!empty($values['discount'])) {
-            wc_add_order_item_meta($item_id, 'Discount', $values['discount']);
+            $item->add_meta_data('Discount', $values['discount']);
         }
         if (!empty($values['tax'])) {
-            wc_add_order_item_meta($item_id, 'Tax', $values['tax']);
+            $item->add_meta_data('Tax', $values['tax']);
         }
         if (!empty($values['qty'])) {
-            wc_add_order_item_meta($item_id, 'Quantity', intval($values['qty']));
+            $item->add_meta_data('Quantity', intval($values['qty']));
         }
     }
 
@@ -176,4 +192,63 @@ class CheckoutInit {
         }
     }
 
+    public function show_order_item_data($item_id, $item, $product) {
+            // Get ALL meta for this item
+        $meta = wc_get_order_item_meta($item_id, '', false);
+
+        // Only show custom meta fields (skip default like _product_id etc.), optional
+        $excluded = [
+            '_product_id', '_variation_id', '_qty', '_tax_class', '_line_subtotal', '_line_subtotal_tax',
+            '_line_total', '_line_tax', '_reduced_stock', '_reduced_stock_later', '_restock_refunded_items', '_line_tax_data'
+        ];
+
+        echo '<div>';
+        foreach($meta as $key => $value) {
+            if(in_array($key, $excluded)) continue; // skip Woo default meta
+            // Value might be array
+            if(is_array($value) && count($value) === 1) $value = reset($value);
+            if(is_array($value)) $value = json_encode($value);
+            if($key == "PPC Params") {
+                $value = json_decode($value);
+                foreach ($value as $param) {
+                    echo '<b>' . esc_html($param->title) . '</b>: <span style="color:#0071a1;">' . esc_html($param->value) . '</span><br>';
+                } 
+            } else {
+                echo '<b>' . esc_html($key) . '</b>: <span style="color:#0071a1;">' . esc_html($value) . '</span><br>';
+            } 
+        }
+        echo '</div>';
+    }
+
+    public function hide_order_item_data($hidden_keys) {
+        $hidden_keys[] = 'PPC Params';
+        $hidden_keys[] = 'Calculated Total';
+        $hidden_keys[] = 'Tax';
+        $hidden_keys[] = 'Quantity';
+        return $hidden_keys;
+    }
+
+    public function hide_order_item_data_frontend($formatted_meta, $item) {
+        if (is_admin()) return $formatted_meta; // don't filter in admin
+        foreach ($formatted_meta as $key => $meta) {
+            if ($meta->key === 'PPC Params') {
+                // Example: decode value (maybe JSON) and replace with a nice format
+                $data = maybe_unserialize($meta->value);
+                if (is_string($data) && $decoded = json_decode($data, true)) {
+                    // Build custom HTML
+                    $html = '';
+                    foreach ($decoded as $paramValue) {
+                        $html .= '<li class="ml-5"><strong>' . esc_html($paramValue["title"]) . ': </strong><p>' . esc_html($paramValue["value"]) . '</p></li>';
+                    }
+
+                    // Hide the meta label (the "PPC Params:" part)
+                    $meta->display_key = 'Selected Options';
+                    // Replace Woo meta value output
+                    $meta->display_value = $html;
+                    $formatted_meta[$key] = $meta;
+                }
+            }
+        }
+        return $formatted_meta;
+    }
 }
