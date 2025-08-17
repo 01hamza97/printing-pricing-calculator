@@ -1,13 +1,15 @@
 <?php
-// Helper for param data (object or array)
-function ppc_get_param($params, $id, $key) {
-    foreach ($params as $p) {
-        if ((is_object($p) && $p->parameter_id == $id) || (is_array($p) && $p['parameter_id'] == $id)) {
-            return is_object($p) ? $p->$key : $p[$key];
+    // Helper for param data (object or array)
+    function ppc_get_param($params, $id, $key) {
+        foreach ($params as $p) {
+            if ((is_object($p) && $p->parameter_id == $id) || (is_array($p) && $p['parameter_id'] == $id)) {
+                return is_object($p) ? $p->$key : $p[$key];
+            }
         }
+        return null;
     }
-    return null;
-}
+
+    $assigned_set = array_map('intval', $assigned_category_ids ?? []);
 ?>
 <div class="wrap">
     <?php if (isset($_GET['duplicated'])): ?>
@@ -61,6 +63,21 @@ function ppc_get_param($params, $id, $key) {
         <?php endif; ?>
         <input type="file" name="image_file" accept="image/*" />
         <input type="hidden" name="image_url" value="<?php echo esc_attr($data['image_url']); ?>" />
+
+        <h2 class="wp-heading-inline">Product Instructions File</h2>
+        <?php
+            $ppc_pdf_id  = $data['instructions_file_id'];
+            $ppc_pdf_url = $ppc_pdf_id ? wp_get_attachment_url($ppc_pdf_id) : '';
+        ?>
+        <input type="file" name="ppc_instructions_pdf" accept="application/pdf" />
+        <?php if ($ppc_pdf_url): ?>
+            <p>Current file: <a href="<?php echo esc_url($ppc_pdf_url); ?>" target="_blank" rel="noopener">View/Download</a></p>
+            <label>
+                <input type="checkbox" name="ppc_instructions_pdf_remove" value="1">
+                Remove current file
+            </label>
+        <?php endif; ?>
+        <p class="description">Upload a single PDF used as the global instructions file shown on all product pages.</p>
 
         <h2 class="wp-heading-inline">Product-Specific Discount Rules</h2>
         <table id="discount-rules-table" class="widefat fixed striped" style="max-width:600px;">
@@ -116,6 +133,36 @@ function ppc_get_param($params, $id, $key) {
                 </td>
             </tr>
         </table>
+
+        <div class="postbox">
+            <div class="postbox-header">
+                <h2 class="hndle"><span>Categories</span></h2>
+            </div>
+            <div class="inside">
+                <?php if (!empty($all_categories)): ?>
+                <label for="ppc-category-select" class="screen-reader-text">Categories</label>
+                <select
+                    id="ppc-category-select"
+                    name="category_ids[]"
+                    multiple
+                    style="max-width: 520px; width: 100%;"
+                >
+                    <?php foreach ($all_categories as $cat): ?>
+                    <?php
+                        $cid   = (int) $cat['id'];
+                        $label = $cat['name'] . ' (' . $cat['slug'] . ')';
+                    ?>
+                    <option value="<?php echo $cid; ?>" <?php selected(in_array($cid, $assigned_set, true)); ?>>
+                        <?php echo esc_html($label); ?>
+                    </option>
+                    <?php endforeach; ?>
+                </select>
+                <p class="description" style="margin-top:6px;">Type to search, select multiple. Use Backspace or the “x” to remove.</p>
+                <?php else: ?>
+                <p><em>No active categories found.</em></p>
+                <?php endif; ?>
+            </div>
+        </div>
 
 
         <h2 class="wp-heading-inline">Selected Parameters</h2>

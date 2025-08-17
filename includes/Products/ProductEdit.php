@@ -17,6 +17,36 @@ class ProductEdit
         // Only enqueue on your product edit page
         if ($hook !== 'admin_page_ppc-product-edit') return;
         wp_enqueue_script('jquery-ui-sortable');
+
+        // Select2 CSS/JS (CDN)
+        wp_enqueue_style(
+            'select2',
+            'https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css',
+            [],
+            '4.1.0-rc.0'
+        );
+        wp_enqueue_script(
+            'select2',
+            'https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js',
+            ['jquery'],
+            '4.1.0-rc.0',
+            true
+        );
+
+        // Our tiny initializer
+        wp_add_inline_script('select2', "
+            jQuery(function($){
+                var \$el = $('#ppc-category-select');
+                if (\$el.length && !\$el.data('select2')) {
+                    \$el.select2({
+                        placeholder: 'Select categories',
+                        allowClear: true,
+                        width: 'resolve',
+                        closeOnSelect: false
+                    });
+                }
+            });
+        ");
     }
 
     public function register_menu()
@@ -62,6 +92,7 @@ class ProductEdit
         $option_price_table = PRODUCT_PARAM_META_TABLE;
         $param_table        = PARAM_TABLE;
         $meta_table         = META_TABLE;
+        $conditions_table   = PRODUCT_OPTION_CONDITIONS_TABLE;
 
         $is_edit = isset($_GET['id']);
         $id      = $is_edit ? intval($_GET['id']) : 0;
@@ -79,6 +110,7 @@ class ProductEdit
             'discount_rules'      => [],
             'file_check_price'    => '',
             'file_check_required' => 0,
+            'instructions_file_id' => 0
         ];
 
         // ----- LOAD EXISTING DATA -----
@@ -112,42 +144,88 @@ class ProductEdit
                 }
 
             }
+
+            // Load all existing conditions for this product
+            $rows = $wpdb->get_results(
+                $wpdb->prepare("SELECT * FROM {$conditions_table} WHERE product_id = %d ORDER BY logic_group, id", $id),
+                ARRAY_A
+            );
+
+            // Group into the JSON structure your UI expects: [{operator, rows:[{target_param_id, target_option_id, action}, ...]}]
+            function ppc_group_conditions_for_ui($rows) {
+                $byGroup = [];
+                foreach ($rows as $r) {
+                    $g = intval($r['logic_group']);
+                    if (!isset($byGroup[$g])) {
+                        $byGroup[$g] = ['operator' => $r['operator'] ?: 'AND', 'rows' => []];
+                    }
+                    $byGroup[$g]['rows'][] = [
+                        'target_param_id'  => (string) $r['target_param_id'],
+                        'target_option_id' => isset($r['target_option_id']) && $r['target_option_id'] ? (string) $r['target_option_id'] : '',
+                        'action'           => $r['action'] ?: 'show',
+                    ];
+                }
+                ksort($byGroup);
+                return array_values($byGroup);
+            }
+
+            // Split rows by source_type/keys
+            $existing_option_conditions = []; // [option_id] => groups[]
+            $existing_param_conditions  = []; // [source_param_id] => groups[]
+
+            foreach ($rows as $r) {
+                // If you don’t have `source_type`/`source_param_id` columns, skip the param branch below.
+                if (!empty($r['source_type']) && $r['source_type'] === 'parameter') {
+                    $existing_param_conditions[$r['source_param_id']][] = $r;
+                } else {
+                    // treat as option-level
+                    $existing_option_conditions[$r['option_id']][] = $r;
+                }
+            }
+
+            // Collapse per key into grouped UI arrays
+            foreach ($existing_option_conditions as $oid => $list) {
+                $existing_option_conditions[$oid] = ppc_group_conditions_for_ui($list);
+            }
+            foreach ($existing_param_conditions as $pid => $list) {
+                $existing_param_conditions[$pid] = ppc_group_conditions_for_ui($list);
+            }
         }
 
         // Check for duplication request
-    if (isset($_GET['duplicate_id'])) {
-        $duplicate_id = intval($_GET['duplicate_id']);
-        $orig = $wpdb->get_row($wpdb->prepare("SELECT * FROM $product_table WHERE id = %d", $duplicate_id), ARRAY_A);
-        if ($orig) {
-            // Remove id, slug, created/updated dates
-            unset($orig['id'], $orig['slug'], $orig['created_at'], $orig['updated_at']);
-            // Add (Copy) to title
-            $orig['title'] .= ' (Copy)';
-            // Insert new product
-            $wpdb->insert($product_table, $orig);
-            $new_id = $wpdb->insert_id;
-            // Generate unique slug
-            $new_slug = $this->ppc_generate_unique_slug($orig['title'], $wpdb, $product_table, $new_id);
-            $wpdb->update($product_table, ['slug' => $new_slug], ['id' => $new_id]);
-            // Copy parameter relations
-            $param_rels = $wpdb->get_results($wpdb->prepare("SELECT * FROM $pivot_table WHERE product_id = %d", $duplicate_id), ARRAY_A);
-            foreach ($param_rels as $rel) {
-                unset($rel['id']);
-                $rel['product_id'] = $new_id;
-                $wpdb->insert($pivot_table, $rel);
+        if (isset($_GET['duplicate_id'])) {
+            $duplicate_id = intval($_GET['duplicate_id']);
+            $orig = $wpdb->get_row($wpdb->prepare("SELECT * FROM $product_table WHERE id = %d", $duplicate_id), ARRAY_A);
+            if ($orig) {
+                // Remove id, slug, created/updated dates
+                unset($orig['id'], $orig['slug'], $orig['created_at'], $orig['updated_at']);
+                // Add (Copy) to title
+                $orig['title'] .= ' (Copy)';
+                // Insert new product
+                $wpdb->insert($product_table, $orig);
+                $new_id = $wpdb->insert_id;
+                // Generate unique slug
+                $new_slug = $this->ppc_generate_unique_slug($orig['title'], $wpdb, $product_table, $new_id);
+                $wpdb->update($product_table, ['slug' => $new_slug], ['id' => $new_id]);
+                // Copy parameter relations
+                $param_rels = $wpdb->get_results($wpdb->prepare("SELECT * FROM $pivot_table WHERE product_id = %d", $duplicate_id), ARRAY_A);
+                foreach ($param_rels as $rel) {
+                    unset($rel['id']);
+                    $rel['product_id'] = $new_id;
+                    $wpdb->insert($pivot_table, $rel);
+                }
+                // Copy option prices
+                $opt_prices = $wpdb->get_results($wpdb->prepare("SELECT * FROM $option_price_table WHERE product_id = %d", $duplicate_id), ARRAY_A);
+                foreach ($opt_prices as $price) {
+                    unset($price['id']);
+                    $price['product_id'] = $new_id;
+                    $wpdb->insert($option_price_table, $price);
+                }
+                // Redirect to edit page for new product
+                echo("<script>location.href = '" . admin_url('admin.php?page=ppc-product-edit&id=' . $new_id . '&duplicated=1') . "'</script>");
+                exit;
             }
-            // Copy option prices
-            $opt_prices = $wpdb->get_results($wpdb->prepare("SELECT * FROM $option_price_table WHERE product_id = %d", $duplicate_id), ARRAY_A);
-            foreach ($opt_prices as $price) {
-                unset($price['id']);
-                $price['product_id'] = $new_id;
-                $wpdb->insert($option_price_table, $price);
-            }
-            // Redirect to edit page for new product
-            echo("<script>location.href = '" . admin_url('admin.php?page=ppc-product-edit&id=' . $new_id . '&duplicated=1') . "'</script>");
-            exit;
         }
-    }
 
         // ----- HANDLE FORM SUBMISSION (unchanged from your previous code) -----
         // ----- HANDLE FORM SUBMISSION -----
@@ -230,6 +308,47 @@ class ProductEdit
                 }
             }
 
+            // --- GLOBAL INSTRUCTIONS PDF UPLOAD/REMOVE ---
+            $existing_id = $data['instructions_file_id'];
+
+            // If user asked to remove the current PDF
+            if (!empty($_POST['ppc_instructions_pdf_remove']) && $existing_id) {
+                // delete the attachment (and file) from media library
+                wp_delete_attachment($existing_id, true);
+                $existing_id = null;
+            }
+            $attach_pdf_id = $existing_id;
+            // If a new PDF was uploaded
+            if (!empty($_FILES['ppc_instructions_pdf']) && !empty($_FILES['ppc_instructions_pdf']['name'])) {
+                // Limit to PDFs only
+                $filename = $_FILES['ppc_instructions_pdf']['name'];
+                $finfo    = wp_check_filetype_and_ext(
+                    $_FILES['ppc_instructions_pdf']['tmp_name'],
+                    $filename,
+                    ['pdf' => 'application/pdf']
+                );
+
+                if ($finfo['ext'] !== 'pdf') {
+                    echo '<div class="notice notice-error"><p>Please upload a valid PDF file.</p></div>';
+                } else {
+                    require_once ABSPATH . 'wp-admin/includes/file.php';
+                    require_once ABSPATH . 'wp-admin/includes/media.php';
+                    require_once ABSPATH . 'wp-admin/includes/image.php';
+
+                    // Upload to Media Library and create attachment
+                    $attach_pdf_id = media_handle_upload('ppc_instructions_pdf', 0, [], ['test_form' => false]);
+                    if (is_wp_error($attach_pdf_id)) {
+                        echo '<div class="notice notice-error"><p>Upload failed: ' . esc_html($attach_pdf_id->get_error_message()) . '</p></div>';
+                    } else {
+                        // Replace existing (optional: delete old attachment)
+                        if ($existing_id) {
+                            wp_delete_attachment($existing_id, true);
+                        }
+
+                    }
+                }
+            }
+
             $fields = [
                 'title' => $title,
                 'content' => $content,
@@ -241,10 +360,10 @@ class ProductEdit
                 'status' => $status,
                 'image_url' => $image_url,
                 'updated_at' => current_time('mysql'),
-                // New fields
                 'discount_rules' => $discount_rules_serialized,
                 'file_check_price' => $file_check_price,
                 'file_check_required' => $file_check_required,
+                'instructions_file_id' => $attach_pdf_id ? $attach_pdf_id : null
             ];
 
             if ($is_edit) {
@@ -279,6 +398,116 @@ class ProductEdit
                         'option_id' => intval($option_id),
                         'override_price' => $override_price
                     ]);
+                }
+            }
+
+            // =========================
+            // Sync conditions (NEW)
+            // =========================
+            $wpdb->delete($conditions_table, ['product_id' => $id]);
+
+            // Helper to safely decode JSON (from a hidden input)
+            $ppc_decode_json = function($raw) {
+                if ($raw === null || $raw === '') return [];
+                if (is_array($raw)) return $raw; // already parsed somehow
+                $raw = is_string($raw) ? wp_unslash($raw) : $raw;
+                $data = json_decode($raw, true);
+                return is_array($data) ? $data : [];
+            };
+
+            // 2.1 Option-level conditions: conditions[<option_id>] = JSON
+            if (!empty($_POST['conditions']) && is_array($_POST['conditions'])) {
+                foreach ($_POST['conditions'] as $option_id => $json) {
+                    $option_id = intval($option_id);
+                    if ($option_id <= 0) continue;
+
+                    $groups = $ppc_decode_json($json);
+                    if (empty($groups)) continue;
+
+                    foreach ($groups as $gIndex => $group) {
+                        $operator = isset($group['operator']) && in_array($group['operator'], ['AND','OR'], true) ? $group['operator'] : 'AND';
+                        $rows     = !empty($group['rows']) && is_array($group['rows']) ? $group['rows'] : [];
+
+                        foreach ($rows as $row) {
+                            $target_param_id  = isset($row['target_param_id']) ? intval($row['target_param_id']) : 0;
+                            $target_option_id = isset($row['target_option_id']) && $row['target_option_id'] !== '' ? intval($row['target_option_id']) : null;
+                            $action           = isset($row['action']) && in_array($row['action'], ['show','hide'], true) ? $row['action'] : 'show';
+
+                            if ($target_param_id <= 0) continue;
+
+                            $wpdb->insert($conditions_table, [
+                                'product_id'       => $id,
+                                'source_type'      => 'option',
+                                'option_id'        => $option_id,
+                                'source_param_id'  => null,
+                                'target_param_id'  => $target_param_id,
+                                'target_option_id' => $target_option_id, // NULL means ANY
+                                'action'           => $action,
+                                'logic_group'      => intval($gIndex) + 1,
+                                'operator'         => $operator,
+                                'created_at'       => current_time('mysql'),
+                                'updated_at'       => current_time('mysql'),
+                            ]);
+                        }
+                    }
+                }
+            }
+
+            // 2.2 Parameter-level conditions: param_conditions[<param_id>] = JSON
+            if (!empty($_POST['param_conditions']) && is_array($_POST['param_conditions'])) {
+                foreach ($_POST['param_conditions'] as $param_id => $json) {
+                    $param_id = intval($param_id);
+                    if ($param_id <= 0) continue;
+
+                    $groups = $ppc_decode_json($json);
+                    if (empty($groups)) continue;
+
+                    foreach ($groups as $gIndex => $group) {
+                        $operator = isset($group['operator']) && in_array($group['operator'], ['AND','OR'], true) ? $group['operator'] : 'AND';
+                        $rows     = !empty($group['rows']) && is_array($group['rows']) ? $group['rows'] : [];
+
+                        foreach ($rows as $row) {
+                            $target_param_id  = isset($row['target_param_id']) ? intval($row['target_param_id']) : 0;
+                            $target_option_id = isset($row['target_option_id']) && $row['target_option_id'] !== '' ? intval($row['target_option_id']) : null;
+                            $action           = isset($row['action']) && in_array($row['action'], ['show','hide'], true) ? $row['action'] : 'show';
+
+                            if ($target_param_id <= 0) continue;
+
+                            $wpdb->insert($conditions_table, [
+                                'product_id'       => $id,
+                                'source_type'      => 'parameter',
+                                'option_id'        => null,       // no specific option at source
+                                'source_param_id'  => $param_id, // source is the whole parameter
+                                'target_param_id'  => $target_param_id,
+                                'target_option_id' => $target_option_id, // NULL means ANY
+                                'action'           => $action,
+                                'logic_group'      => intval($gIndex) + 1,
+                                'operator'         => $operator,
+                                'created_at'       => current_time('mysql'),
+                                'updated_at'       => current_time('mysql'),
+                            ]);
+                        }
+                    }
+                }
+            }
+
+             $selected_cats = isset($_POST['category_ids']) && is_array($_POST['category_ids'])
+                ? array_map('intval', $_POST['category_ids'])
+                : [];
+
+            // wipe current assignments
+            $wpdb->delete(PRODUCT_CATEGORY_TABLE, ['product_id' => $id]);
+
+            // re-insert selections
+            if (!empty($selected_cats)) {
+                foreach ($selected_cats as $cid) {
+                    if ($cid > 0) {
+                        $wpdb->insert(PRODUCT_CATEGORY_TABLE, [
+                            'product_id' => $id,
+                            'category_id'=> $cid,
+                            'created_at' => current_time('mysql'),
+                        ]);
+                    }
                 }
             }
 
@@ -343,6 +572,20 @@ class ProductEdit
         usort($selectedParameters, function($a, $b){
             return $a['position'] <=> $b['position'];
         });
+
+        // Categories for the form (active ones)
+        $all_categories = $wpdb->get_results(
+            "SELECT id, name, slug FROM " . CATEGORY_TABLE . " WHERE status = 'active' ORDER BY name ASC",
+            ARRAY_A
+        );
+
+        // Already assigned category ids (for edit)
+        $assigned_category_ids = $id
+            ? $wpdb->get_col( $wpdb->prepare(
+                "SELECT category_id FROM " . PRODUCT_CATEGORY_TABLE . " WHERE product_id = %d",
+                $id
+            ))
+            : [];
 
         // Pass both to the template
         include plugin_dir_path(__FILE__) . '/../Templates/Products/form.php';

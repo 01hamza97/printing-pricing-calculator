@@ -1,6 +1,6 @@
 <div class="wrap">
     <h1>PPC Global Settings</h1>
-    <form method="post">
+    <form method="post" enctype="multipart/form-data">
         <?php wp_nonce_field('ppc_settings_save'); ?>
         <table class="form-table">
             <tr>
@@ -100,6 +100,24 @@
                         </tr>
                     </table>
                     <p class="description">Set discount percentages for quantity breakpoints (e.g., 200+ gets 10%). Sorted automatically, highest quantity first.</p>
+                </td>
+            </tr>
+            <tr>
+                <th scope="row">Global Instructions (PDF)</th>
+                <td>
+                    <?php
+                    $ppc_pdf_id  = (int) get_option('ppc_instructions_pdf_id', 0);
+                    $ppc_pdf_url = $ppc_pdf_id ? wp_get_attachment_url($ppc_pdf_id) : '';
+                    ?>
+                    <input type="file" name="ppc_instructions_pdf" accept="application/pdf" />
+                    <?php if ($ppc_pdf_url): ?>
+                        <p>Current file: <a href="<?php echo esc_url($ppc_pdf_url); ?>" target="_blank" rel="noopener">View/Download</a></p>
+                        <label>
+                            <input type="checkbox" name="ppc_instructions_pdf_remove" value="1">
+                            Remove current file
+                        </label>
+                    <?php endif; ?>
+                    <p class="description">Upload a single PDF used as the global instructions file shown on all product pages.</p>
                 </td>
             </tr>
         </table>

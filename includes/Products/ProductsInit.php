@@ -34,6 +34,7 @@ class ProductsInit
                 express_delivery_type VARCHAR(10) DEFAULT NULL,
                 status ENUM('active', 'inactive') DEFAULT 'active',
                 image_url TEXT NULL,
+                instructions_file_id BIGINT(20) UNSIGNED NULL,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
             ) $charset_collate;
@@ -60,6 +61,28 @@ class ProductsInit
               override_price DECIMAL(10,2) DEFAULT NULL,
               FOREIGN KEY (product_id) REFERENCES " . PRODUCT_TABLE . "(id) ON DELETE CASCADE,
               FOREIGN KEY (option_id) REFERENCES " . META_TABLE . "(id) ON DELETE CASCADE
+            ) $charset_collate;");
+        }
+
+        if ($wpdb->get_var("SHOW TABLES LIKE 'ppc_option_conditions'") !== 'ppc_option_conditions') {
+            dbDelta("CREATE TABLE " . PRODUCT_OPTION_CONDITIONS_TABLE . " (
+                id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                product_id INT NOT NULL,
+                source_type ENUM('option','parameter') NOT NULL DEFAULT 'option',
+                option_id BIGINT UNSIGNED NULL,
+                source_param_id BIGINT UNSIGNED NULL,
+                target_param_id BIGINT UNSIGNED NULL,
+                target_option_id BIGINT UNSIGNED NULL,
+                action ENUM('show','hide') NOT NULL DEFAULT 'show',
+                logic_group INT DEFAULT 1,
+                operator ENUM('AND','OR') NOT NULL DEFAULT 'AND',
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                FOREIGN KEY (product_id) REFERENCES " . PRODUCT_TABLE . "(id) ON DELETE CASCADE,
+                FOREIGN KEY (option_id) REFERENCES " . META_TABLE . "(id) ON DELETE CASCADE,
+                FOREIGN KEY (source_param_id) REFERENCES " . PARAM_TABLE . "(id) ON DELETE CASCADE,
+                FOREIGN KEY (target_param_id) REFERENCES " . PARAM_TABLE . "(id) ON DELETE CASCADE,
+                FOREIGN KEY (target_option_id) REFERENCES " . META_TABLE . "(id) ON DELETE CASCADE
             ) $charset_collate;");
         }
     }

@@ -70,6 +70,48 @@ class AdminInit {
             });
         }
         update_option('ppc_discount_rules', $discounts);
+
+        // --- GLOBAL INSTRUCTIONS PDF UPLOAD/REMOVE ---
+        $existing_id = (int) get_option('ppc_instructions_pdf_id', 0);
+
+        // If user asked to remove the current PDF
+        if (!empty($_POST['ppc_instructions_pdf_remove']) && $existing_id) {
+            // delete the attachment (and file) from media library
+            wp_delete_attachment($existing_id, true);
+            update_option('ppc_instructions_pdf_id', 0);
+        }
+
+        // If a new PDF was uploaded
+        if (!empty($_FILES['ppc_instructions_pdf']) && !empty($_FILES['ppc_instructions_pdf']['name'])) {
+            // Limit to PDFs only
+            $filename = $_FILES['ppc_instructions_pdf']['name'];
+            $finfo    = wp_check_filetype_and_ext(
+                $_FILES['ppc_instructions_pdf']['tmp_name'],
+                $filename,
+                ['pdf' => 'application/pdf']
+            );
+
+            if ($finfo['ext'] !== 'pdf') {
+                echo '<div class="notice notice-error"><p>Please upload a valid PDF file.</p></div>';
+            } else {
+                require_once ABSPATH . 'wp-admin/includes/file.php';
+                require_once ABSPATH . 'wp-admin/includes/media.php';
+                require_once ABSPATH . 'wp-admin/includes/image.php';
+
+                // Upload to Media Library and create attachment
+                $attach_id = media_handle_upload('ppc_instructions_pdf', 0, [], ['test_form' => false]);
+                if (is_wp_error($attach_id)) {
+                    echo '<div class="notice notice-error"><p>Upload failed: ' . esc_html($attach_id->get_error_message()) . '</p></div>';
+                } else {
+                    // Replace existing (optional: delete old attachment)
+                    if ($existing_id) {
+                        wp_delete_attachment($existing_id, true);
+                    }
+                    update_option('ppc_instructions_pdf_id', (int) $attach_id);
+                }
+            }
+        }
+
         echo '<div class="notice notice-success"><p>Settings saved.</p></div>';
     }
       include plugin_dir_path(__FILE__) . '/../Templates/Settings/form.php';

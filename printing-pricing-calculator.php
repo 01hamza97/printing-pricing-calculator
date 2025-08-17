@@ -28,6 +28,9 @@ define('META_TABLE', $wpdb->prefix . 'ppc_parameter_meta');
 define('PRODUCT_TABLE', $wpdb->prefix . 'ppc_products');
 define('PRODUCT_PARAMETERS_TABLE', $wpdb->prefix . 'ppc_product_parameters');
 define('PRODUCT_PARAM_META_TABLE', $wpdb->prefix . 'ppc_product_option_prices');
+define('PRODUCT_OPTION_CONDITIONS_TABLE', $wpdb->prefix . 'ppc_option_conditions');
+define('CATEGORY_TABLE', $wpdb->prefix . 'ppc_categories');
+define('PRODUCT_CATEGORY_TABLE', $wpdb->prefix . 'ppc_product_categories');
 
 // On activation, call the table-creation method
 register_activation_hook(
@@ -38,6 +41,11 @@ register_activation_hook(
 register_activation_hook(
     __FILE__,
     ['\PPC\Products\ProductsInit', 'create_tables']
+);
+
+register_activation_hook(
+    __FILE__,
+    ['\PPC\Categories\CategoriesInit', 'create_tables']
 );
 
 register_activation_hook(__FILE__, function() {
@@ -97,6 +105,12 @@ add_action('init', function() {
     add_rewrite_rule(
         '^product/([^/]+)/?',
         'index.php?pagename=product&ppc_slug=$matches[1]',
+        'top'
+    );
+
+    add_rewrite_rule(
+        '^category/([^/]+)/?$',
+        'index.php?pagename=category&ppc_category=$matches[1]',
         'top'
     );
 });

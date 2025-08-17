@@ -1,7 +1,7 @@
 <?php
 namespace PPC\Frontend;
 
-class ShortcodeHandler
+class CalculatorShortcodeHandler
 {
     public function __construct()
     {
@@ -142,6 +142,54 @@ class ShortcodeHandler
             $parameters = [];
         }
 
+        $conditions = ['option' => [], 'parameter' => []];
+
+        if (defined('PRODUCT_OPTION_CONDITIONS_TABLE')) {
+            $rows = $wpdb->get_results(
+                $wpdb->prepare(
+                    "SELECT * FROM " . PRODUCT_OPTION_CONDITIONS_TABLE . " WHERE product_id = %d ORDER BY logic_group, id",
+                    $product_id
+                ),
+                ARRAY_A
+            );
+
+            if ($rows) {
+                // group rows by a key (option_id or source_param_id), then by logic_group
+                $byKey = ['option' => [], 'parameter' => []];
+
+                foreach ($rows as $r) {
+                    $is_param = !empty($r['source_type']) && $r['source_type'] === 'parameter';
+                    $bucket   = $is_param ? 'parameter' : 'option';
+                    $key      = $is_param ? intval($r['source_param_id'] ?? 0) : intval($r['option_id'] ?? 0);
+                    if ($key <= 0) { continue; }
+
+                    if (!isset($byKey[$bucket][$key])) {
+                        $byKey[$bucket][$key] = [];
+                    }
+                    $g = intval($r['logic_group'] ?? 1);
+                    if (!isset($byKey[$bucket][$key][$g])) {
+                        $byKey[$bucket][$key][$g] = [
+                            'operator' => ($r['operator'] ?? 'AND'),
+                            'rows'     => []
+                        ];
+                    }
+                    $byKey[$bucket][$key][$g]['rows'][] = [
+                        'target_param_id'  => intval($r['target_param_id'] ?? 0),
+                        // 0 or empty means ANY option
+                        'target_option_id' => isset($r['target_option_id']) && $r['target_option_id'] !== '' ? intval($r['target_option_id']) : 0,
+                        'action'           => ($r['action'] === 'hide' ? 'hide' : 'show'),
+                    ];
+                }
+
+                // normalize to arrays: groups sorted by logic_group index
+                foreach (['option','parameter'] as $bk) {
+                    foreach ($byKey[$bk] as $k => $groups) {
+                        ksort($groups);
+                        $conditions[$bk][$k] = array_values($groups); // [{operator, rows:[...]}...]
+                    }
+                }
+            }
+        }
         // ---- Make variables available to template ----
         ob_start();
 
@@ -157,7 +205,8 @@ class ShortcodeHandler
             file_check_price: <?php echo json_encode($file_check_price); ?>,
             file_check_required: <?php echo json_encode($file_check_required); ?>,
             product_discount_rules: <?php echo json_encode($product_discount_rules); ?>,
-            global_discount_rules: <?php echo json_encode($global_discount_rules); ?>
+            global_discount_rules: <?php echo json_encode($global_discount_rules); ?>,
+            conditions: <?php echo wp_json_encode($conditions); ?>
         };
         </script>
         <?php
