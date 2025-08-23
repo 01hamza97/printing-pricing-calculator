@@ -1,5 +1,25 @@
 <!-- templates/frontend/calculator-ui.php -->
+<style>
+.table-wrapper thead {
+    border-bottom: 1px solid #f4f4f5;
+}
 
+.table-wrapper thead th {
+    font-size: 12px;
+    font-weight: 600;
+    color: #111111a6;
+    padding: 10px 0;
+}
+
+.table-wrapper tbody td {
+    padding: 5px 0;
+    font-size: 13px;
+    font-weight: 400;
+    color: #111111a6;
+}
+
+</style>
+ 
 <div class="w-5/6 mx-auto my-8 font-sans">
   <div class="flex">
     <div class="w-1/3 px-2 mx-2">
@@ -96,25 +116,72 @@
       </div>
     </div>
     <div class="w-1/3 px-2 mx-2">
-      <!-- <h4 class="text-lg font-semibold mb-4">počet kusů</h4> -->
-      <div class="bg-zinc-300 font-bold h-170 mt-2 mx-auto px-6 py-5 rounded-md text-zinc-900 text-base w-full">
-        Picture or ads
+      <h4 class="text-base !font-bold mb-[14px] text-cyan-500">Počet kusů</h4>
+      <div class="col-span-2 rounded-md px-5 py-6 border border-blue-200 mb-4">
+          <div class="mb-6">
+            <div class="flex items-center justify-between">
+              <div class="">
+                <label class="inline-flex items-center">
+                  <input type="checkbox" id="ppc-express" class="accent-cyan-500 mr-2" />
+                  <span class="font-normal text-sm text-zinc-700">
+                    100 ks
+                  </span>
+                </label>
+              </div>
+              <p class="font-normal text-sm text-zinc-700">100 Kč</p>
+            </div>
+            <div class="flex items-center justify-between">
+              <div class="">
+                <label class="inline-flex items-center">
+                  <input type="checkbox" id="ppc-express" class="accent-cyan-500 mr-2" />
+                  <span class="font-normal text-sm text-zinc-700">
+                    200 ks
+                  </span>
+                </label>
+              </div>
+              <p class="font-normal text-sm text-zinc-700">100 Kč</p>
+            </div>
+            <div class="flex items-center justify-between">
+              <div class="">
+                <label class="inline-flex items-center">
+                  <input type="checkbox" id="ppc-express" class="accent-cyan-500 mr-2" />
+                  <span class="font-normal text-sm text-zinc-700">
+                    200 ks
+                  </span>
+                </label>
+              </div>
+              <p class="font-normal text-sm text-zinc-700">100 Kč</p>
+            </div>
+            <div class="flex items-center justify-between">
+              <div class="">
+                <label class="inline-flex items-center">
+                  <input type="checkbox" id="ppc-express" class="accent-cyan-500 mr-2" />
+                  <span class="font-normal text-sm text-zinc-700">
+                    400 ks
+                  </span>
+                </label>
+              </div>
+              <p class="font-normal text-sm text-zinc-700">100 Kč</p>
+            </div>
+          </div>
+          <h5 class="text-base !font-semibold text-zinc-600 mb-1">Zadejte svoje množství</h5>
+          <input type="text" placeholder="text" class="bg-zinc-100 rounded-md px-3 py-3 w-full text-base">
       </div>
       <!-- display controls -->
-      <div class="mb-4 mt-4 w-full grid grid-cols-1 md:grid-cols-2 gap-4 hidden">
+      <div class="mb-4 mt-4 w-full grid grid-cols-1 md:grid-cols-2 gap-4">
         <!-- With/Without Tax -->
         <div class="text-start">
           <div class="text-sm font-medium mb-2">Cena brutto / netto</div>
           <label for="ppc-show-tax-toggle" class="inline-flex items-center cursor-pointer">
             <input id="ppc-show-tax-toggle" type="checkbox" class="sr-only peer">
-            <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600"></div>
+            <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-cyan-500"></div>
           </label>
         </div>
         <div class="text-end">
           <div class="text-sm font-medium mb-2">Cena za ks</div>
           <label for="ppc-price-unit-toggle" class="inline-flex items-center cursor-pointer">
             <input id="ppc-price-unit-toggle" type="checkbox" class="sr-only peer">
-            <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600"></div>
+            <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-cyan-500"></div>
           </label>
         </div>
       </div>
@@ -143,16 +210,15 @@
             <label class="inline-flex items-center">
               <input type="checkbox" id="ppc-express" class="accent-cyan-500 mr-2" />
               <span class="font-normal text-sm text-zinc-700">
-                Express Delivery 
-                <!-- ( -->
+                Express Delivery (
                 <?php
-                  // if ($express_delivery['type'] === 'percent') {
-                  //   echo '+' . floatval($express_delivery['value']) . '%';
-                  // } else {
-                  //   echo '+' . number_format((float)$express_delivery['value'], 2);
-                  // }
+                  if ($express_delivery['type'] === 'percent') {
+                    echo '+' . floatval($express_delivery['value']) . '%';
+                  } else {
+                    echo '+' . number_format((float)$express_delivery['value'], 2);
+                  }
                 ?>
-                <!-- ) -->
+                )
               </span>
             </label>
           </div>
@@ -166,8 +232,7 @@
                 <?php if (!empty($file_check_required)) echo 'checked disabled'; ?>
               >
               <span class="font-normal text-sm text-zinc-700">
-                File Check Service 
-                <!-- (<?php // echo number_format((float)$file_check_price, 2); ?>) -->
+                File Check Service (<?php echo number_format((float)$file_check_price, 2); ?>)
               </span>
             </label>
           </div>
@@ -178,8 +243,8 @@
           </div> -->
 
           <!-- Summary table -->
-          <div class="overflow-x-auto hidden">
-            <table class="text-base text-left w-full" id="ppc-summary-table">
+          <div class="overflow-x-auto">
+            <table class="text-base text-left w-full table-wrapper" id="ppc-summary-table">
               <thead>
                 <tr>
                   <th>Item</th>
@@ -206,15 +271,15 @@
                 </tr>
               </tbody>
               <tfoot>
-                <tr class="font-bold">
+                <tr class="font-semibold text-xs text-zinc-600">
                   <td colspan="2">Total W/O Tax</td>
                   <td id="ppc-no-tax-total">0.00</td>
                 </tr>
-                <tr class="font-bold">
+                <tr class="font-semibold text-xs text-zinc-600">
                   <td colspan="2">Tax(<?php echo (float)$tax ?>%)</td>
                   <td id="ppc-tax-amount">0.00</td>
                 </tr>
-                <tr class="font-bold">
+                <tr class="font-semibold text-xs text-zinc-600">
                   <td colspan="2">Total</td>
                   <td id="ppc-grand-total">0.00</td>
                 </tr>
@@ -224,7 +289,7 @@
         </div>
 
         <!-- Order notes / instructions -->
-        <div class="rounded-md px-5 py-4 mb-6">
+        <div class="rounded-md px-5 py-4 border border-blue-300 mb-6">
           <label for="ppc-order-notes" class="block text-sm font-medium mb-2">
             Notes / Instructions (optional)
           </label>
@@ -239,7 +304,7 @@
           </div>
         </div>
 
-        <div class="border border-blue-300 rounded-md text-cyan-500 w-full block text-lg font-normal py-4 mb-4 text-center hover:cursor-pointer hover:bg-cyan-200" id="ppc-download-pdf">
+        <div class="border border-blue-300 rounded-md text-cyan-500 w-full block text-lg font-normal py-4 mb-4 text-center  hover:cursor-pointer hover:bg-cyan-200" id="ppc-download-pdf">
           download calculation (pdf?)
         </div>
         <button id="ppc-add-to-cart" type="button"
@@ -643,7 +708,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   (function(){
     const conds = (window.ppc_settings && window.ppc_settings.conditions) || { option:{}, parameter:{} };
-    console.log(conds)
+
     // return a map of current selections: { [paramId]: { optionId, selectEl } }
     function getCurrentSelections() {
         const map = {};
@@ -676,6 +741,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // If target_option_id is provided => only that option is disabled/enabled
     function applyGroups(groups) {
         if (!Array.isArray(groups)) return;
+
         groups.forEach(group => {
             const rows = Array.isArray(group.rows) ? group.rows : [];
 
@@ -685,24 +751,24 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const tOid = parseInt(row.target_option_id || 0, 10); // 0 => ANY
             const action = (row.action === "hide") ? "hide" : "show";
-            const sel = document.getElementById('param_' + tPid);
 
+            const sel = document.getElementById('param_' + tPid);
             if (!sel) return;
 
             if (!tOid) {
                 // Whole parameter
                 const wrap = sel.closest('.parameter-wrapper');
                 if (wrap) {
-                  if (action === "hide") {
-                      // if currently selected, clear it
-                      if (sel.value) {
-                        sel.selectedIndex = 0; // first option (e.g., "Select an option")
-                        sel.dispatchEvent(new Event('change', { bubbles: true }));
-                      }
-                      wrap.classList.add('hidden');
-                  } else {
-                      wrap.classList.remove('hidden');
-                  }
+                if (action === "hide") {
+                    // if currently selected, clear it
+                    if (sel.value) {
+                    sel.selectedIndex = 0; // first option (e.g., "Select an option")
+                    sel.dispatchEvent(new Event('change', { bubbles: true }));
+                    }
+                    wrap.classList.add('hidden');
+                } else {
+                    wrap.classList.remove('hidden');
+                }
                 }
             } else {
                 // Specific option within the select

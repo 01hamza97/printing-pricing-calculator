@@ -113,6 +113,12 @@ add_action('init', function() {
         'index.php?pagename=category&ppc_category=$matches[1]',
         'top'
     );
+
+    add_rewrite_rule(
+        '^product-with-price/([^/]+)/?$',
+        'index.php?pagename=product-with-price&ppc_slug=$matches[1]',
+        'top'
+    );
 });
 
 // Check if WooCommerce is active

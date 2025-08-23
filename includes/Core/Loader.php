@@ -8,6 +8,7 @@ use PPC\Categories\CategoriesEdit;
 use PPC\Categories\CategoriesInit;
 use PPC\Checkout\CheckoutInit;
 use PPC\Frontend\CalculatorShortcodeHandler;
+use PPC\Frontend\CalculatorWithPriceShortcodeHandler;
 use PPC\Frontend\CategoryShortcodes;
 use PPC\Parameters\ParameterEdit;
 use PPC\Parameters\ParametersInit;
@@ -26,6 +27,7 @@ class Loader {
         new ProductEdit();
         new ProductList();
         new CalculatorShortcodeHandler();
+        new CalculatorWithPriceShortcodeHandler();
         new Quotation();
         HideWooPages::init();
         new CheckoutInit();

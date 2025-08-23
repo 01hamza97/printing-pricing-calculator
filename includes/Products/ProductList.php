@@ -31,7 +31,7 @@ class ProductList {
       $search = isset($_GET['s']) ? sanitize_text_field($_GET['s']) : '';
       $status_filter = isset($_GET['status']) ? sanitize_text_field($_GET['status']) : '';
       $page = isset($_GET['paged']) ? max(1, intval($_GET['paged'])) : 1;
-      $limit = 10;
+      $limit = 30;
       $offset = ($page - 1) * $limit;
       $where = "WHERE 1=1";
       if ($search) $where .= $wpdb->prepare(" AND title LIKE %s", '%' . $wpdb->esc_like($search) . '%');

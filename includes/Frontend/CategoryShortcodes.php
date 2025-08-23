@@ -220,17 +220,17 @@ class CategoryShortcodes {
             ARRAY_A
         );
 
-        // Build category URL
-        $cat_url = function($slug) use ($base) {
-            $slug = sanitize_title($slug);
-            if ($base !== '') {
-                // Use provided base (accepts absolute or relative)
-                $base_url = home_url( '/' . ltrim($base, '/\\') . '/' );
-                return trailingslashit( $base_url . $slug );
-            }
-            // Default: add query var to current page
-            return add_query_arg('ppc_category', $slug, get_permalink());
-        };
+        // // Build category URL
+        // $cat_url = function($slug) use ($base) {
+        //     $slug = sanitize_title($slug);
+        //     if ($base !== '') {
+        //         // Use provided base (accepts absolute or relative)
+        //         $base_url = home_url( '/' . ltrim($base, '/\\') . '/' );
+        //         return trailingslashit( $base_url . $slug );
+        //     }
+        //     // Default: add query var to current page
+        //     return add_query_arg('ppc_category', $slug, get_permalink());
+        // };
 
         // Tailwind grid col classes for 4 per row default
         $colClass = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6';
@@ -251,9 +251,8 @@ class CategoryShortcodes {
                                     'class' => 'w-full h-full object-cover'
                                 ]);
                             }
-                            $url = $cat_url($c['slug']);
                         ?>
-                        <a href="<?php echo esc_url($url); ?>" class="block group">
+                        <a href="/category/<?php echo $c['slug'] ?>" class="block group">
                             <div class="bg-white rounded-xl shadow hover:shadow-md transition overflow-hidden">
                                 <div class="aspect-[4/3] bg-gray-100">
                                     <?php if ($img) : ?>

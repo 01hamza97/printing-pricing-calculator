@@ -1,12 +1,12 @@
 <?php
 namespace PPC\Frontend;
 
-class CalculatorShortcodeHandler
+class CalculatorWithPriceShortcodeHandler
 {
     public function __construct()
     {
         add_action('wp_enqueue_scripts', [$this, 'maybe_enqueue_tailwind']);
-        add_shortcode('ppc_calculator', [$this, 'render_calculator']);
+        add_shortcode('ppc_calculator_with_price', [$this, 'render_calculator']);
     }
 
     /**
@@ -16,7 +16,7 @@ class CalculatorShortcodeHandler
     {
         if (is_singular()) {
             global $post;
-            if (is_a($post, 'WP_Post') && has_shortcode($post->post_content, 'ppc_calculator')) {
+            if (is_a($post, 'WP_Post') && has_shortcode($post->post_content, 'ppc_calculator_with_price')) {
                 wp_enqueue_script('ppc-admin-script', 'https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4', ['jquery'], null, true);
                 wp_enqueue_style( 'ppc-client-style', "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css", [], null );
             }
@@ -217,7 +217,7 @@ class CalculatorShortcodeHandler
         <?php
 
         // Pass PHP vars as well for PHP-side template rendering if needed:
-        include plugin_dir_path(__FILE__) . '../Templates/Frontend/calculator-ui.php';
+        include plugin_dir_path(__FILE__) . '../Templates/Frontend/calculator-ui-with-price.php';
         return ob_get_clean();
     }
 

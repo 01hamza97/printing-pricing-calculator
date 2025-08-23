@@ -72,6 +72,7 @@ class CheckoutInit {
             'qty'            => $qty,
             'ppc_product_title' => isset($_POST['ppc_product_title']) ? sanitize_text_field($_POST['ppc_product_title']) : '',
             'image' => isset($_POST['image']) ? sanitize_text_field($_POST['image']) : '',
+            'customer_note' => !empty($_POST['customer_note']) ? $_POST['customer_note'] : null
         ];
 
         $cart_item_key = WC()->cart->add_to_cart($product_id, $qty, 0, [], $item_data);
@@ -143,6 +144,13 @@ class CheckoutInit {
                 'value' => wc_price($cart_item['calc_total']),
             ];
         }
+        // Customer Note
+        if (!empty($cart_item['customer_note'])) {
+            $item_data[] = [
+                'key'   => __('Note', 'printing-pricing-calculator'),
+                'value' => $cart_item['customer_note'],
+            ];
+        }
         return $item_data;
     }
 
@@ -177,6 +185,9 @@ class CheckoutInit {
         }
         if (!empty($values['qty'])) {
             $item->add_meta_data('Quantity', intval($values['qty']));
+        }
+        if (!empty($values['customer_note'])) {
+            $item->add_meta_data('customer_note', $values['customer_note']);
         }
     }
 
