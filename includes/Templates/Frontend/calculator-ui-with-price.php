@@ -30,6 +30,18 @@
   opacity: 1;                            /* keep text readable */
 }
 
+/* qty shortcut "checkbox-look" */
+.ppc-fakebox {
+  height: 16px; width: 16px; border-radius: 4px;
+  border: 1px solid #d1d5db; /* gray-300 */
+  display: grid; place-items: center;
+  transition: background-color .12s ease, border-color .12s ease;
+}
+.ppc-check { opacity: 0; transition: opacity .12s ease; color: #fff; }
+.ppc-qty-shortcut:checked + .ppc-fakebox { background-color: #06b6d4; border-color: #06b6d4; } /* cyan-500 */
+.ppc-qty-shortcut:checked + .ppc-fakebox .ppc-check { opacity: 1; }
+.ppc-qty-shortcut:focus-visible + .ppc-fakebox { outline: 2px solid #06b6d4; outline-offset: 2px; }
+
 </style>
  
 <div class="w-5/6 mx-auto my-8 font-sans">
@@ -131,54 +143,56 @@
       <div class="sticky top-8">
         <h4 class="text-base !font-bold mb-[14px] text-[#008ec0]"><?php echo esc_html__( 'Number Of Pieces', 'printing-pricing-calculator' ); ?></h4>
         <div class="col-span-2 rounded-md px-5 py-6 border border-[#008ec0] mb-4">
-            <div class="mb-6">
-              <div class="flex items-center justify-between">
-                <div class="">
-                  <label class="inline-flex items-center">
-                    <input type="checkbox" id="ppc-express" class="accent-cyan-500 mr-2" />
-                    <span class="font-normal text-sm text-zinc-700">
-                      100 <?php echo esc_html__( 'PCS', 'printing-pricing-calculator' ); ?>
-                    </span>
-                  </label>
+            <?php
+              $minQty = isset($min_order_qty) ? max(1, (int)$min_order_qty) : 1;
+              $quantities = [];
+
+              // always include the minimum first
+              $quantities[] = $minQty;
+
+              // then the next completed 100 (if it's not the same as min), and continue +100 up to 1000
+              $nextHundred = (int)ceil($minQty / 100) * 100;
+              if ($nextHundred === $minQty) {
+                  $nextHundred += 100;
+              }
+              for ($q = $nextHundred; $q <= 1000; $q += 100) {
+                  $quantities[] = $q;
+              }
+              ?>
+
+              <div class="mb-6" id="ppc-qty-shortcuts">
+                <?php foreach ($quantities as $q): 
+                  $id = 'ppc-qty-shortcut-' . (int)$q;
+                ?>
+                 <div class="flex items-center justify-between py-1.5">
+                  <div>
+                    <label for="<?php echo esc_attr($id); ?>" class="inline-flex items-center gap-2 cursor-pointer select-none">
+                      <input
+                        type="radio"
+                        name="ppc_qty_shortcut"
+                        id="<?php echo esc_attr($id); ?>"
+                        class="ppc-qty-shortcut sr-only"
+                        value="<?php echo (int)$q; ?>"
+                        data-qty="<?php echo (int)$q; ?>"
+                      />
+                      <span class="ppc-fakebox">
+                        <svg class="ppc-check" width="12" height="12" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                          <path fill-rule="evenodd" d="M16.704 5.29a1 1 0 010 1.42l-7.2 7.2a1 1 0 01-1.408 0l-3.2-3.2a1 1 0 111.408-1.42l2.496 2.496 6.496-6.496a1 1 0 011.408 0z" clip-rule="evenodd"/>
+                        </svg>
+                      </span>
+                      <span class="font-normal text-sm text-zinc-700">
+                        <?php echo (int)$q; ?> <?php echo esc_html__( 'PCS', 'printing-pricing-calculator' ); ?>
+                      </span>
+                    </label>
+                  </div>
+                  <p class="font-normal text-sm text-zinc-700 ppc-qty-price" data-qty="<?php echo (int)$q; ?>">—</p>
                 </div>
-                <p class="font-normal text-sm text-zinc-700">100 <?php echo esc_html__( 'CZK', 'printing-pricing-calculator' ); ?></p>
-              </div>
-              <div class="flex items-center justify-between">
-                <div class="">
-                  <label class="inline-flex items-center">
-                    <input type="checkbox" id="ppc-express" class="accent-cyan-500 mr-2" />
-                    <span class="font-normal text-sm text-zinc-700">
-                      200 <?php echo esc_html__( 'PCS', 'printing-pricing-calculator' ); ?>
-                    </span>
-                  </label>
-                </div>
-                <p class="font-normal text-sm text-zinc-700">100 <?php echo esc_html__( 'CZK', 'printing-pricing-calculator' ); ?></p>
-              </div>
-              <div class="flex items-center justify-between">
-                <div class="">
-                  <label class="inline-flex items-center">
-                    <input type="checkbox" id="ppc-express" class="accent-cyan-500 mr-2" />
-                    <span class="font-normal text-sm text-zinc-700">
-                      200 <?php echo esc_html__( 'PCS', 'printing-pricing-calculator' ); ?>
-                    </span>
-                  </label>
-                </div>
-                <p class="font-normal text-sm text-zinc-700">100 <?php echo esc_html__( 'CZK', 'printing-pricing-calculator' ); ?></p>
-              </div>
-              <div class="flex items-center justify-between">
-                <div class="">
-                  <label class="inline-flex items-center">
-                    <input type="checkbox" id="ppc-express" class="accent-cyan-500 mr-2" />
-                    <span class="font-normal text-sm text-zinc-700">
-                      400 <?php echo esc_html__( 'PCS', 'printing-pricing-calculator' ); ?>
-                    </span>
-                  </label>
-                </div>
-                <p class="font-normal text-sm text-zinc-700">100 <?php echo esc_html__( 'CZK', 'printing-pricing-calculator' ); ?></p>
-              </div>
+              <?php endforeach; ?>
             </div>
             <h5 class="text-base !font-semibold text-zinc-600 mb-1"><?php echo esc_html__( 'Enter Your Quantity', 'printing-pricing-calculator' ); ?></h5>
-            <input type="text" placeholder="<?php echo esc_attr__( 'text', 'printing-pricing-calculator' ); ?>" class="bg-zinc-100 rounded-md px-3 py-3 w-full text-base">
+            <input type="number" id="ppc-qty" placeholder="<?php echo esc_attr__( 'text', 'printing-pricing-calculator' ); ?>" class="bg-zinc-100 rounded-md px-3 py-3 w-full text-base">
+            <small class="text-red-600 hidden block" id="ppc-qty-error"></small>
+            <small class="text-gray-600 block text-sm"><?php echo esc_html__( 'Minimum order:', 'printing-pricing-calculator' ); ?> <?php echo (int)$min_order_qty; ?></small>
         </div>
         <!-- display controls -->
         <div class="mb-4 mt-4 w-full grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -208,16 +222,17 @@
             <!-- Quantity -->
             <div class="mb-3">
               <div class="relative inline-block">
+                <p><?php echo esc_html__( 'Amount', 'printing-pricing-calculator' ); ?></p>
                 <div class="flex items-center justify-center border border-blue-300 rounded-md bg-[#008ec0] px-4 py-2 text-lg font-medium text-white mb-4">
                 <input
                   type="number"
-                  id="ppc-qty"
+                  disabled
                   class="w-25 outline-none"
+                  id="show-quantity"
+                  value="<?php echo (int)$min_order_qty; ?>"
                 />
                 <span class=""><?php echo esc_html__( 'PCS', 'printing-pricing-calculator' ); ?></span>
               </div>
-              <small class="text-gray-600 block text-sm mb-8"><?php echo esc_html__( 'Minimum order:', 'printing-pricing-calculator' ); ?> <?php echo (int)$min_order_qty; ?></small>
-              <small class="text-red-600 hidden block" id="ppc-qty-error"></small>
             </div>
   
             <!-- Express -->
@@ -603,6 +618,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     ? ' <?php echo esc_js( __( '(With Tax)', 'printing-pricing-calculator' ) ); ?>'
                     : ' <?php echo esc_js( __( '(Without Tax)', 'printing-pricing-calculator' ) ); ?>');
     const $label = document.getElementById('ppc-price-type-label');
+    ppc_render_qty_shortcuts_prices();
     if ($label) $label.textContent = label;
   }
 
@@ -629,6 +645,8 @@ document.addEventListener('DOMContentLoaded', function () {
   qtyInput.addEventListener('input', function() {
     qtyError.textContent = '';
     qtyError.classList.add('hidden');
+    const showField = document.getElementById('show-quantity');
+    if (showField) showField.value = qtyInput.value;
     updateSummary();
   });
 
@@ -824,6 +842,8 @@ document.addEventListener('DOMContentLoaded', function () {
               if (wrap) wrap.classList.remove('hidden');
             }
             return; // done for ANY
+          } else {
+            sel.disabled = false;
           }
 
           // --- Specific option within the select ---
@@ -880,6 +900,105 @@ document.addEventListener('DOMContentLoaded', function () {
     //     sel.addEventListener('change', evaluateConditions);
     // });
     })();
+
+    // Compute total for an arbitrary quantity, using current selections/toggles
+    function ppc_compute_total_for_qty(testQty) {
+      const qty = Math.max(parseInt(testQty, 10) || 0, 0);
+
+      // per-piece adders from selected parameter options
+      let perPieceAdders = 0;
+      paramIds.forEach((paramId) => {
+        const sel = document.getElementById('param_' + paramId);
+        if (!sel) return;
+        const selectedOpt = sel.options[sel.selectedIndex] || {};
+        const optCost = parseFloat(selectedOpt.dataset?.cost || 0) || 0;
+        if (selectedOpt.value && optCost) perPieceAdders += optCost;
+      });
+
+      const perPiece = (parseFloat(basePrice) || 0) + perPieceAdders;
+      const preDiscountTotal = perPiece * Math.max(qty, 1);
+
+      // discount by qty
+      const discountPercent = getDiscountPercent(qty || 0, discountRules) || 0;
+      const discountAmount = preDiscountTotal * (discountPercent / 100);
+      let finalNoTax = preDiscountTotal - discountAmount;
+
+      // file check (flat)
+      if (fileCheckBox && fileCheckBox.checked) {
+        finalNoTax += (parseFloat(fileCheckPrice) || 0);
+      }
+
+      // express delivery
+      if (expressCheckbox && expressCheckbox.checked) {
+        const type  = (expressType === 'percent') ? 'percent' : 'flat';
+        const value = parseFloat(expressValue) || 0;
+        const expressAmount = (type === 'percent') ? (finalNoTax * (value / 100)) : value;
+        finalNoTax += expressAmount;
+      }
+
+      // tax
+      const taxRate = parseFloat(tax) || 0;
+      const taxAmount = taxRate > 0 ? finalNoTax * (taxRate / 100) : 0;
+      const finalWithTax = finalNoTax + taxAmount;
+
+      return { totalWithTax: finalWithTax, totalWithoutTax: finalNoTax };
+    }
+
+    // Render prices next to each shortcut button
+    function ppc_render_qty_shortcuts_prices() {
+      const nodes = document.querySelectorAll('#ppc-qty-shortcuts .ppc-qty-price');
+      nodes.forEach(node => {
+        const q = parseInt(node.dataset.qty, 10);
+        const res = ppc_compute_total_for_qty(q);
+
+        // Use your site-wide formatter if present
+        let formatted;
+        if (typeof ppcFormatMoney === 'function') {
+          formatted = ppcFormatMoney(res.totalWithTax);
+        } else if (window.ppcCurrency && typeof window.ppcCurrency.num_decimals !== 'undefined') {
+          // lightweight fallback
+          const decimals = window.ppcCurrency.num_decimals || 2;
+          const sym = window.ppcCurrency.symbol || '';
+          formatted = res.totalWithTax.toFixed(decimals) + (sym ? ' ' + sym : '');
+        } else {
+          formatted = res.totalWithTax.toFixed(2);
+        }
+
+        node.textContent = formatted;
+      });
+    }
+
+    // Keep the radio selection in sync if user types a custom qty
+    function ppc_sync_shortcut_selection_from_qty() {
+      const current = parseInt(qtyInput.value, 10);
+      document.querySelectorAll('.ppc-qty-shortcut').forEach(r => {
+        r.checked = (parseInt(r.value, 10) === current);
+      });
+    }
+
+    // Bind changes on the shortcut radios
+    document.querySelectorAll('.ppc-qty-shortcut').forEach(radio => {
+      radio.addEventListener('change', function () {
+        if (!this.checked) return;
+        const val = this.value;
+
+        // Set both fields requested
+        const showField = document.getElementById('show-quantity');
+        if (showField) showField.value = val;
+
+        if (qtyInput) qtyInput.value = val;
+
+        // Recalculate main summary (this also re-renders shortcut prices at the end)
+        updateSummary();
+      });
+    });
+
+    // When qty is typed/validated elsewhere, align the shortcuts UI
+    qtyInput.addEventListener('input', ppc_sync_shortcut_selection_from_qty);
+    qtyInput.addEventListener('blur',  ppc_sync_shortcut_selection_from_qty);
+
+    // Initial render of the shortcut prices
+    ppc_render_qty_shortcuts_prices();
 
 });
 </script>

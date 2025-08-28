@@ -105,7 +105,7 @@
     </div>
     <!-- <div class="w-1/3 px-2 mx-2">
       <div class="bg-zinc-300 font-bold h-170 mt-2 mx-auto px-6 py-5 rounded-md text-white text-base w-full">
-        <?php echo esc_html__( 'Picture or ads', 'printing-pricing-calculator' ); ?>
+        <?php // echo esc_html__( 'Picture or ads', 'printing-pricing-calculator' ); ?>
       </div>
       <div class="mb-4 mt-4 w-full grid grid-cols-1 md:grid-cols-2 gap-4 hidden">
         
@@ -132,22 +132,23 @@
       <div class="flex flex-col">
         <div class="px-4">
           <!-- Quantity -->
-          <!-- <div class="mb-3">
+          <div class="mb-3">
             <div class="relative inline-block">
-              <div class="flex items-center justify-center border border-blue-300 rounded-md bg-[#008ec0] px-4 py-2 text-lg font-medium text-white w-[110px] mb-4">
+              <p><?php echo esc_html__( 'Amount', 'printing-pricing-calculator' ); ?></p>
+              <div class="flex items-center justify-center border border-blue-300 rounded-md bg-[#008ec0] px-4 py-2 text-lg font-medium text-white mb-4">
               <input
                 type="number"
                 id="ppc-qty"
-                class="w-12 outline-none"
+                class="w-20 outline-none"
               />
               <span class=""><?php echo esc_html__( 'PCS', 'printing-pricing-calculator' ); ?></span>
             </div>
             <small class="text-gray-600 block text-sm mb-8">
-              <?php // echo esc_html__( 'Minimum order:', 'printing-pricing-calculator' ); ?>
-              <?php // echo (int)$min_order_qty; ?>
+              <?php echo esc_html__( 'Minimum order:', 'printing-pricing-calculator' ); ?>
+              <?php echo (int)$min_order_qty; ?>
             </small>
             <small class="text-red-600 hidden block" id="ppc-qty-error"></small>
-          </div> -->
+          </div>
 
           <!-- Express -->
           <div class="">
