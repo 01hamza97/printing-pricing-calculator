@@ -35,14 +35,14 @@ foreach ($allParamsSource as $p0) {
 <div class="ppc-param-row" data-param-id="<?php echo (int)($param['id'] ?? 0); ?>" style="margin-bottom: 16px; border: 1px solid #ddd; border-radius: 6px; overflow: hidden;">
     <!-- Keep header classes (toggle/sort/remove JS in form.php relies on these) -->
     <div class="ppc-param-header" style="display:flex;align-items:center;gap:8px;padding:10px;cursor:pointer;background:#fafafa;border-bottom:1px solid #eee;">
-        <span class="ppc-param-drag" title="Drag to reorder" style="cursor:move;">⋮⋮</span>
+        <span class="ppc-param-drag" title="<?php echo esc_attr__( 'Drag to reorder', 'printing-pricing-calculator' ); ?>" style="cursor:move;">⋮⋮</span>
         <strong style="flex:1;">
             <?php echo esc_html($param['title'] ?? ''); ?>
             <?php if (!empty($param['front_name'])): ?>
                 <span style="color:#888;font-weight:normal;">(<?php echo esc_html($param['front_name']); ?>)</span>
             <?php endif; ?>
         </strong>
-        <button type="button" class="button button-small ppc-param-remove">Remove</button>
+        <button type="button" class="button button-small ppc-param-remove"><?php echo esc_html__( 'Remove', 'printing-pricing-calculator' ); ?></button>
         <span class="ppc-param-toggle" style="transition:transform .2s;">▾</span>
     </div>
 
@@ -55,11 +55,11 @@ foreach ($allParamsSource as $p0) {
             <table class="widefat striped" style="margin-bottom:16px;">
                 <thead>
                     <tr>
-                        <th style="width:30%;">Option</th>
-                        <th style="width:15%;">Base Cost</th>
-                        <th style="width:15%;">Override Price</th>
-                        <th style="width:10%;">Select</th>
-                        <th style="width:30%;">Conditions</th>
+                        <th style="width:30%;"><?php echo esc_html__( 'Option', 'printing-pricing-calculator' ); ?></th>
+                        <th style="width:15%;"><?php echo esc_html__( 'Base Cost', 'printing-pricing-calculator' ); ?></th>
+                        <th style="width:15%;"><?php echo esc_html__( 'Override Price', 'printing-pricing-calculator' ); ?></th>
+                        <th style="width:10%;"><?php echo esc_html__( 'Select', 'printing-pricing-calculator' ); ?></th>
+                        <th style="width:30%;"><?php echo esc_html__( 'Conditions', 'printing-pricing-calculator' ); ?></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -76,7 +76,7 @@ foreach ($allParamsSource as $p0) {
                         <tr data-option-id="<?php echo $opt_id; ?>">
                             <td>
                                 <?php echo esc_html($opt_name); ?>
-                                <div style="color:#888;font-size:12px;margin-top:2px;">ID: <?php echo $opt_id; ?></div>
+                                <div style="color:#888;font-size:12px;margin-top:2px;"><?php echo esc_html__( 'ID:', 'printing-pricing-calculator' ); ?> <?php echo $opt_id; ?></div>
                             </td>
                             <td><?php echo number_format($baseCost, 2); ?></td>
                             <td>
@@ -90,7 +90,7 @@ foreach ($allParamsSource as $p0) {
                                 <button type="button"
                                         class="button button-small ppc-open-conditions"
                                         data-option-id="<?php echo $opt_id; ?>">
-                                    Edit Conditions
+                                    <?php echo esc_html__( 'Edit Conditions', 'printing-pricing-calculator' ); ?>
                                 </button>
                             </td>
                         </tr>
@@ -99,9 +99,9 @@ foreach ($allParamsSource as $p0) {
                             <td colspan="999" style="padding:12px 10px;">
                                 <div class="ppc-conditions-wrap" data-option-id="<?php echo $opt_id; ?>">
                                     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-                                        <strong>Conditions for option: <?php echo esc_html($opt_name); ?></strong>
+                                        <strong><?php echo esc_html__( 'Conditions for option:', 'printing-pricing-calculator' ); ?> <?php echo esc_html($opt_name); ?></strong>
                                         <div>
-                                            <button type="button" class="button button-secondary button-small ppc-add-group" data-option-id="<?php echo $opt_id; ?>">+ Add Group</button>
+                                            <button type="button" class="button button-secondary button-small ppc-add-group" data-option-id="<?php echo $opt_id; ?>">+ <?php echo esc_html__( 'Add Group', 'printing-pricing-calculator' ); ?></button>
                                         </div>
                                     </div>
                                     <div class="ppc-condition-groups" data-option-id="<?php echo $opt_id; ?>"></div>
@@ -111,8 +111,12 @@ foreach ($allParamsSource as $p0) {
                                         name="conditions[<?php echo $opt_id; ?>]"
                                         value="<?php echo esc_attr( wp_json_encode( $existing_option_conditions[ $opt_id ] ?? [] ) ); ?>" />
                                     <p style="margin:8px 0 0;color:#666;font-size:12px;">
-                                        Each <b>Group</b> evaluates its rows with the selected operator (AND/OR).
-                                        When this <i>option</i> is selected, matching groups will <i>apply action</i> to the chosen target (parameter or option).
+                                        <?php
+                                        echo wp_kses_post( __(
+                                            'Each <b>Group</b> evaluates its rows with the selected operator (AND/OR). When this <i>option</i> is selected, matching groups will <i>apply action</i> to the chosen target (parameter or option).',
+                                            'printing-pricing-calculator'
+                                        ) );
+                                        ?>
                                     </p>
                                 </div>
                             </td>
@@ -125,9 +129,9 @@ foreach ($allParamsSource as $p0) {
         <!-- Parameter-level conditions (new; doesn’t affect existing fields) -->
         <div class="ppc-param-wide-conditions" style="margin-top:16px;border-top:1px solid #eee;padding-top:12px;">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-                <strong>Parameter-level Conditions (apply to the entire parameter)</strong>
+                <strong><?php echo esc_html__( 'Parameter-level Conditions (apply to the entire parameter)', 'printing-pricing-calculator' ); ?></strong>
                 <div>
-                    <button type="button" class="button button-secondary button-small ppc-add-param-group" data-param-id="<?php echo (int)($param['id'] ?? 0); ?>">+ Add Group</button>
+                    <button type="button" class="button button-secondary button-small ppc-add-param-group" data-param-id="<?php echo (int)($param['id'] ?? 0); ?>">+ <?php echo esc_html__( 'Add Group', 'printing-pricing-calculator' ); ?></button>
                 </div>
             </div>
             <div class="ppc-param-condition-groups" data-param-id="<?php echo (int)($param['id'] ?? 0); ?>"></div>
@@ -136,8 +140,12 @@ foreach ($allParamsSource as $p0) {
                 name="param_conditions[<?php echo (int)($param['id'] ?? 0); ?>]"
                 value="<?php echo esc_attr( wp_json_encode( $existing_param_conditions[ (int)($param['id'] ?? 0) ] ?? [] ) ); ?>" />
             <p style="margin:8px 0 0;color:#666;font-size:12px;">
-                Use these rules when you want to hide/show targets based on this <b>parameter</b> (not a specific option).
-                For example: “If Param A = ANY, hide Param B”.
+                <?php
+                echo wp_kses_post( __(
+                    'Use these rules when you want to hide/show targets based on this <b>parameter</b> (not a specific option). For example: “If Param A = ANY, hide Param B”.',
+                    'printing-pricing-calculator'
+                ) );
+                ?>
             </p>
         </div>
 
@@ -200,14 +208,14 @@ foreach ($allParamsSource as $p0) {
         return el(
             '<div class="'+cls+'" data-group-index="'+groupIndex+'" style="border:1px solid #e5e5e5;border-radius:6px;margin-bottom:10px;padding:10px;">' +
                 '<div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">' +
-                    '<strong style="flex:1">Group '+(groupIndex+1)+'</strong>' +
-                    '<label style="display:inline-flex;align-items:center;gap:6px;">Operator ' +
-                        '<select class="ppc-operator"><option value="AND">AND</option><option value="OR">OR</option></select>' +
+                    '<strong style="flex:1"><?php echo esc_js( __( 'Group', 'printing-pricing-calculator' ) ); ?> '+(groupIndex+1)+'</strong>' +
+                    '<label style="display:inline-flex;align-items:center;gap:6px;"><?php echo esc_js( __( 'Operator', 'printing-pricing-calculator' ) ); ?> ' +
+                        '<select class="ppc-operator"><option value="AND"><?php echo esc_js( __( 'AND', 'printing-pricing-calculator' ) ); ?></option><option value="OR"><?php echo esc_js( __( 'OR', 'printing-pricing-calculator' ) ); ?></option></select>' +
                     '</label>' +
-                    '<button type="button" class="button-link-delete ppc-remove-group">Remove group</button>' +
+                    '<button type="button" class="button-link-delete ppc-remove-group"><?php echo esc_js( __( 'Remove group', 'printing-pricing-calculator' ) ); ?></button>' +
                 '</div>' +
                 '<div class="ppc-group-rows" style="display:flex;flex-direction:column;gap:6px;"></div>' +
-                '<div><button type="button" class="button button-small ppc-add-row">+ Add Condition</button></div>' +
+                '<div><button type="button" class="button button-small ppc-add-row">+ <?php echo esc_js( __( 'Add Condition', 'printing-pricing-calculator' ) ); ?></button></div>' +
             '</div>'
         );
     }
@@ -216,11 +224,11 @@ foreach ($allParamsSource as $p0) {
         var paramOptions = buildParamOptionsHTML(currentParamId);
         return el(
             '<div class="ppc-group-row" data-row-index="0" style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr auto;gap:8px;align-items:center;">' +
-                '<label>Target Param<select class="ppc-target-param"><option value="">— select —</option>'+ paramOptions +'</select></label>' +
-                '<label>Target Option<select class="ppc-target-option"><option value="">ANY</option></select></label>' +
-                '<label>Action<select class="ppc-action"><option value="show">Show</option><option value="hide">Hide</option></select></label>' +
-                '<div style="color:#666;font-size:12px;">Apply to selected target</div>' +
-                '<button type="button" class="button-link-delete ppc-remove-row">Remove</button>' +
+                '<label><?php echo esc_js( __( 'Target Param', 'printing-pricing-calculator' ) ); ?><select class="ppc-target-param"><option value=""><?php echo esc_js( __( '— select —', 'printing-pricing-calculator' ) ); ?></option>'+ paramOptions +'</select></label>' +
+                '<label><?php echo esc_js( __( 'Target Option', 'printing-pricing-calculator' ) ); ?><select class="ppc-target-option"><option value=""><?php echo esc_js( __( 'ANY', 'printing-pricing-calculator' ) ); ?></option></select></label>' +
+                '<label><?php echo esc_js( __( 'Action', 'printing-pricing-calculator' ) ); ?><select class="ppc-action"><option value="show"><?php echo esc_js( __( 'Show', 'printing-pricing-calculator' ) ); ?></option><option value="hide"><?php echo esc_js( __( 'Hide', 'printing-pricing-calculator' ) ); ?></option></select></label>' +
+                '<div style="color:#666;font-size:12px;"><?php echo esc_js( __( 'Apply to selected target', 'printing-pricing-calculator' ) ); ?></div>' +
+                '<button type="button" class="button-link-delete ppc-remove-row"><?php echo esc_js( __( 'Remove', 'printing-pricing-calculator' ) ); ?></button>' +
             '</div>'
         );
     }
@@ -230,7 +238,7 @@ foreach ($allParamsSource as $p0) {
         var selParamId = String(targetParamSelect.value || '');
         var optSelect  = row.querySelector('.ppc-target-option');
         if (!optSelect) return;
-        optSelect.innerHTML = '<option value="">ANY</option>';
+        optSelect.innerHTML = '<option value=""><?php echo esc_js( __( 'ANY', 'printing-pricing-calculator' ) ); ?></option>';
         if (!selParamId) return;
 
         var p = (window.PPC_ALL_PARAMETERS || []).find(function(pp){ return String(pp.id) === selParamId; });
@@ -247,14 +255,14 @@ foreach ($allParamsSource as $p0) {
     function renumberGroupsOption(wrap){
         wrap.querySelectorAll('.ppc-condition-group').forEach(function(g,i){
             g.setAttribute('data-group-index', i);
-            var s = g.querySelector('strong'); if (s) s.textContent = 'Group ' + (i+1);
+            var s = g.querySelector('strong'); if (s) s.textContent = '<?php echo esc_js( __( 'Group', 'printing-pricing-calculator' ) ); ?> ' + (i+1);
             renumberRows(g);
         });
     }
     function renumberGroupsParam(wrap){
         wrap.querySelectorAll('.ppc-param-condition-group').forEach(function(g,i){
             g.setAttribute('data-group-index', i);
-            var s = g.querySelector('strong'); if (s) s.textContent = 'Group ' + (i+1);
+            var s = g.querySelector('strong'); if (s) s.textContent = '<?php echo esc_js( __( 'Group', 'printing-pricing-calculator' ) ); ?> ' + (i+1);
             renumberRows(g);
         });
     }

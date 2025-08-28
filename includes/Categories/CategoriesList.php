@@ -9,8 +9,8 @@ class CategoriesList extends \WP_List_Table {
     public function register_menu() {
         add_submenu_page(
             'ppc-calculator',
-            'Categories',
-            'Categories',
+            __('Categories', 'printing-pricing-calculator'),
+            __('Categories', 'printing-pricing-calculator'),
             'manage_options',
             'ppc-categories',
             [$this, 'render']
@@ -19,7 +19,7 @@ class CategoriesList extends \WP_List_Table {
 
     public function render() {
       if ( ! current_user_can('manage_options') ) {
-            wp_die('Unauthorized');
+            wp_die( esc_html__( 'Unauthorized', 'printing-pricing-calculator' ) );
         }
 
         // Prepare the table before including the template
@@ -33,17 +33,19 @@ class CategoriesList extends \WP_List_Table {
         require_once plugin_dir_path(__FILE__) . 'includes/Templates/Categories/list.php';
         ?>
         <div class="wrap">
-            <h1 class="wp-heading-inline">Categories</h1>
-            <a href="<?php echo esc_url( add_query_arg(['page'=>'ppc-categories-edit'], admin_url('admin.php')) ); ?>" class="page-title-action">Add New</a>
+            <h1 class="wp-heading-inline"><?php esc_html_e( 'Categories', 'printing-pricing-calculator' ); ?></h1>
+            <a href="<?php echo esc_url( add_query_arg(['page'=>'ppc-categories-edit'], admin_url('admin.php')) ); ?>" class="page-title-action">
+                <?php echo esc_html__( 'Add New', 'printing-pricing-calculator' ); ?>
+            </a>
             <hr class="wp-header-end">
 
-            <?php if ($message): ?>
-                <div id="message" class="updated notice is-dismissible"><p><?php echo esc_html($message); ?></p></div>
+            <?php if ( $message ) : ?>
+                <div id="message" class="updated notice is-dismissible"><p><?php echo esc_html( $message ); ?></p></div>
             <?php endif; ?>
 
             <form method="post">
                 <?php
-                    $this->search_box('Search Categories', 'ppc-cat');
+                    $this->search_box( esc_html__( 'Search Categories', 'printing-pricing-calculator' ), 'ppc-cat' );
                     $this->display();
                 ?>
             </form>
@@ -52,23 +54,23 @@ class CategoriesList extends \WP_List_Table {
     }
 
     public function __construct() {
-      add_action('admin_menu', [$this, 'register_menu']);
-      parent::__construct([
-          'singular' => 'ppc_category',
-          'plural'   => 'ppc_categories',
-          'ajax'     => false,
-      ]);
+        add_action('admin_menu', [$this, 'register_menu']);
+        parent::__construct([
+            'singular' => 'ppc_category',
+            'plural'   => 'ppc_categories',
+            'ajax'     => false,
+        ]);
     }
 
     public function get_columns() {
         return [
             'cb'          => '<input type="checkbox" />',
-            'image'       => 'Image',
-            'name'        => 'Name',
-            'slug'        => 'Slug',
-            'status'      => 'Status',
-            'description' => 'Description',
-            'date'        => 'Created',
+            'image'       => esc_html__( 'Image', 'printing-pricing-calculator' ),
+            'name'        => esc_html__( 'Name', 'printing-pricing-calculator' ),
+            'slug'        => esc_html__( 'Slug', 'printing-pricing-calculator' ),
+            'status'      => esc_html__( 'Status', 'printing-pricing-calculator' ),
+            'description' => esc_html__( 'Description', 'printing-pricing-calculator' ),
+            'date'        => esc_html__( 'Created', 'printing-pricing-calculator' ),
         ];
     }
 
@@ -76,26 +78,37 @@ class CategoriesList extends \WP_List_Table {
         return sprintf('<input type="checkbox" name="ids[]" value="%d" />', $item['id']);
     }
 
-    protected function column_name($item) {
-        $edit_url = add_query_arg([
-            'page' => 'ppc-categories-edit',
-            'id'   => $item['id'],
-        ], admin_url('admin.php'));
+    protected function column_name( $item ) {
+        $edit_url = add_query_arg(
+            [
+                'page' => 'ppc-categories-edit',
+                'id'   => $item['id'],
+            ],
+            admin_url('admin.php')
+        );
+
+        $delete_url = wp_nonce_url(
+            add_query_arg(
+                [
+                    'page'   => 'ppc-categories',
+                    'action' => 'delete',
+                    'id'     => $item['id'],
+                ],
+                admin_url('admin.php')
+            ),
+            'ppc_cat_delete_' . $item['id']
+        );
 
         $actions = [
-            'edit'   => sprintf('<a href="%s">Edit</a>', esc_url($edit_url)),
-            'delete' => sprintf('<a href="%s" onclick="return confirm(\'Delete this category?\')">Delete</a>',
-                        esc_url( wp_nonce_url( add_query_arg([
-                            'page'   => 'ppc-categories',
-                            'action' => 'delete',
-                            'id'     => $item['id'],
-                        ], admin_url('admin.php')), 'ppc_cat_delete_' . $item['id'] ) ) )
+            'edit'   => '<a href="' . esc_url( $edit_url ) . '">' . esc_html__( 'Edit', 'printing-pricing-calculator' ) . '</a>',
+            'delete' => '<a href="' . esc_url( $delete_url ) . '" onclick="return confirm(' . wp_json_encode( __( 'Delete this category?', 'printing-pricing-calculator' ) ) . ')">' . esc_html__( 'Delete', 'printing-pricing-calculator' ) . '</a>',
         ];
 
-        return sprintf('<strong><a href="%s">%s</a></strong> %s',
-            esc_url($edit_url),
-            esc_html($item['name']),
-            $this->row_actions($actions)
+        return sprintf(
+            '<strong><a href="%s">%s</a></strong> %s',
+            esc_url( $edit_url ),
+            esc_html( $item['name'] ),
+            $this->row_actions( $actions )
         );
     }
 
@@ -103,9 +116,11 @@ class CategoriesList extends \WP_List_Table {
         return esc_html($item['slug']);
     }
 
-    protected function column_status($item) {
-        $b = $item['status'] === 'active' ? 'Active' : 'Inactive';
-        return esc_html($b);
+    protected function column_status( $item ) {
+        return esc_html( $item['status'] === 'active'
+            ? __( 'Active', 'printing-pricing-calculator' )
+            : __( 'Inactive', 'printing-pricing-calculator' )
+        );
     }
 
     protected function column_description($item) {
@@ -127,7 +142,7 @@ class CategoriesList extends \WP_List_Table {
 
     public function get_bulk_actions() {
         return [
-            'bulk-delete' => 'Delete',
+            'bulk-delete' => esc_html__( 'Delete', 'printing-pricing-calculator' ),
         ];
     }
 

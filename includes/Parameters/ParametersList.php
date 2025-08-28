@@ -12,8 +12,8 @@ class ParametersList
     {
         add_submenu_page(
             'ppc-calculator',
-            'Parameter List',
-            'Parameters',
+            __('Parameter List', 'printing-pricing-calculator'),
+            __('Parameters', 'printing-pricing-calculator'),
             'manage_options',
             'ppc-parameters',
             [$this, 'render_parameters_list']

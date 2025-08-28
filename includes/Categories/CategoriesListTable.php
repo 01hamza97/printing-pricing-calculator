@@ -14,12 +14,12 @@ class CategoriesListTable extends \WP_List_Table {
     public function get_columns() {
         return [
             'cb'          => '<input type="checkbox" />',
-            'image'       => 'Image',
-            'name'        => 'Name',
-            'slug'        => 'Slug',
-            'status'      => 'Status',
-            'description' => 'Description',
-            'date'        => 'Created',
+            'image'       => __('Image', 'printing-pricing-calculator'),
+            'name'        => __('Name', 'printing-pricing-calculator'),
+            'slug'        => __('Slug', 'printing-pricing-calculator'),
+            'status'      => __('Status', 'printing-pricing-calculator'),
+            'description' => __('Description', 'printing-pricing-calculator'),
+            'date'        => __('Created', 'printing-pricing-calculator'),
         ];
     }
 
@@ -34,14 +34,16 @@ class CategoriesListTable extends \WP_List_Table {
         ], admin_url('admin.php'));
 
         $actions = [
-            'edit'   => sprintf('<a href="%s">Edit</a>', esc_url($edit_url)),
+            'edit'   => sprintf('<a href="%s">%s</a>', esc_url($edit_url), esc_html__('Edit', 'printing-pricing-calculator')),
             'delete' => sprintf(
-                '<a href="%s" onclick="return confirm(\'Delete this category?\')">Delete</a>',
+                '<a href="%s" onclick="return confirm(\'%s\')">%s</a>',
                 esc_url( wp_nonce_url( add_query_arg([
                     'page'   => 'ppc-categories',
                     'action' => 'delete',
                     'id'     => (int)$item['id'],
-                ], admin_url('admin.php')), 'ppc_cat_delete_' . (int)$item['id'] ) )
+                ], admin_url('admin.php')), 'ppc_cat_delete_' . (int)$item['id'] ) ),
+                esc_js( __('Delete this category?', 'printing-pricing-calculator') ),
+                esc_html__('Delete', 'printing-pricing-calculator')
             ),
         ];
 
@@ -54,7 +56,7 @@ class CategoriesListTable extends \WP_List_Table {
     }
 
     protected function column_slug($item)        { return esc_html($item['slug']); }
-    protected function column_status($item)      { return esc_html($item['status'] === 'active' ? 'Active' : 'Inactive'); }
+    protected function column_status($item)      { return esc_html($item['status'] === 'active' ? __('Active', 'printing-pricing-calculator') : __('Inactive', 'printing-pricing-calculator')); }
     protected function column_description($item) { return esc_html( wp_trim_words( (string)$item['description'], 20 ) ); }
     protected function column_date($item)        { return esc_html( mysql2date('Y-m-d', $item['created_at']) ); }
     protected function column_image($item) {
@@ -75,7 +77,7 @@ class CategoriesListTable extends \WP_List_Table {
     }
 
     public function get_bulk_actions() {
-        return [ 'bulk-delete' => 'Delete' ];
+        return [ 'bulk-delete' => __('Delete', 'printing-pricing-calculator') ];
     }
 
     public function process_bulk_action() {

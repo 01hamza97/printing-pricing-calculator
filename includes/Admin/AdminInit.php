@@ -9,8 +9,8 @@ class AdminInit {
 
     public function register_admin_menu() {
         add_menu_page(
-            'Print Calculator',
-            'Print Calculator',
+            __('Print Calculator', 'printing-pricing-calculator'),
+            __('Print Calculator', 'printing-pricing-calculator'),
             'manage_options',
             'ppc-calculator',
             [$this, 'render_admin_page'],
@@ -19,17 +19,18 @@ class AdminInit {
         );
         add_submenu_page(
             'ppc-calculator',
-            'Settings',
-            'Settings',
+            __('Settings', 'printing-pricing-calculator'),
+            __('Settings', 'printing-pricing-calculator'),
             'manage_options',
             'ppc-settings',
             [$this, 'render_settings_page']
-    );
+        );
     }
 
     public function render_admin_page() {
-        echo '<div class="wrap"><h1>Print Calculator</h1>';
-        echo '<p>This plugin uses a custom post type to manage print products with categories and pricing parameters.</p>';
+        echo '<div class="wrap">';
+        echo '<h1>' . esc_html__( 'Print Calculator', 'printing-pricing-calculator' ) . '</h1>';
+        echo '<p>' . esc_html__( 'This plugin uses a custom post type to manage print products with categories and pricing parameters.', 'printing-pricing-calculator' ) . '</p>';
         echo '</div>';
     }
 
@@ -92,7 +93,7 @@ class AdminInit {
             );
 
             if ($finfo['ext'] !== 'pdf') {
-                echo '<div class="notice notice-error"><p>Please upload a valid PDF file.</p></div>';
+                echo '<div class="notice notice-error"><p>' . esc_html__('Please upload a valid PDF file.', 'printing-pricing-calculator') . '</p></div>';
             } else {
                 require_once ABSPATH . 'wp-admin/includes/file.php';
                 require_once ABSPATH . 'wp-admin/includes/media.php';
@@ -100,8 +101,13 @@ class AdminInit {
 
                 // Upload to Media Library and create attachment
                 $attach_id = media_handle_upload('ppc_instructions_pdf', 0, [], ['test_form' => false]);
-                if (is_wp_error($attach_id)) {
-                    echo '<div class="notice notice-error"><p>Upload failed: ' . esc_html($attach_id->get_error_message()) . '</p></div>';
+                if ( is_wp_error( $attach_id ) ) {
+                    echo '<div class="notice notice-error"><p>' .
+                        sprintf(
+                            esc_html__( 'Upload failed: %s', 'printing-pricing-calculator' ),
+                            esc_html( $attach_id->get_error_message() )
+                        ) .
+                    '</p></div>';
                 } else {
                     // Replace existing (optional: delete old attachment)
                     if ($existing_id) {
@@ -112,7 +118,7 @@ class AdminInit {
             }
         }
 
-        echo '<div class="notice notice-success"><p>Settings saved.</p></div>';
+        echo '<div class="notice notice-success"><p>' . esc_html__('Settings saved.', 'printing-pricing-calculator') . '</p></div>';
     }
       include plugin_dir_path(__FILE__) . '/../Templates/Settings/form.php';
     }

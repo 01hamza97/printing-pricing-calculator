@@ -23,7 +23,7 @@
 <div class="w-5/6 mx-auto my-8 font-sans">
   <div class="flex">
     <div class="w-1/3 px-2 mx-2">
-      <h4 class="text-base !font-bold mb-[14px] text-cyan-500">Parameters</h4>
+      <h4 class="text-base !font-bold mb-[14px] text-cyan-500"><?php echo esc_html__( 'Parameters', 'printing-pricing-calculator' ); ?></h4>
       <div class="col-span-2 rounded-md px-5 py-6 border border-blue-200 mb-4">
         <div class="">
           <div class="relative overflow-hidden rounded-lg ppc-zoom cursor-zoom-in" style="--ppc-zoom:1.8;">
@@ -51,7 +51,7 @@
                 data-param-id="<?php echo (int)$p['id']; ?>"
                 data-param-title="<?php echo esc_attr($p['title']); ?>"
               >
-                <option value="" data-cost="0">Select an option</option>
+                <option value="" data-cost="0"><?php echo esc_html__( 'Select an option', 'printing-pricing-calculator' ); ?></option>
                 <?php foreach ($p['options'] as $o): ?>
                   <?php
                     $cost = !empty($o['override_price'])
@@ -89,12 +89,12 @@
         <?php endforeach; ?>
       </div>
       <div class="col-span-2 rounded-md px-5 py-6 border border-blue-200 mb-4">
-        <a download href="<?php echo wp_get_attachment_url($product['instructions_file_id']) ?>" target="_blank" class="bg-[#E7F2FD] border border-blue-300 rounded-md text-zinc-900 w-full block text-base font-normal py-4 text-center no-underline">Download Instructions File</a>
+        <a download href="<?php echo wp_get_attachment_url($product['instructions_file_id']) ?>" target="_blank" class="bg-[#E7F2FD] border border-blue-300 rounded-md text-zinc-900 w-full block text-base font-normal py-4 text-center no-underline"><?php echo esc_html__( 'Download Instructions File', 'printing-pricing-calculator' ); ?></a>
       </div>
       <div class="col-span-2 rounded-md px-5 py-6 border border-blue-200">
         <span class="bg-[#E7F2FD] border border-blue-300 rounded-md text-zinc-900 w-full block text-base font-normal py-4 px-3 no-underline mb-4">
           <div class="flex items-center justify-between">
-            <span><i class="fa-solid fa-paperclip mr-1 text-zinc-600"></i>No File Selected</span>
+            <span><i class="fa-solid fa-paperclip mr-1 text-zinc-600"></i><?php echo esc_html__( 'No File Selected', 'printing-pricing-calculator' ); ?></span>
             <span><i class="fa-solid fa-trash text-zinc-6 hover:cursor-pointer"></i></span>
           </div>
                     </span>
@@ -105,10 +105,10 @@
             <i class="fa-solid fa-arrow-up-from-bracket"></i>
 
             <p class="text-sm text-zinc-600">
-              Drop here to attach or
-              <label for="ppc-file-upload" class="cursor-pointer text-blue-600 hover:underline">upload</label>
+              <?php echo esc_html__( 'Drop here to attach or', 'printing-pricing-calculator' ); ?>
+              <label for="ppc-file-upload" class="cursor-pointer text-blue-600 hover:underline"><?php echo esc_html__( 'upload', 'printing-pricing-calculator' ); ?></label>
             </p>
-            <p class="mt-1 text-xs text-zinc-400">Max size: 5GB</p>
+            <p class="mt-1 text-xs text-zinc-400"><?php echo esc_html__( 'Max size: 5GB', 'printing-pricing-calculator' ); ?></p>
 
             <input id="ppc-file-upload" type="file" class="sr-only" />
           </div>
@@ -116,7 +116,7 @@
       </div>
     </div>
     <div class="w-1/3 px-2 mx-2">
-      <h4 class="text-base !font-bold mb-[14px] text-cyan-500">Počet kusů</h4>
+      <h4 class="text-base !font-bold mb-[14px] text-cyan-500"><?php echo esc_html__( 'Number Of Pieces', 'printing-pricing-calculator' ); ?></h4>
       <div class="col-span-2 rounded-md px-5 py-6 border border-blue-200 mb-4">
           <div class="mb-6">
             <div class="flex items-center justify-between">
@@ -124,61 +124,61 @@
                 <label class="inline-flex items-center">
                   <input type="checkbox" id="ppc-express" class="accent-cyan-500 mr-2" />
                   <span class="font-normal text-sm text-zinc-700">
-                    100 ks
+                    100 <?php echo esc_html__( 'PCS', 'printing-pricing-calculator' ); ?>
                   </span>
                 </label>
               </div>
-              <p class="font-normal text-sm text-zinc-700">100 Kč</p>
+              <p class="font-normal text-sm text-zinc-700">100 <?php echo esc_html__( 'CZK', 'printing-pricing-calculator' ); ?></p>
             </div>
             <div class="flex items-center justify-between">
               <div class="">
                 <label class="inline-flex items-center">
                   <input type="checkbox" id="ppc-express" class="accent-cyan-500 mr-2" />
                   <span class="font-normal text-sm text-zinc-700">
-                    200 ks
+                    200 <?php echo esc_html__( 'PCS', 'printing-pricing-calculator' ); ?>
                   </span>
                 </label>
               </div>
-              <p class="font-normal text-sm text-zinc-700">100 Kč</p>
+              <p class="font-normal text-sm text-zinc-700">100 <?php echo esc_html__( 'CZK', 'printing-pricing-calculator' ); ?></p>
             </div>
             <div class="flex items-center justify-between">
               <div class="">
                 <label class="inline-flex items-center">
                   <input type="checkbox" id="ppc-express" class="accent-cyan-500 mr-2" />
                   <span class="font-normal text-sm text-zinc-700">
-                    200 ks
+                    200 <?php echo esc_html__( 'PCS', 'printing-pricing-calculator' ); ?>
                   </span>
                 </label>
               </div>
-              <p class="font-normal text-sm text-zinc-700">100 Kč</p>
+              <p class="font-normal text-sm text-zinc-700">100 <?php echo esc_html__( 'CZK', 'printing-pricing-calculator' ); ?></p>
             </div>
             <div class="flex items-center justify-between">
               <div class="">
                 <label class="inline-flex items-center">
                   <input type="checkbox" id="ppc-express" class="accent-cyan-500 mr-2" />
                   <span class="font-normal text-sm text-zinc-700">
-                    400 ks
+                    400 <?php echo esc_html__( 'PCS', 'printing-pricing-calculator' ); ?>
                   </span>
                 </label>
               </div>
-              <p class="font-normal text-sm text-zinc-700">100 Kč</p>
+              <p class="font-normal text-sm text-zinc-700">100 <?php echo esc_html__( 'CZK', 'printing-pricing-calculator' ); ?></p>
             </div>
           </div>
-          <h5 class="text-base !font-semibold text-zinc-600 mb-1">Zadejte svoje množství</h5>
-          <input type="text" placeholder="text" class="bg-zinc-100 rounded-md px-3 py-3 w-full text-base">
+          <h5 class="text-base !font-semibold text-zinc-600 mb-1"><?php echo esc_html__( 'Enter Your Quantity', 'printing-pricing-calculator' ); ?></h5>
+          <input type="text" placeholder="<?php echo esc_attr__( 'text', 'printing-pricing-calculator' ); ?>" class="bg-zinc-100 rounded-md px-3 py-3 w-full text-base">
       </div>
       <!-- display controls -->
       <div class="mb-4 mt-4 w-full grid grid-cols-1 md:grid-cols-2 gap-4">
         <!-- With/Without Tax -->
         <div class="text-start">
-          <div class="text-sm font-medium mb-2">Cena brutto / netto</div>
+          <div class="text-sm font-medium mb-2"><?php echo esc_html__( 'Price Gross / Net', 'printing-pricing-calculator' ); ?></div>
           <label for="ppc-show-tax-toggle" class="inline-flex items-center cursor-pointer">
             <input id="ppc-show-tax-toggle" type="checkbox" class="sr-only peer">
             <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-cyan-500"></div>
           </label>
         </div>
         <div class="text-end">
-          <div class="text-sm font-medium mb-2">Cena za ks</div>
+          <div class="text-sm font-medium mb-2"><?php echo esc_html__( 'Price Per Piece', 'printing-pricing-calculator' ); ?></div>
           <label for="ppc-price-unit-toggle" class="inline-flex items-center cursor-pointer">
             <input id="ppc-price-unit-toggle" type="checkbox" class="sr-only peer">
             <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-cyan-500"></div>
@@ -187,7 +187,7 @@
       </div>
     </div>
     <div class="w-1/3 px-2 mx-2">
-      <h4 class="text-base !font-bold mb-11 text-cyan-500">Rekapitulace</h4>
+      <h4 class="text-base !font-bold mb-11 text-cyan-500"><?php echo esc_html__( 'Recapitulation', 'printing-pricing-calculator' ); ?></h4>
       <div class="flex flex-col">
         <div class="px-4">
           <!-- Quantity -->
@@ -199,9 +199,9 @@
                 id="ppc-qty"
                 class="w-12 outline-none"
               />
-              <span class="">ks</span>
+              <span class=""><?php echo esc_html__( 'PCS', 'printing-pricing-calculator' ); ?></span>
             </div>
-            <small class="text-gray-600 block text-sm mb-8">Minimum order: <?php echo (int)$min_order_qty; ?></small>
+            <small class="text-gray-600 block text-sm mb-8"><?php echo esc_html__( 'Minimum order:', 'printing-pricing-calculator' ); ?> <?php echo (int)$min_order_qty; ?></small>
             <small class="text-red-600 hidden block" id="ppc-qty-error"></small>
           </div>
 
@@ -210,7 +210,7 @@
             <label class="inline-flex items-center">
               <input type="checkbox" id="ppc-express" class="accent-cyan-500 mr-2" />
               <span class="font-normal text-sm text-zinc-700">
-                Express Delivery (
+                <?php echo esc_html__( 'Express Delivery', 'printing-pricing-calculator' ); ?> (
                 <?php
                   if ($express_delivery['type'] === 'percent') {
                     echo '+' . floatval($express_delivery['value']) . '%';
@@ -232,14 +232,14 @@
                 <?php if (!empty($file_check_required)) echo 'checked disabled'; ?>
               >
               <span class="font-normal text-sm text-zinc-700">
-                File Check Service (<?php echo number_format((float)$file_check_price, 2); ?>)
+                <?php echo esc_html__( 'File Check Service', 'printing-pricing-calculator' ); ?> (<?php echo number_format((float)$file_check_price, 2); ?>)
               </span>
             </label>
           </div>
 
           <!-- Price title -->
           <!-- <div class="mb-3">
-            Price <span id="ppc-price-type-label" class="text-base font-medium"></span>
+            <?php // echo esc_html__( 'Price', 'printing-pricing-calculator' ); ?> <span id="ppc-price-type-label" class="text-base font-medium"></span>
           </div> -->
 
           <!-- Summary table -->
@@ -247,9 +247,9 @@
             <table class="text-base text-left w-full table-wrapper" id="ppc-summary-table">
               <thead>
                 <tr>
-                  <th>Item</th>
-                  <th>Unit</th>
-                  <th>Price</th>
+                  <th><?php echo esc_html__( 'Item', 'printing-pricing-calculator' ); ?></th>
+                  <th><?php echo esc_html__( 'Unit', 'printing-pricing-calculator' ); ?></th>
+                  <th><?php echo esc_html__( 'Price', 'printing-pricing-calculator' ); ?></th>
                 </tr>
               </thead>
               <tbody id="ppc-selected-params-table">
@@ -266,21 +266,21 @@
                   </tr>
                 <?php endforeach; ?>
                 <tr>
-                  <td colspan="2">Discount</td>
+                  <td colspan="2"><?php echo esc_html__( 'Discount', 'printing-pricing-calculator' ); ?></td>
                   <td id="ppc-discount">0.00</td>
                 </tr>
               </tbody>
               <tfoot>
                 <tr class="font-semibold text-xs text-zinc-600">
-                  <td colspan="2">Total W/O Tax</td>
+                  <td colspan="2"><?php echo esc_html__( 'Total W/O Tax', 'printing-pricing-calculator' ); ?></td>
                   <td id="ppc-no-tax-total">0.00</td>
                 </tr>
                 <tr class="font-semibold text-xs text-zinc-600">
-                  <td colspan="2">Tax(<?php echo (float)$tax ?>%)</td>
+                  <td colspan="2"><?php echo esc_html__( 'Tax', 'printing-pricing-calculator' ); ?>(<?php echo (float)$tax ?>%)</td>
                   <td id="ppc-tax-amount">0.00</td>
                 </tr>
                 <tr class="font-semibold text-xs text-zinc-600">
-                  <td colspan="2">Total</td>
+                  <td colspan="2"><?php echo esc_html__( 'Total', 'printing-pricing-calculator' ); ?></td>
                   <td id="ppc-grand-total">0.00</td>
                 </tr>
               </tfoot>
@@ -291,12 +291,12 @@
         <!-- Order notes / instructions -->
         <div class="rounded-md px-5 py-4 border border-blue-300 mb-6">
           <label for="ppc-order-notes" class="block text-sm font-medium mb-2">
-            Notes / Instructions (optional)
+            <?php echo esc_html__( 'Notes / Instructions (optional)', 'printing-pricing-calculator' ); ?>
           </label>
           <textarea
             id="ppc-order-notes"
             class="w-full bg-[#E7F2FD] text-zinc-800 border border-blue-300 rounded-md p-3 text-sm min-h-[96px] resize-y"
-            placeholder="Anything we should know about your order?"
+            placeholder="<?php echo esc_attr__( 'Anything we should know about your order?', 'printing-pricing-calculator' ); ?>"
             maxlength="1000"
           ></textarea>
           <div class="mt-1 text-xs text-gray-500">
@@ -305,11 +305,11 @@
         </div>
 
         <div class="border border-blue-300 rounded-md text-cyan-500 w-full block text-lg font-normal py-4 mb-4 text-center  hover:cursor-pointer hover:bg-cyan-200" id="ppc-download-pdf">
-          download calculation (pdf?)
+          <?php echo esc_html__( 'download calculation (pdf?)', 'printing-pricing-calculator' ); ?>
         </div>
         <button id="ppc-add-to-cart" type="button"
           class="border border-blue-300 rounded-md bg-[#E7F2FD] text-cyan-500 w-full block text-lg font-semibold py-4 cursor-pointer hover:bg-cyan-200">
-          OBJEDNAT
+          <?php echo esc_html__( 'OBJEDNAT', 'printing-pricing-calculator' ); ?>
         </button>
       </div>
     </div>
@@ -437,7 +437,7 @@ document.addEventListener('DOMContentLoaded', function () {
       if (!document.getElementById('ppc-file-check-row')) {
         const tr = document.createElement('tr');
         tr.id = 'ppc-file-check-row';
-        tr.innerHTML = '<td>File Check Service</td><td>1</td><td id="ppc-file-check-cost">0.00</td>';
+        tr.innerHTML = '<td><?php echo esc_js( __( 'File Check Service', 'printing-pricing-calculator' ) ); ?></td><td>1</td><td id="ppc-file-check-cost">0.00</td>';
         const discountCell = document.getElementById('ppc-discount');
         const discountRow  = discountCell ? discountCell.parentElement : null;
         if (discountRow && paramsTable) {
@@ -466,8 +466,8 @@ document.addEventListener('DOMContentLoaded', function () {
         const tr = document.createElement('tr');
         tr.id = 'ppc-express-row';
         const label = (type === 'percent')
-          ? `Express Delivery (+${value}%)`
-          : `Express Delivery (+${value.toFixed(2)})`;
+          ? `<?php echo esc_js( __( 'Express Delivery', 'printing-pricing-calculator' ) ); ?> (+${value}%)`
+          : `<?php echo esc_js( __( 'Express Delivery', 'printing-pricing-calculator' ) ); ?> (+${value.toFixed(2)})`;
         tr.innerHTML = `<td>${label}</td><td>1</td><td id="ppc-express-cost">0.00</td>`;
         const discountCell = document.getElementById('ppc-discount');
         const discountRow  = discountCell ? discountCell.parentElement : null;
@@ -556,8 +556,12 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // Price label
-    const label = (priceUnit === 'piece' ? 'Per Piece' : 'Total') +
-                  (showTax === 'with' ? ' (With Tax)' : ' (Without Tax)');
+    const label = (priceUnit === 'piece'
+                    ? '<?php echo esc_js( __( 'Per Piece', 'printing-pricing-calculator' ) ); ?>'
+                    : '<?php echo esc_js( __( 'Total', 'printing-pricing-calculator' ) ); ?>')
+                  + (showTax === 'with'
+                    ? ' <?php echo esc_js( __( '(With Tax)', 'printing-pricing-calculator' ) ); ?>'
+                    : ' <?php echo esc_js( __( '(Without Tax)', 'printing-pricing-calculator' ) ); ?>');
     const $label = document.getElementById('ppc-price-type-label');
     if ($label) $label.textContent = label;
   }
@@ -574,7 +578,7 @@ document.addEventListener('DOMContentLoaded', function () {
     let val = parseInt(qtyInput.value, 10);
     if (isNaN(val) || val < minQty) {
       qtyInput.value = minQty;
-      qtyError.textContent = `Minimum order is ${minQty}`;
+      qtyError.textContent = "<?php echo esc_js( __( 'Minimum order is', 'printing-pricing-calculator' ) ); ?> " + minQty;
       qtyError.classList.remove('hidden');
     } else {
       qtyError.textContent = '';
@@ -639,7 +643,7 @@ document.addEventListener('DOMContentLoaded', function () {
         a.click();
         window.URL.revokeObjectURL(url);
       })
-      .catch(() => alert('PDF download failed.'));
+      .catch(() => alert('<?php echo esc_js( __( 'PDF download failed.', 'printing-pricing-calculator' ) ); ?>'));
   });
 
   // ADD TO CART (send original total WITH tax)
@@ -700,10 +704,10 @@ document.addEventListener('DOMContentLoaded', function () {
       if (data.success && data.data && data.data.cart_url) {
         window.location = data.data.cart_url;
       } else {
-        alert((data && data.data) || 'Failed to add to cart');
+        alert((data && data.data) || '<?php echo esc_js( __( 'Failed to add to cart', 'printing-pricing-calculator' ) ); ?>');
       }
     })
-    .catch(() => alert('Failed to add to cart'));
+    .catch(() => alert('<?php echo esc_js( __( 'Failed to add to cart', 'printing-pricing-calculator' ) ); ?>'));
   });
 
   (function(){
@@ -883,7 +887,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const nameSpan = fileBar?.querySelector("div > span:first-child") || null;
     const paperclipHTML = nameSpan?.querySelector("i") ? nameSpan.querySelector("i").outerHTML : "";
     const trashContainer = fileBar?.querySelector("div > span:last-child") || null;
-    const DEFAULT_LABEL = "No File Selected";
+    const DEFAULT_LABEL = "<?php echo esc_js( __( 'No File Selected', 'printing-pricing-calculator' ) ); ?>";
 
     function escapeHtml(str) {
         return String(str).replace(/[&<>"']/g, m => ({

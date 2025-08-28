@@ -4,10 +4,21 @@
  * Description: A WooCommerce plugin for calculating product prices based on dynamic formulas.
  * Version: 1.0
  * Author: Hamza Samad
+ * Text Domain: printing-pricing-calculator
+ * Domain Path: /languages
  * Requires Plugins: woocommerce
  */
 
 defined('ABSPATH') || exit;
+
+// Load plugin textdomain for translations
+add_action('plugins_loaded', function() {
+    load_plugin_textdomain(
+        'printing-pricing-calculator',
+        false,
+        dirname(plugin_basename(__FILE__)) . '/languages'
+    );
+});
 
 require_once plugin_dir_path(__FILE__) . 'includes/Core/Loader.php';
 
@@ -73,8 +84,8 @@ function ppc_ensure_stub_product() {
     if ($existing && get_post_status($existing) == 'publish') return $existing;
 
     $pid = wp_insert_post([
-        'post_title'    => 'PPC Runtime Product',
-        'post_content'  => 'This is a stub for custom print orders.',
+        'post_title' => __('PPC Runtime Product', 'printing-pricing-calculator'),
+        'post_content' => __('This is a stub for custom print orders.', 'printing-pricing-calculator'),
         'post_status'   => 'publish',
         'post_type'     => 'product',
         'post_author'   => 1,
@@ -127,8 +138,16 @@ function ppc_check_woocommerce_active() {
         // Deactivate this plugin
         deactivate_plugins(plugin_basename(__FILE__));
         // Show admin notice
-        add_action('admin_notices', function() {
-            echo '<div class="notice notice-error"><p><strong>PPC Pricing Calculator</strong> requires <a href="https://wordpress.org/plugins/woocommerce/">WooCommerce</a> to be installed and active.</p></div>';
+        add_action('admin_notices', function () {
+            echo '<div class="notice notice-error"><p><strong>' .
+                esc_html__( 'PPC Pricing Calculator', 'printing-pricing-calculator' ) .
+                '</strong> ' .
+                sprintf(
+                    /* translators: %s: WooCommerce plugin link */
+                    wp_kses_post( __( 'requires %s to be installed and active.', 'printing-pricing-calculator' ) ),
+                    '<a href="https://wordpress.org/plugins/woocommerce/">WooCommerce</a>'
+                ) .
+                '</p></div>';
         });
     }
 }
@@ -139,8 +158,8 @@ register_activation_hook(__FILE__, function() {
     if (!class_exists('WooCommerce')) {
         deactivate_plugins(plugin_basename(__FILE__));
         wp_die(
-            'PPC Pricing Calculator requires WooCommerce to be installed and active.',
-            'Plugin dependency check',
+            esc_html__( 'PPC Pricing Calculator requires WooCommerce to be installed and active.', 'printing-pricing-calculator' ),
+            esc_html__( 'Plugin dependency check', 'printing-pricing-calculator' ),
             ['back_link' => true]
         );
     } else {

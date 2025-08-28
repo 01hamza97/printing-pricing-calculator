@@ -29,17 +29,18 @@ class CheckoutInit {
     public function maybe_enqueue_tailwind()
     {
         if (is_singular()) {
-            global $post;
             wp_enqueue_script('ppc-admin-script', 'https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4', ['jquery'], null, true);
         }
     }
 
     public function ajax_add_to_cart() {
-        if (!class_exists('WC_Cart')) wp_send_json_error('WooCommerce not active');
+        if (!class_exists('WC_Cart')) {
+            wp_send_json_error( __( 'WooCommerce not active', 'printing-pricing-calculator' ) );
+        }
 
         $product_id = get_option('ppc_wc_stub_product_id');
         if (!$product_id || 'publish' !== get_post_status($product_id)) {
-            wp_send_json_error('Runtime product not found');
+            wp_send_json_error( __( 'Runtime product not found', 'printing-pricing-calculator' ) );
         }
 
         $qty = max(1, intval($_POST['qty'] ?? 1));
@@ -59,27 +60,27 @@ class CheckoutInit {
 
         // Gather meta for the cart item
         $item_data = [
-            'ppc_product_id' => sanitize_text_field($_POST['ppc_product_id'] ?? ''), // ID or slug
-            'params'         => isset($_POST['params']) ? json_decode(stripslashes($_POST['params']), true) : [],
-            'express'        => !empty($_POST['express']),
-            'file_check'     => !empty($_POST['file_check']),
-            'file_url'       => $file_url,
-            'file_name'      => $file_name,
-            'summary'        => isset($_POST['summary_html']) ? wp_kses_post($_POST['summary_html']) : '',
-            'calc_total'     => isset($_POST['total']) ? floatval($_POST['total']) : '',
-            'discount'       => isset($_POST['discount']) ? floatval($_POST['discount']) : '',
-            'tax'            => isset($_POST['tax']) ? floatval($_POST['tax']) : '',
-            'qty'            => $qty,
+            'ppc_product_id'    => sanitize_text_field($_POST['ppc_product_id'] ?? ''), // ID or slug
+            'params'            => isset($_POST['params']) ? json_decode(stripslashes($_POST['params']), true) : [],
+            'express'           => !empty($_POST['express']),
+            'file_check'        => !empty($_POST['file_check']),
+            'file_url'          => $file_url,
+            'file_name'         => $file_name,
+            'summary'           => isset($_POST['summary_html']) ? wp_kses_post($_POST['summary_html']) : '',
+            'calc_total'        => isset($_POST['total']) ? floatval($_POST['total']) : '',
+            'discount'          => isset($_POST['discount']) ? floatval($_POST['discount']) : '',
+            'tax'               => isset($_POST['tax']) ? floatval($_POST['tax']) : '',
+            'qty'               => $qty,
             'ppc_product_title' => isset($_POST['ppc_product_title']) ? sanitize_text_field($_POST['ppc_product_title']) : '',
-            'image' => isset($_POST['image']) ? sanitize_text_field($_POST['image']) : '',
-            'customer_note' => !empty($_POST['customer_note']) ? $_POST['customer_note'] : null
+            'image'             => isset($_POST['image']) ? sanitize_text_field($_POST['image']) : '',
+            'customer_note'     => !empty($_POST['customer_note']) ? $_POST['customer_note'] : null
         ];
 
         $cart_item_key = WC()->cart->add_to_cart($product_id, $qty, 0, [], $item_data);
         if ($cart_item_key) {
             wp_send_json_success(['cart_url' => wc_get_cart_url()]);
         } else {
-            wp_send_json_error('Add to cart failed');
+            wp_send_json_error( __( 'Add to cart failed', 'printing-pricing-calculator' ) );
         }
     }
 
@@ -156,9 +157,7 @@ class CheckoutInit {
 
     // Attach cart meta to order items for order details (WooCommerce 3.0+)
     public function add_order_item_meta($item, $cart_item_key, $values, $order) {
-        // $item is WC_Order_Item_Product
-        // $values is your $cart_item
-        // Add meta using $item->add_meta_data()
+        // Store stable/internal keys; translate on display.
         if (!empty($values['params'])) {
             $item->add_meta_data('PPC Params', json_encode($values['params']));
         }
@@ -204,34 +203,63 @@ class CheckoutInit {
     }
 
     public function show_order_item_data($item_id, $item, $product) {
-            // Get ALL meta for this item
+        // Localized labels for known meta keys (keep internal keys stable).
+        $label_map = [
+            'PPC Params'       => __('Selected Options', 'printing-pricing-calculator'),
+            'Express Delivery' => __('Express Delivery', 'printing-pricing-calculator'),
+            'File Check'       => __('File Check', 'printing-pricing-calculator'),
+            'File URL'         => __('File URL', 'printing-pricing-calculator'),
+            'File Name'        => __('File Name', 'printing-pricing-calculator'),
+            'Calculated Total' => __('Calculated Total', 'printing-pricing-calculator'),
+            'Discount'         => __('Discount', 'printing-pricing-calculator'),
+            'Tax'              => __('Tax', 'printing-pricing-calculator'),
+            'Quantity'         => __('Quantity', 'printing-pricing-calculator'),
+            'customer_note'    => __('Note', 'printing-pricing-calculator'),
+        ];
+
         $meta = wc_get_order_item_meta($item_id, '', false);
 
-        // Only show custom meta fields (skip default like _product_id etc.), optional
         $excluded = [
             '_product_id', '_variation_id', '_qty', '_tax_class', '_line_subtotal', '_line_subtotal_tax',
             '_line_total', '_line_tax', '_reduced_stock', '_reduced_stock_later', '_restock_refunded_items', '_line_tax_data'
         ];
 
         echo '<div>';
-        foreach($meta as $key => $value) {
-            if(in_array($key, $excluded)) continue; // skip Woo default meta
-            // Value might be array
-            if(is_array($value) && count($value) === 1) $value = reset($value);
-            if(is_array($value)) $value = json_encode($value);
-            if($key == "PPC Params") {
-                $value = json_decode($value);
-                foreach ($value as $param) {
-                    echo '<b>' . esc_html($param->title) . '</b>: <span style="color:#0071a1;">' . esc_html($param->value) . '</span><br>';
-                } 
+        foreach ( $meta as $key => $value ) {
+            if ( in_array( $key, $excluded, true ) ) continue;
+
+            if ( is_array( $value ) && count( $value ) === 1 ) {
+                $value = reset( $value );
+            }
+            if ( is_array( $value ) ) {
+                $value = wp_json_encode( $value );
+            }
+
+            if ( $key === 'PPC Params' ) {
+                $decoded = json_decode( $value );
+                if ( is_array( $decoded ) || is_object( $decoded ) ) {
+                    foreach ( $decoded as $param ) {
+                        $title = isset($param->title) ? $param->title : '';
+                        $val   = isset($param->value) ? $param->value : '';
+                        echo '<b>' . esc_html( $title ) . '</b>: <span style="color:#0071a1;">' . esc_html( $val ) . '</span><br>';
+                    }
+                }
             } else {
-                echo '<b>' . esc_html($key) . '</b>: <span style="color:#0071a1;">' . esc_html($value) . '</span><br>';
-            } 
+                $label = isset( $label_map[ $key ] ) ? $label_map[ $key ] : $key;
+
+                // Localize common boolean-ish "Yes" value on display
+                if ( is_string( $value ) && $value === 'Yes' ) {
+                    $value = __( 'Yes', 'printing-pricing-calculator' );
+                }
+
+                echo '<b>' . esc_html( $label ) . '</b>: <span style="color:#0071a1;">' . esc_html( (string) $value ) . '</span><br>';
+            }
         }
         echo '</div>';
     }
 
     public function hide_order_item_data($hidden_keys) {
+        // Hide internal keys in default meta tables (keep raw keys here)
         $hidden_keys[] = 'PPC Params';
         $hidden_keys[] = 'Calculated Total';
         $hidden_keys[] = 'Tax';
@@ -240,21 +268,18 @@ class CheckoutInit {
     }
 
     public function hide_order_item_data_frontend($formatted_meta, $item) {
-        if (is_admin()) return $formatted_meta; // don't filter in admin
-        foreach ($formatted_meta as $key => $meta) {
-            if ($meta->key === 'PPC Params') {
-                // Example: decode value (maybe JSON) and replace with a nice format
-                $data = maybe_unserialize($meta->value);
-                if (is_string($data) && $decoded = json_decode($data, true)) {
-                    // Build custom HTML
+        if ( is_admin() ) return $formatted_meta; // don't filter in admin
+
+        foreach ( $formatted_meta as $key => $meta ) {
+            if ( $meta->key === 'PPC Params' ) {
+                $data = maybe_unserialize( $meta->value );
+                if ( is_string( $data ) && ( $decoded = json_decode( $data, true ) ) ) {
                     $html = '';
-                    foreach ($decoded as $paramValue) {
-                        $html .= '<li class="ml-5"><strong>' . esc_html($paramValue["title"]) . ': </strong><p>' . esc_html($paramValue["value"]) . '</p></li>';
+                    foreach ( $decoded as $paramValue ) {
+                        $html .= '<li class="ml-5"><strong>' . esc_html( $paramValue['title'] ) . ': </strong><p>' . esc_html( $paramValue['value'] ) . '</p></li>';
                     }
 
-                    // Hide the meta label (the "PPC Params:" part)
-                    $meta->display_key = 'Selected Options';
-                    // Replace Woo meta value output
+                    $meta->display_key   = __( 'Selected Options', 'printing-pricing-calculator' );
                     $meta->display_value = $html;
                     $formatted_meta[$key] = $meta;
                 }

@@ -53,7 +53,7 @@ class CalculatorWithPriceShortcodeHandler
         }
 
         if (! $product) {
-            return '<div class="ppc-calc-error">Product not found.</div>';
+            return '<div class="ppc-calc-error">' . esc_html__( 'Product not found.', 'printing-pricing-calculator' ) . '</div>';
         }
         $product_id = $product['id'];
 

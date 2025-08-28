@@ -9,8 +9,8 @@ class CategoriesEdit {
     public function register_menu() {
         add_submenu_page(
             null, // hidden from sidebar
-            'Edit Category',
-            'Edit Category',
+            __('Edit Category', 'printing-pricing-calculator'),
+            __('Edit Category', 'printing-pricing-calculator'),
             'manage_options',
             'ppc-categories-edit',
             [$this, 'render_form']
@@ -19,7 +19,7 @@ class CategoriesEdit {
 
     public function render_form() {
         if ( ! current_user_can('manage_options') ) {
-            wp_die('Unauthorized');
+            wp_die( esc_html__( 'Unauthorized', 'printing-pricing-calculator' ) );
         }
 
         global $wpdb;
@@ -42,7 +42,7 @@ class CategoriesEdit {
             $row = $wpdb->get_row( $wpdb->prepare("SELECT * FROM " . CATEGORY_TABLE . " WHERE id = %d", $id), ARRAY_A );
         }
         if (empty($row)) {
-            $row = ['id'=>0, 'name'=>'', 'slug'=>'', 'description'=>'', 'status'=>'active', 'image_id'=>0];
+            $row = ['id' => 0, 'name' => '', 'slug'=>'', 'description' => '', 'status'=> 'active', 'image_id' => 0];
         }
 
         // SAVE
@@ -56,9 +56,9 @@ class CategoriesEdit {
             $status = (isset($_POST['status']) && $_POST['status'] === 'inactive') ? 'inactive' : 'active';
 
             if ($name === '') {
-                $error = 'Name is required.';
+                $error = __( 'Name is required.', 'printing-pricing-calculator' );
             } elseif ($slug === '') {
-                $error = 'Slug is required.';
+                $error = __( 'Slug is required.', 'printing-pricing-calculator' );
             } else {
                 // ensure slug uniqueness
                 $original_slug = $slug;
@@ -88,7 +88,7 @@ class CategoriesEdit {
                     $attachment = [
                         'post_mime_type' => $uploaded['type'],
                         'post_title'     => sanitize_file_name($file_name),
-                        'post_content'   => '',
+                        'post_content' => '',
                         'post_status'    => 'inherit',
                     ];
                     $attach_id = (int) wp_insert_attachment($attachment, $file_path);
@@ -111,12 +111,12 @@ class CategoriesEdit {
 
                 if ($cid) {
                     $wpdb->update(CATEGORY_TABLE, $data, ['id' => $cid]);
-                    $message = 'Category updated.';
+                    $message = __( 'Category updated.', 'printing-pricing-calculator' );
                 } else {
                     $data['created_at'] = current_time('mysql');
                     $wpdb->insert(CATEGORY_TABLE, $data);
                     $cid = (int) $wpdb->insert_id;
-                    $message = 'Category created.';
+                    $message = __( 'Category created.', 'printing-pricing-calculator' );
                 }
 
                 echo("<script>location.href = '".admin_url('admin.php?page=ppc-categories&id='.$cid)."'</script>");

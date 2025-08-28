@@ -38,20 +38,20 @@
               </style>
           </head>
           <body>
-              <img class="logo" src="https://yourdomain.com/path/to/logo.png" alt="Logo" />
-              <h1>Quotation</h1>
-              <strong>Date:</strong>                                   <?php echo date('Y-m-d H:i'); ?><br>
+              <img class="logo" src="https://yourdomain.com/path/to/logo.png" alt="<?php echo esc_attr__( 'Logo', 'printing-pricing-calculator' ); ?>" />
+              <h1><?php echo esc_html__( 'Quotation', 'printing-pricing-calculator' ); ?></h1>
+              <strong><?php esc_html_e( 'Date:', 'printing-pricing-calculator' ); ?>:</strong><?php echo esc_html( wp_date( get_option('date_format') . ' ' . get_option('time_format') ) ); ?><br>
               <br>
-              <h2>Product:                         <?php echo esc_html($product_title); ?></h2>
+              <h2><?php echo esc_html__( 'Product', 'printing-pricing-calculator' ); ?>:<?php echo esc_html($product_title); ?></h2>
               <?php if ($product_image): ?>
-                  <img class="product-img" src="<?php echo esc_url($product_image); ?>" alt="Product Image" />
+                  <img class="product-img" src="<?php echo esc_url($product_image); ?>" alt="<?php echo esc_attr__( 'Product Image', 'printing-pricing-calculator' ); ?>" />
               <?php endif; ?>
               <br><br>
               <table>
                   <thead>
                       <tr>
-                          <th>Parameter</th>
-                          <th>Selected Option</th>
+                          <th><?php esc_html_e( 'Parameter', 'printing-pricing-calculator' ); ?></th>
+                          <th><?php esc_html_e( 'Selected Option', 'printing-pricing-calculator' ); ?></th>
                       </tr>
                   </thead>
                   <tbody>
@@ -62,18 +62,18 @@
                           </tr>
                       <?php endforeach; ?>
                       <tr>
-                          <td>Quantity</td>
+                          <td><?php esc_html_e( 'Quantity', 'printing-pricing-calculator' ); ?></td>
                           <td><?php echo intval($qty); ?></td>
                       </tr>
                       <tr>
-                          <td>Express Delivery</td>
+                          <td><?php esc_html_e( 'Express Delivery', 'printing-pricing-calculator' ); ?></td>
                           <td><?php echo $express ? 'Yes' : 'No'; ?></td>
                       </tr>
                   </tbody>
               </table>
-              <h2>Summary</h2>
+              <h2><?php esc_html_e( 'Summary', 'printing-pricing-calculator' ); ?></h2>
               <?php echo $summary_html; ?>
-              <div class="total">Total: <strong><?php echo esc_html($total); ?></strong></div>
+              <div class="total"><?php esc_html_e( 'Total', 'printing-pricing-calculator' ); ?>: <strong><?php echo esc_html($total); ?></strong></div>
               <?php if ($note): ?>
                   <hr><div style="margin-top:20px;"><?php echo $note; ?></div>
               <?php endif; ?>

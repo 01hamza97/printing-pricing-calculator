@@ -13,23 +13,23 @@
 ?>
 <div class="wrap">
     <?php if (isset($_GET['duplicated'])): ?>
-        <div class="notice notice-success"><p>Product duplicated successfully. You are editing the new copy.</p></div>
+        <div class="notice notice-success"><p><?php echo esc_html__( 'Product duplicated successfully. You are editing the new copy.', 'printing-pricing-calculator' ); ?></p></div>
     <?php endif; ?>
-    <h1><?php echo isset($_GET['id']) ? 'Edit' : 'Add'; ?> Product</h1>
+    <h1><?php echo isset($_GET['id']) ? esc_html__( 'Edit', 'printing-pricing-calculator' ) : esc_html__( 'Add', 'printing-pricing-calculator' ); ?> <?php echo esc_html__( 'Product', 'printing-pricing-calculator' ); ?></h1>
 
     <?php if (isset($_GET['updated'])): ?>
-        <div class="notice notice-success"><p>Product saved successfully.</p></div>
+        <div class="notice notice-success"><p><?php echo esc_html__( 'Product saved successfully.', 'printing-pricing-calculator' ); ?></p></div>
     <?php endif; ?>
 
     <form method="post" enctype="multipart/form-data">
         <?php wp_nonce_field('save_product'); ?>
 
-        <h2 class="wp-heading-inline">Title</h2>
+        <h2 class="wp-heading-inline"><?php echo esc_html__( 'Title', 'printing-pricing-calculator' ); ?></h2>
         <input type="text" name="title" class="widefat" value="<?php echo esc_attr($data['title']); ?>" required />
-        <h2 class="wp-heading-inline">Slug</h2>
+        <h2 class="wp-heading-inline"><?php echo esc_html__( 'Slug', 'printing-pricing-calculator' ); ?></h2>
         <input type="text" name="slug" class="widefat" value="<?php echo esc_attr($data['slug']); ?>" />
 
-        <h2 class="wp-heading-inline">Content</h2>
+        <h2 class="wp-heading-inline"><?php echo esc_html__( 'Content', 'printing-pricing-calculator' ); ?></h2>
         <?php
             wp_editor($data['content'], 'content', [
                 'textarea_name' => 'content',
@@ -37,55 +37,55 @@
             ]);
         ?>
 
-        <h2 class="wp-heading-inline">Base Price</h2>
+        <h2 class="wp-heading-inline"><?php echo esc_html__( 'Base Price', 'printing-pricing-calculator' ); ?></h2>
         <input type="number" step="0.01" name="base_price" class="regular-text" value="<?php echo esc_attr($data['base_price']); ?>" required />
 
-        <h2 class="wp-heading-inline">Express Delivery Charges</h2>
+        <h2 class="wp-heading-inline"><?php echo esc_html__( 'Express Delivery Charges', 'printing-pricing-calculator' ); ?></h2>
         <input type="number" step="0.01" name="express_delivery_value" class="regular-text" value="<?php echo esc_attr($data['express_delivery_value'] ?? ''); ?>" />
         <select name="express_delivery_type">
-            <option value="percent" <?php selected(($data['express_delivery_type'] ?? '') === 'percent'); ?>>Percent (%)</option>
-            <option value="flat" <?php selected(($data['express_delivery_type'] ?? '') === 'flat'); ?>>Flat Amount</option>
+            <option value="percent" <?php selected(($data['express_delivery_type'] ?? '') === 'percent'); ?>><?php echo esc_html__( 'Percent (%)', 'printing-pricing-calculator' ); ?></option>
+            <option value="flat" <?php selected(($data['express_delivery_type'] ?? '') === 'flat'); ?>><?php echo esc_html__( 'Flat Amount', 'printing-pricing-calculator' ); ?></option>
         </select>
-        <p class="description">Leave blank to use the global setting.</p>
+        <p class="description"><?php echo esc_html__( 'Leave blank to use the global setting.', 'printing-pricing-calculator' ); ?></p>
 
-        <h2 class="wp-heading-inline">Minimum Order Quantity</h2>
+        <h2 class="wp-heading-inline"><?php echo esc_html__( 'Minimum Order Quantity', 'printing-pricing-calculator' ); ?></h2>
         <input type="number" step="1" name="min_order_qty" class="regular-text" value="<?php echo esc_attr(isset($data['min_order_qty']) ? $data['min_order_qty'] : ''); ?>"/>
 
-        <h2 class="wp-heading-inline">Status</h2>
+        <h2 class="wp-heading-inline"><?php echo esc_html__( 'Status', 'printing-pricing-calculator' ); ?></h2>
         <select name="status">
-            <option value="active"                                   <?php selected($data['status'], 'active'); ?>>Active</option>
-            <option value="inactive"                                     <?php selected($data['status'], 'inactive'); ?>>Inactive</option>
+            <option value="active"   <?php selected($data['status'], 'active'); ?>><?php echo esc_html__( 'Active', 'printing-pricing-calculator' ); ?></option>
+            <option value="inactive" <?php selected($data['status'], 'inactive'); ?>><?php echo esc_html__( 'Inactive', 'printing-pricing-calculator' ); ?></option>
         </select>
 
-        <h2 class="wp-heading-inline">Base Product Image</h2>
+        <h2 class="wp-heading-inline"><?php echo esc_html__( 'Base Product Image', 'printing-pricing-calculator' ); ?></h2>
         <?php if (! empty($data['image_url'])): ?>
-            <img src="<?php echo esc_url($data['image_url']); ?>" style="max-width: 150px; display:block; margin-bottom: 10px;" />
+            <img src="<?php echo esc_url($data['image_url']); ?>" style="max-width: 150px; display:block; margin-bottom: 10px;" alt="<?php echo esc_attr__( 'Product Image', 'printing-pricing-calculator' ); ?>" />
         <?php endif; ?>
         <input type="file" name="image_file" accept="image/*" />
         <input type="hidden" name="image_url" value="<?php echo esc_attr($data['image_url']); ?>" />
 
-        <h2 class="wp-heading-inline">Product Instructions File</h2>
+        <h2 class="wp-heading-inline"><?php echo esc_html__( 'Product Instructions File', 'printing-pricing-calculator' ); ?></h2>
         <?php
             $ppc_pdf_id  = $data['instructions_file_id'];
             $ppc_pdf_url = $ppc_pdf_id ? wp_get_attachment_url($ppc_pdf_id) : '';
         ?>
         <input type="file" name="ppc_instructions_pdf" accept="application/pdf" />
         <?php if ($ppc_pdf_url): ?>
-            <p>Current file: <a href="<?php echo esc_url($ppc_pdf_url); ?>" target="_blank" rel="noopener">View/Download</a></p>
+            <p><?php echo esc_html__( 'Current file:', 'printing-pricing-calculator' ); ?> <a href="<?php echo esc_url($ppc_pdf_url); ?>" target="_blank" rel="noopener"><?php echo esc_html__( 'View/Download', 'printing-pricing-calculator' ); ?></a></p>
             <label>
                 <input type="checkbox" name="ppc_instructions_pdf_remove" value="1">
-                Remove current file
+                <?php echo esc_html__( 'Remove current file', 'printing-pricing-calculator' ); ?>
             </label>
         <?php endif; ?>
-        <p class="description">Upload a single PDF used as the global instructions file shown on all product pages.</p>
+        <p class="description"><?php echo esc_html__( 'Upload a single PDF used as the global instructions file shown on all product pages.', 'printing-pricing-calculator' ); ?></p>
 
-        <h2 class="wp-heading-inline">Product-Specific Discount Rules</h2>
+        <h2 class="wp-heading-inline"><?php echo esc_html__( 'Product-Specific Discount Rules', 'printing-pricing-calculator' ); ?></h2>
         <table id="discount-rules-table" class="widefat fixed striped" style="max-width:600px;">
             <thead>
                 <tr>
-                    <th>Quantity ≥</th>
-                    <th>Discount (%)</th>
-                    <th>Action</th>
+                    <th><?php echo esc_html__( 'Quantity ≥', 'printing-pricing-calculator' ); ?></th>
+                    <th><?php echo esc_html__( 'Discount (%)', 'printing-pricing-calculator' ); ?></th>
+                    <th><?php echo esc_html__( 'Action', 'printing-pricing-calculator' ); ?></th>
                 </tr>
             </thead>
             <tbody>
@@ -101,34 +101,34 @@
                             <input type="number" name="discount_percent[]" min="0" max="100" step="0.01" value="<?php echo esc_attr($rule['percent']); ?>" class="small-text" />
                         </td>
                         <td>
-                            <button type="button" class="button remove-discount-rule">Remove</button>
+                            <button type="button" class="button remove-discount-rule"><?php echo esc_html__( 'Remove', 'printing-pricing-calculator' ); ?></button>
                         </td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>
             <tfoot>
                 <tr>
-                    <td colspan="3"><button type="button" class="button" id="add-discount-rule">Add Rule</button></td>
+                    <td colspan="3"><button type="button" class="button" id="add-discount-rule"><?php echo esc_html__( 'Add Rule', 'printing-pricing-calculator' ); ?></button></td>
                 </tr>
             </tfoot>
         </table>
-        <p class="description">Set discount percentages for quantity breakpoints (leave empty for no product-specific discount; global will be used).</p>
+        <p class="description"><?php echo esc_html__( 'Set discount percentages for quantity breakpoints (leave empty for no product-specific discount; global will be used).', 'printing-pricing-calculator' ); ?></p>
 
-        <h2 class="wp-heading-inline">File Check Service</h2>
+        <h2 class="wp-heading-inline"><?php echo esc_html__( 'File Check Service', 'printing-pricing-calculator' ); ?></h2>
         <table class="form-table" style="max-width:600px;">
             <tr>
-                <th><label for="file_check_price">File Check Price</label></th>
+                <th><label for="file_check_price"><?php echo esc_html__( 'File Check Price', 'printing-pricing-calculator' ); ?></label></th>
                 <td>
                     <input type="number" step="0.01" min="0" name="file_check_price" id="file_check_price" value="<?php echo esc_attr($data['file_check_price'] ?? ''); ?>" class="regular-text" />
-                    <span class="description">Leave blank to use global setting.</span>
+                    <span class="description"><?php echo esc_html__( 'Leave blank to use global setting.', 'printing-pricing-calculator' ); ?></span>
                 </td>
             </tr>
             <tr>
-                <th><label for="file_check_required">File Check Required?</label></th>
+                <th><label for="file_check_required"><?php echo esc_html__( 'File Check Required?', 'printing-pricing-calculator' ); ?></label></th>
                 <td>
                     <select name="file_check_required" id="file_check_required">
-                        <option value="0" <?php selected($data['file_check_required'] ?? 0, 0); ?>>Optional</option>
-                        <option value="1" <?php selected($data['file_check_required'] ?? 0, 1); ?>>Required</option>
+                        <option value="0" <?php selected($data['file_check_required'] ?? 0, 0); ?>><?php echo esc_html__( 'Optional', 'printing-pricing-calculator' ); ?></option>
+                        <option value="1" <?php selected($data['file_check_required'] ?? 0, 1); ?>><?php echo esc_html__( 'Required', 'printing-pricing-calculator' ); ?></option>
                     </select>
                 </td>
             </tr>
@@ -136,11 +136,11 @@
 
         <div class="postbox">
             <div class="postbox-header">
-                <h2 class="hndle"><span>Categories</span></h2>
+                <h2 class="hndle"><span><?php echo esc_html__( 'Categories', 'printing-pricing-calculator' ); ?></span></h2>
             </div>
             <div class="inside">
                 <?php if (!empty($all_categories)): ?>
-                <label for="ppc-category-select" class="screen-reader-text">Categories</label>
+                <label for="ppc-category-select" class="screen-reader-text"><?php echo esc_html__( 'Categories', 'printing-pricing-calculator' ); ?></label>
                 <select
                     id="ppc-category-select"
                     name="category_ids[]"
@@ -157,15 +157,15 @@
                     </option>
                     <?php endforeach; ?>
                 </select>
-                <p class="description" style="margin-top:6px;">Type to search, select multiple. Use Backspace or the “x” to remove.</p>
+                <p class="description" style="margin-top:6px;"><?php echo esc_html__( 'Type to search, select multiple. Use Backspace or the “x” to remove.', 'printing-pricing-calculator' ); ?></p>
                 <?php else: ?>
-                <p><em>No active categories found.</em></p>
+                <p><em><?php echo esc_html__( 'No active categories found.', 'printing-pricing-calculator' ); ?></em></p>
                 <?php endif; ?>
             </div>
         </div>
 
 
-        <h2 class="wp-heading-inline">Selected Parameters</h2>
+        <h2 class="wp-heading-inline"><?php echo esc_html__( 'Selected Parameters', 'printing-pricing-calculator' ); ?></h2>
         
         <div id="ppc-selected-params">
             <?php foreach ($selectedParameters as $param): ?>
@@ -174,14 +174,14 @@
 
             <!-- <button type="button" id="save-param-order" class="button button-secondary">Save Parameter Order</button> -->
         </div>
-        <h2 class="wp-heading-inline">Search Parameters</h2>
+        <h2 class="wp-heading-inline"><?php echo esc_html__( 'Search Parameters', 'printing-pricing-calculator' ); ?></h2>
         <div style="margin-bottom:16px;">
-            <input type="text" id="ppc-param-search" class="regular-text" placeholder="Search parameters..." autocomplete="off" />
+            <input type="text" id="ppc-param-search" class="regular-text" placeholder="<?php echo esc_attr__( 'Search parameters...', 'printing-pricing-calculator' ); ?>" autocomplete="off" />
         </div>
         <div id="ppc-param-search-results"></div>
 
         <p class="submit">
-            <button type="submit" class="button button-primary">Save Product</button>
+            <button type="submit" class="button button-primary"><?php echo esc_html__( 'Save Product', 'printing-pricing-calculator' ); ?></button>
         </p>
     </form>
 </div>
@@ -211,7 +211,7 @@
             row.innerHTML = `
                 <td><input type="number" name="discount_qty[]" min="1" class="small-text" /></td>
                 <td><input type="number" name="discount_percent[]" min="0" max="100" step="0.01" class="small-text" /></td>
-                <td><button type="button" class="button remove-discount-rule">Remove</button></td>
+                <td><button type="button" class="button remove-discount-rule"><?php echo esc_js( __( 'Remove', 'printing-pricing-calculator' ) ); ?></button></td>
             `;
             table.appendChild(row);
         });
@@ -245,14 +245,14 @@
             $results.html('');
             return;
         }
-        $results.html('<em>Searching...</em>');
+        $results.html('<em><?php echo esc_js( __( 'Searching...', 'printing-pricing-calculator' ) ); ?></em>');
         $.post(ajaxurl, {
             action: 'ppc_param_search',
             search: val,
             exclude: selectedIds
         }, function(resp) {
             if (!resp.success || !resp.data || !resp.data.params) {
-                $results.html('<em>No results</em>');
+                $results.html('<em><?php echo esc_js( __( 'No results', 'printing-pricing-calculator' ) ); ?></em>');
                 return;
             }
             var html = '';
@@ -260,11 +260,11 @@
                 resp.data.params.forEach(function(param) {
                     if (selectedIds.includes(parseInt(param.id))) return;
                     html += '<div class="ppc-param-search-row" data-param-id="' + param.id + '" style="padding:6px 0; border-bottom:1px #eee solid;">';
-                    html += '<strong>' + param.title + '</strong> (' + param.front_name + ') <button type="button" class="button ppc-param-add" style="margin-left:10px;">Add</button>';
+                    html += '<strong>' + param.title + '</strong> (' + param.front_name + ') <button type="button" class="button ppc-param-add" style="margin-left:10px;"><?php echo esc_js( __( 'Add', 'printing-pricing-calculator' ) ); ?></button>';
                     html += '</div>';
                 });
             } else {
-                html = '<em>No results</em>';
+                html = '<em><?php echo esc_js( __( 'No results', 'printing-pricing-calculator' ) ); ?></em>';
             }
             $results.html(html);
         });
@@ -286,7 +286,7 @@
                 selectedIds.push(paramId);
                 $row.remove();
             } else {
-                alert('Could not load parameter.');
+                alert('<?php echo esc_js( __( 'Could not load parameter.', 'printing-pricing-calculator' ) ); ?>');
             }
         });
     });
@@ -334,9 +334,9 @@
                 positions: positions
             }, function(resp){
                 if (resp.success) {
-                    alert('Parameter order saved!');
+                    alert('<?php echo esc_js( __( 'Parameter order saved!', 'printing-pricing-calculator' ) ); ?>');
                 } else {
-                    alert('Failed to save order.');
+                    alert('<?php echo esc_js( __( 'Failed to save order.', 'printing-pricing-calculator' ) ); ?>');
                 }
             });
         });

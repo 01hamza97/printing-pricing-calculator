@@ -71,7 +71,9 @@ class CategoryShortcodes {
         $order = strtoupper($atts['order']) === 'DESC' ? 'DESC' : 'ASC';
 
         if ($slug === '') {
-            return '<div class="w-11/12 mx-auto my-8 p-4 bg-yellow-50 border border-yellow-200 rounded">No category specified.</div>';
+            return '<div class="w-11/12 mx-auto my-8 p-4 bg-yellow-50 border border-yellow-200 rounded">' .
+                   esc_html__( 'No category specified.', 'printing-pricing-calculator' ) .
+                   '</div>';
         }
 
         // Fetch category by slug
@@ -84,7 +86,9 @@ class CategoryShortcodes {
         );
 
         if (! $cat) {
-            return '<div class="w-11/12 mx-auto my-8 p-4 bg-red-50 border border-red-200 rounded">Category not found.</div>';
+            return '<div class="w-11/12 mx-auto my-8 p-4 bg-red-50 border border-red-200 rounded">' .
+                   esc_html__( 'Category not found.', 'printing-pricing-calculator' ) .
+                   '</div>';
         }
 
         // Fetch product IDs in this category
@@ -136,9 +140,9 @@ class CategoryShortcodes {
                     <?php foreach ($products as $p): ?>
                         <?php
                             $title = $p['title'] ?? '';
-                            $slug  = $p['slug']  ?? '';
+                            $pslug = $p['slug']  ?? '';
                             $img   = $p['image_url'] ?? '';
-                            $url   = $product_url($slug);
+                            $url   = $product_url($pslug);
                         ?>
                         <article class="bg-white rounded-xl shadow hover:shadow-md transition p-3 flex flex-col">
                             <a href="<?php echo esc_url($url); ?>" class="block">
@@ -146,29 +150,33 @@ class CategoryShortcodes {
                                     <?php if ($img): ?>
                                         <img src="<?php echo esc_url($img); ?>" alt="<?php echo esc_attr($title); ?>" class="w-full h-full object-cover">
                                     <?php else: ?>
-                                        <div class="w-full h-full grid place-items-center text-gray-400 text-sm">No image</div>
+                                        <div class="w-full h-full grid place-items-center text-gray-400 text-sm">
+                                            <?php echo esc_html__( 'No image', 'printing-pricing-calculator' ); ?>
+                                        </div>
                                     <?php endif; ?>
                                 </div>
                                 <h3 class="mt-3 text-base font-semibold line-clamp-2">
                                     <?php echo esc_html($title); ?>
                                 </h3>
                             </a>
-                            <!-- <?php // if (isset($p['base_price']) && $p['base_price'] !== ''): ?>
-                                <div class="text-sm text-gray-600 mt-1">
-                                    From <?php // echo number_format((float)$p['base_price'], 2); ?>
-                                </div>
-                            <?php // endif; ?>
+                            <!--
+                            <div class="text-sm text-gray-600 mt-1">
+                                <?php // printf( esc_html__( 'From %s', 'printing-pricing-calculator' ), number_format_i18n( (float) $p['base_price'], 2 ) ); ?>
+                            </div>
                             <div class="mt-3">
                                 <a href="<?php // echo esc_url($url); ?>"
                                    class="inline-flex items-center justify-center px-3 py-2 rounded-lg bg-blue-600 text-white text-sm hover:bg-blue-700">
-                                    Configure &amp; Price
+                                    <?php // echo esc_html__( 'Configure & Price', 'printing-pricing-calculator' ); ?>
                                 </a>
-                            </div> -->
+                            </div>
+                            -->
                         </article>
                     <?php endforeach; ?>
                 </div>
             <?php else: ?>
-                <div class="p-4 rounded bg-gray-50 border border-gray-200 mb-8">No products in this category.</div>
+                <div class="p-4 rounded bg-gray-50 border border-gray-200 mb-8">
+                    <?php echo esc_html__( 'No products in this category.', 'printing-pricing-calculator' ); ?>
+                </div>
             <?php endif; ?>
 
             <!-- 3) Category Description (HTML) -->
@@ -197,7 +205,7 @@ class CategoryShortcodes {
             'columns' => 4,     // 4 per row
             'limit'   => 100,   // safety cap
             'order'   => 'ASC',
-            // Optional: base page for category archives, default is current page with ?ppc_category=slug
+            // Optional: base page for category archives, default is /category/<slug>
             'base'    => '',    // e.g., '/produkty/' if you have a pretty URL page
         ], $atts, 'ppc_categories_grid');
 
@@ -245,20 +253,25 @@ class CategoryShortcodes {
                 <?php if (!empty($cats)): ?>
                     <?php foreach ($cats as $c): ?>
                         <?php
-                            $img = '';
+                            $img_html = '';
                             if (!empty($c['image_id'])) {
-                                $img = wp_get_attachment_image( (int)$c['image_id'], 'medium', false, [
+                                $img_html = wp_get_attachment_image( (int)$c['image_id'], 'medium', false, [
                                     'class' => 'w-full h-full object-cover'
                                 ]);
                             }
+                            $cat_link = $base !== ''
+                                ? trailingslashit( home_url( '/' . ltrim( $base, '/\\' ) . '/' . $c['slug'] ) )
+                                : home_url( 'category/' . $c['slug'] );
                         ?>
-                        <a href="/category/<?php echo $c['slug'] ?>" class="block group">
+                        <a href="<?php echo esc_url( $cat_link ); ?>" class="block group">
                             <div class="bg-white rounded-xl shadow hover:shadow-md transition overflow-hidden">
                                 <div class="aspect-[4/3] bg-gray-100">
-                                    <?php if ($img) : ?>
-                                        <?php echo $img; ?>
+                                    <?php if ($img_html) : ?>
+                                        <?php echo $img_html; ?>
                                     <?php else: ?>
-                                        <div class="w-full h-full grid place-items-center text-gray-400 text-sm">No image</div>
+                                        <div class="w-full h-full grid place-items-center text-gray-400 text-sm">
+                                            <?php echo esc_html__( 'No image', 'printing-pricing-calculator' ); ?>
+                                        </div>
                                     <?php endif; ?>
                                 </div>
                                 <div class="p-3">
@@ -270,7 +283,9 @@ class CategoryShortcodes {
                         </a>
                     <?php endforeach; ?>
                 <?php else: ?>
-                    <div class="col-span-full p-4 rounded bg-gray-50 border border-gray-200">No categories found.</div>
+                    <div class="col-span-full p-4 rounded bg-gray-50 border border-gray-200">
+                        <?php echo esc_html__( 'No categories found.', 'printing-pricing-calculator' ); ?>
+                    </div>
                 <?php endif; ?>
             </div>
         </div>
