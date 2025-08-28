@@ -2,13 +2,13 @@
 
 <div class="w-5/6 mx-auto my-8 font-sans">
   <div class="flex">
-    <div class="w-1/3 px-2 mx-2">
-      <h4 class="text-base !font-bold mb-[14px] text-cyan-500">
+    <div class="w-2/5 px-2 mx-2">
+      <h4 class="text-base !font-bold mb-[14px] text-[#008ec0]">
         <?php echo esc_html__( 'Parameters', 'printing-pricing-calculator' ); ?>
       </h4>
-      <div class="col-span-2 rounded-md px-5 py-6 border border-blue-200 mb-4">
+      <div class="col-span-2 rounded-md px-5 py-6 border border-[#008ec0] mb-4">
         <div class="">
-          <div class="relative overflow-hidden rounded-lg ppc-zoom cursor-zoom-in" style="--ppc-zoom:1.8;">
+          <div class="relative overflow-hidden rounded-lg">
             <img
               src="<?php echo esc_url($product['image_url']); ?>"
               alt="<?php echo esc_attr($product['title']); ?>"
@@ -18,10 +18,10 @@
           </div>
         </div>
       </div>
-      <div class="col-span-2 rounded-md px-5 py-6 border border-blue-200 mb-4">
+      <div class="col-span-2 rounded-md px-5 py-6 border border-[#008ec0] mb-4">
         <?php foreach ($parameters as $p): ?>
           <div class="parameter-wrapper">
-            <label for="param_<?php echo (int)$p['id']; ?>" class="font-semibold text-sm block mb-1 text-zinc-700">
+            <label for="param_<?php echo (int)$p['id']; ?>" class="font-semibold text-sm block mb-1 text-[#008ec0]">
               <?php echo esc_html($p['front_name']); ?>
             </label>
 
@@ -58,11 +58,11 @@
 
               <!-- info tooltip -->
               <span class="inline-block align-middle relative group ml-2 cursor-pointer">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="#FEF3C7"/>
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="#008ec0"/>
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01" />
                 </svg>
-                <span class="absolute left-7 top-1/2 -translate-y-1/2 bg-gray-900 text-white text-[13px] rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition pointer-events-none z-50 shadow-lg min-w-[200px] max-w-xs whitespace-normal break-words">
+                <span class="absolute left-7 top-1/2 -translate-y-1/2 bg-[#008ec0] text-white text-[13px] rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition pointer-events-none z-50 shadow-lg min-w-[200px] max-w-xs whitespace-normal break-words">
                   <?php 
                     $html = html_entity_decode($p['content'], ENT_QUOTES, 'UTF-8');
                     echo wp_kses_post($html); ?>
@@ -72,27 +72,27 @@
           </div>
         <?php endforeach; ?>
       </div>
-      <div class="col-span-2 rounded-md px-5 py-6 border border-blue-200 mb-4">
-        <a download href="<?php echo wp_get_attachment_url($product['instructions_file_id']) ?>" target="_blank" class="bg-[#E7F2FD] border border-blue-300 rounded-md text-zinc-900 w-full block text-base font-normal py-4 text-center no-underline">
+      <div class="col-span-2 rounded-md px-5 py-6 border border-[#008ec0] mb-4">
+        <a download href="<?php echo wp_get_attachment_url($product['instructions_file_id']) ?>" target="_blank" class="bg-[#008ec0] border border-blue-300 rounded-md !text-white w-full block text-base font-normal py-4 text-center !no-underline">
           <?php echo esc_html__( 'Download Instructions File', 'printing-pricing-calculator' ); ?>
         </a>
       </div>
-      <div class="col-span-2 rounded-md px-5 py-6 border border-blue-200">
-        <span class="bg-[#E7F2FD] border border-blue-300 rounded-md text-zinc-900 w-full block text-base font-normal py-4 px-3 no-underline mb-4">
+      <div class="col-span-2 rounded-md px-5 py-6 border border-[#008ec0]">
+        <span class="bg-[#008ec0] border border-blue-300 rounded-md text-white w-full block text-base font-normal py-4 px-3 !no-underline mb-4">
           <div class="flex items-center justify-between">
-            <span><i class="fa-solid fa-paperclip mr-1 text-zinc-600"></i><?php echo esc_html__( 'No File Selected', 'printing-pricing-calculator' ); ?></span>
-            <span><i class="fa-solid fa-trash text-zinc-6 hover:cursor-pointer"></i></span>
+            <span><i class="fa-solid fa-paperclip mr-1 text-white"></i><?php echo esc_html__( 'No File Selected', 'printing-pricing-calculator' ); ?></span>
+            <span><i class="fa-solid fa-trash text-white hover:cursor-pointer"></i></span>
           </div>
         </span>
         <!-- file upload (shown/hidden by File Check state) -->
-        <div class="w-full max-w-lg" id="ppc-file-upload-wrapper">
+        <div class="w-full" id="ppc-file-upload-wrapper">
           <div class="flex h-32 flex-col items-center justify-center rounded-lg border-2 border-dashed border-zinc-300 bg-white text-center hover:border-zinc-400 transition-colors">
             <!-- icon -->
             <i class="fa-solid fa-arrow-up-from-bracket"></i>
 
-            <p class="text-sm text-zinc-600">
+            <p class="text-sm">
               <?php echo esc_html__( 'Drop here to attach or', 'printing-pricing-calculator' ); ?>
-              <label for="ppc-file-upload" class="cursor-pointer text-blue-600 hover:underline">
+              <label for="ppc-file-upload" class="cursor-pointer text-[#008ec0] hover:underline">
                 <?php echo esc_html__( 'upload', 'printing-pricing-calculator' ); ?>
               </label>
             </p>
@@ -103,40 +103,38 @@
         </div>
       </div>
     </div>
-    <div class="w-1/3 px-2 mx-2">
-      <!-- <h4 class="text-lg font-semibold mb-4">počet kusů</h4> -->
-      <div class="bg-zinc-300 font-bold h-170 mt-2 mx-auto px-6 py-5 rounded-md text-zinc-900 text-base w-full">
+    <!-- <div class="w-1/3 px-2 mx-2">
+      <div class="bg-zinc-300 font-bold h-170 mt-2 mx-auto px-6 py-5 rounded-md text-white text-base w-full">
         <?php echo esc_html__( 'Picture or ads', 'printing-pricing-calculator' ); ?>
       </div>
-      <!-- display controls -->
       <div class="mb-4 mt-4 w-full grid grid-cols-1 md:grid-cols-2 gap-4 hidden">
-        <!-- With/Without Tax -->
+        
         <div class="text-start">
-          <div class="text-sm font-medium mb-2"><?php echo esc_html__( 'Price Gross / Net', 'printing-pricing-calculator' ); ?></div>
+          <div class="text-sm font-medium mb-2"><?php // echo esc_html__( 'Price Gross / Net', 'printing-pricing-calculator' ); ?></div>
           <label for="ppc-show-tax-toggle" class="inline-flex items-center cursor-pointer">
             <input id="ppc-show-tax-toggle" type="checkbox" class="sr-only peer">
             <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600"></div>
           </label>
         </div>
         <div class="text-end">
-          <div class="text-sm font-medium mb-2"><?php echo esc_html__( 'Price Per Piece', 'printing-pricing-calculator' ); ?></div>
+          <div class="text-sm font-medium mb-2"><?php // echo esc_html__( 'Price Per Piece', 'printing-pricing-calculator' ); ?></div>
           <label for="ppc-price-unit-toggle" class="inline-flex items-center cursor-pointer">
             <input id="ppc-price-unit-toggle" type="checkbox" class="sr-only peer">
             <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600"></div>
           </label>
         </div>
       </div>
-    </div>
-    <div class="w-1/3 px-2 mx-2">
-      <h4 class="text-base !font-bold mb-11 text-cyan-500">
+    </div> -->
+    <div class="w-3/5 px-2 mx-2">
+      <h4 class="text-base !font-bold mb-11 text-[#008ec0]">
         <?php echo esc_html__( 'Recapitulation', 'printing-pricing-calculator' ); ?>
       </h4>
       <div class="flex flex-col">
         <div class="px-4">
           <!-- Quantity -->
-          <div class="mb-3">
+          <!-- <div class="mb-3">
             <div class="relative inline-block">
-              <div class="flex items-center justify-center border border-blue-300 rounded-md bg-[#E7F2FD] px-4 py-2 text-lg font-medium text-cyan-500 w-[110px] mb-4">
+              <div class="flex items-center justify-center border border-blue-300 rounded-md bg-[#008ec0] px-4 py-2 text-lg font-medium text-white w-[110px] mb-4">
               <input
                 type="number"
                 id="ppc-qty"
@@ -145,16 +143,16 @@
               <span class=""><?php echo esc_html__( 'PCS', 'printing-pricing-calculator' ); ?></span>
             </div>
             <small class="text-gray-600 block text-sm mb-8">
-              <?php echo esc_html__( 'Minimum order:', 'printing-pricing-calculator' ); ?>
-              <?php echo (int)$min_order_qty; ?>
+              <?php // echo esc_html__( 'Minimum order:', 'printing-pricing-calculator' ); ?>
+              <?php // echo (int)$min_order_qty; ?>
             </small>
             <small class="text-red-600 hidden block" id="ppc-qty-error"></small>
-          </div>
+          </div> -->
 
           <!-- Express -->
           <div class="">
             <label class="inline-flex items-center">
-              <input type="checkbox" id="ppc-express" class="accent-cyan-500 mr-2" />
+              <input type="checkbox" id="ppc-express" class="accent-[#008ec0] mr-2" />
               <span class="font-normal text-sm text-zinc-700">
                 <?php echo esc_html__( 'Express Delivery', 'printing-pricing-calculator' ); ?>
                 <!-- ( -->
@@ -174,7 +172,7 @@
           <div class="mb-8">
             <label class="inline-flex items-center">
               <input type="checkbox"
-                class="accent-cyan-500 mr-2"
+                class="accent-[#008ec0] mr-2"
                 id="ppc-file-check"
                 <?php if (!empty($file_check_required)) echo 'checked disabled'; ?>
               >
@@ -240,13 +238,13 @@
         </div>
 
         <!-- Order notes / instructions -->
-        <div class="rounded-md px-5 py-4 mb-6">
+        <div class="rounded-md py-4 mb-6">
           <label for="ppc-order-notes" class="block text-sm font-medium mb-2">
             <?php echo esc_html__( 'Notes / Instructions (optional)', 'printing-pricing-calculator' ); ?>
           </label>
           <textarea
             id="ppc-order-notes"
-            class="w-full bg-[#E7F2FD] text-zinc-800 border border-blue-300 rounded-md p-3 text-sm min-h-[96px] resize-y"
+            class="w-full bg-[#008ec0] text-white border border-blue-300 rounded-md p-3 text-sm min-h-[96px] resize-y"
             placeholder="<?php echo esc_attr__( 'Anything we should know about your order?', 'printing-pricing-calculator' ); ?>"
             maxlength="1000"
           ></textarea>
@@ -255,11 +253,11 @@
           </div>
         </div>
 
-        <div class="border border-blue-300 rounded-md text-cyan-500 w-full block text-lg font-normal py-4 mb-4 text-center hover:cursor-pointer hover:bg-cyan-200" id="ppc-download-pdf">
+        <div class="border border-blue-300 rounded-md text-[#008ec0] hover:text-white w-full block text-lg font-normal py-4 mb-4 text-center hover:cursor-pointer hover:bg-[#00a3ca]" id="ppc-download-pdf">
           <?php echo esc_html__( 'download calculation (pdf?)', 'printing-pricing-calculator' ); ?>
         </div>
         <button id="ppc-add-to-cart" type="button"
-          class="border border-blue-300 rounded-md bg-[#E7F2FD] text-cyan-500 w-full block text-lg font-semibold py-4 cursor-pointer hover:bg-cyan-200">
+          class="border border-blue-300 rounded-md bg-[#008ec0] text-white w-full block text-lg font-semibold py-4 cursor-pointer hover:bg-[#00a3ca]">
           <?php echo esc_html__( 'ORDER', 'printing-pricing-calculator' ); ?>
         </button>
       </div>
