@@ -223,7 +223,7 @@ class ProductEdit
                     $wpdb->insert($option_price_table, $price);
                 }
 
-                echo "<script>location.href='" . esc_url( admin_url('admin.php?page=ppc-product-edit&id=' . $new_id . '&duplicated=1') ) . "'</script>";
+                echo "<script>location.href='" . admin_url('admin.php?page=ppc-product-edit&id=' . $new_id . '&duplicated=1') . "'</script>";
                 exit;
             }
         }
@@ -499,7 +499,7 @@ class ProductEdit
                 }
             }
 
-            echo "<script>location.href='" . esc_url( admin_url('admin.php?page=ppc-product-edit&id=' . $id) ) . "'</script>";
+            echo "<script>location.href='" . admin_url('admin.php?page=ppc-product-edit&id=' . $id) . "'</script>";
             exit;
         }
 

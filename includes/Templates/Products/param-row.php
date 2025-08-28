@@ -32,6 +32,24 @@ foreach ($allParamsSource as $p0) {
     ];
 }
 ?>
+<style>
+    .bg-008ec0 {
+        background-color: #008ec0!important;
+        color: white!important;
+    }
+    .bg-00a3ca {
+        background-color: #00a3ca!important;
+        color: white!important;
+    }
+
+    .bg-008ec0 span, .bg-00a3ca span {
+        color: white!important;
+    }
+
+    .bg-00a3ca div, .bg-00a3ca table tr td {
+        color: white!important;
+    }
+</style>
 <div class="ppc-param-row" data-param-id="<?php echo (int)($param['id'] ?? 0); ?>" style="margin-bottom: 16px; border: 1px solid #ddd; border-radius: 6px; overflow: hidden;">
     <!-- Keep header classes (toggle/sort/remove JS in form.php relies on these) -->
     <div class="ppc-param-header" style="display:flex;align-items:center;gap:8px;padding:10px;cursor:pointer;background:#fafafa;border-bottom:1px solid #eee;">
@@ -178,6 +196,51 @@ foreach ($allParamsSource as $p0) {
         return Object.values(map);
     }
 
+    function _ppcHasActiveConditions(jsonStr) {
+        try {
+            const groups = JSON.parse(jsonStr || '[]');
+            if (!Array.isArray(groups)) return false;
+            return groups.some(g => Array.isArray(g.rows) && g.rows.length > 0);
+        } catch (e) { return false; }
+    }
+
+    function _ppcUpdateOptionHighlight(paramRowEl, optId) {
+        const optRow = paramRowEl.querySelector('tr[data-option-id="'+ optId +'"]');
+        const input  = paramRowEl.querySelector('.ppc-conditions-row[data-option-id="'+ optId +'"] .ppc-conditions-json');
+        const active = !!(input && _ppcHasActiveConditions(input.value));
+        if (optRow) optRow.classList.toggle('bg-00a3ca', active);
+        return active;
+    }
+
+    function _ppcUpdateHeaderHighlight(paramRowEl) {
+        const header = paramRowEl.querySelector('.ppc-param-header');
+        if (!header) return;
+        let active = false;
+
+        // Param-level
+        const pInput = paramRowEl.querySelector('.ppc-param-conditions-json');
+        if (pInput && _ppcHasActiveConditions(pInput.value)) active = true;
+
+        // Any option-level
+        if (!active) {
+            const inputs = paramRowEl.querySelectorAll('.ppc-conditions-row .ppc-conditions-json');
+            for (const inp of inputs) {
+                if (_ppcHasActiveConditions(inp.value)) { active = true; break; }
+            }
+        }
+            header.classList.toggle('bg-008ec0', active);
+    }
+
+    function _ppcRefreshAllHighlights(paramRowEl) {
+        // update each option row
+        paramRowEl.querySelectorAll('tr[data-option-id]').forEach(tr => {
+            const oid = tr.getAttribute('data-option-id');
+            _ppcUpdateOptionHighlight(paramRowEl, oid);
+        });
+        // update header
+        _ppcUpdateHeaderHighlight(paramRowEl);
+    }
+
     // Provide ALL parameters to a single global store; merge across rows
     var __THIS_PARAM_DATA__ = <?php echo wp_json_encode($clientParams); ?>;
     window.PPC_ALL_PARAMETERS = mergeUniqueById(window.PPC_ALL_PARAMETERS || [], __THIS_PARAM_DATA__);
@@ -215,7 +278,7 @@ foreach ($allParamsSource as $p0) {
                     '<button type="button" class="button-link-delete ppc-remove-group"><?php echo esc_js( __( 'Remove group', 'printing-pricing-calculator' ) ); ?></button>' +
                 '</div>' +
                 '<div class="ppc-group-rows" style="display:flex;flex-direction:column;gap:6px;"></div>' +
-                '<div><button type="button" class="button button-small ppc-add-row">+ <?php echo esc_js( __( 'Add Condition', 'printing-pricing-calculator' ) ); ?></button></div>' +
+                '<div><button style="margin-top: 10px;" type="button" class="button button-small ppc-add-row">+ <?php echo esc_js( __( 'Add Condition', 'printing-pricing-calculator' ) ); ?></button></div>' +
             '</div>'
         );
     }
@@ -400,6 +463,7 @@ foreach ($allParamsSource as $p0) {
                 var toShow = (row.style.display === 'none' || !row.style.display);
                 row.style.display = toShow ? '' : 'none';
                 if (toShow) hydrateOptionEditor(row);
+                _ppcRefreshAllHighlights(tr.closest('.ppc-param-row'));  
             }
 
             // Add option-level group
@@ -410,6 +474,7 @@ foreach ($allParamsSource as $p0) {
                 var gEl = groupTemplate(false, gi);
                 groups.appendChild(gEl);
                 serializeOptionConditions(wrap);
+                _ppcRefreshAllHighlights(wrap.closest('.ppc-param-row'));
             }
 
             // Add parameter-level group
@@ -423,6 +488,7 @@ foreach ($allParamsSource as $p0) {
                 var gElP = groupTemplate(true, giP);
                 groupsP.appendChild(gElP);
                 serializeParamConditions(wrapP);
+                 _ppcRefreshAllHighlights(wrapP.closest('.ppc-param-row')); 
             }
 
             // Remove group
@@ -433,6 +499,7 @@ foreach ($allParamsSource as $p0) {
                 grp.remove();
                 if (isParam) { renumberGroupsParam(wrap); serializeParamConditions(wrap); }
                 else { renumberGroupsOption(wrap); serializeOptionConditions(wrap); }
+                _ppcRefreshAllHighlights(wrap.closest('.ppc-param-row')); 
             }
 
             // Add row (both kinds)
@@ -454,6 +521,7 @@ foreach ($allParamsSource as $p0) {
                 var wrap = grp.closest('.ppc-conditions-wrap, .ppc-param-wide-conditions');
                 if (wrap.classList.contains('ppc-param-wide-conditions')) serializeParamConditions(wrap);
                 else serializeOptionConditions(wrap);
+                _ppcRefreshAllHighlights(wrap.closest('.ppc-param-row')); 
             }
 
             // Remove row
@@ -465,6 +533,7 @@ foreach ($allParamsSource as $p0) {
                 renumberRows(grp2);
                 if (wrap2.classList.contains('ppc-param-wide-conditions')) serializeParamConditions(wrap2);
                 else serializeOptionConditions(wrap2);
+                _ppcRefreshAllHighlights(wrap.closest('.ppc-param-row')); 
             }
         });
 
@@ -475,11 +544,13 @@ foreach ($allParamsSource as $p0) {
                 var wrap = e.target.closest('.ppc-conditions-wrap, .ppc-param-wide-conditions'); if (!wrap) return;
                 if (wrap.classList.contains('ppc-param-wide-conditions')) serializeParamConditions(wrap);
                 else serializeOptionConditions(wrap);
+                _ppcRefreshAllHighlights(wrap.closest('.ppc-param-row'));
             }
             if (cls.contains('ppc-target-option') || cls.contains('ppc-action') || cls.contains('ppc-operator')) {
                 var wrap = e.target.closest('.ppc-conditions-wrap, .ppc-param-wide-conditions'); if (!wrap) return;
                 if (wrap.classList.contains('ppc-param-wide-conditions')) serializeParamConditions(wrap);
                 else serializeOptionConditions(wrap);
+                _ppcRefreshAllHighlights(wrap.closest('.ppc-param-row'));
             }
         });
 
@@ -488,6 +559,13 @@ foreach ($allParamsSource as $p0) {
             document.querySelectorAll('.ppc-param-wide-conditions').forEach(function(wrapP){
                 hydrateParamEditor(wrapP);
             });
+        });
+
+        // Initial pass on DOMContentLoaded (after param-level hydration)
+        document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.ppc-param-row').forEach(function(paramRowEl){
+            _ppcRefreshAllHighlights(paramRowEl);                            // <-- ADD
+        });
         });
     }
 })();

@@ -160,7 +160,7 @@ class ParameterEdit {
                 }
             }
 
-            echo "<script>location.href='" . esc_url( admin_url('admin.php?page=ppc-parameter-edit&id=' . $id) ) . "'</script>";
+            echo "<script>location.href='" . admin_url('admin.php?page=ppc-parameter-edit&id=' . $id) . "'</script>";
             exit;
         }
 

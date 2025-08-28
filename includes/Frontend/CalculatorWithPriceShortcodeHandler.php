@@ -195,6 +195,13 @@ class CalculatorWithPriceShortcodeHandler
                 }
             }
         }
+        $ppc_currency = array(
+          'symbol'       => get_woocommerce_currency_symbol(),
+          'position'     => get_option('woocommerce_currency_pos', 'right_space'), // left, right, left_space, right_space
+          'thousand_sep' => wc_get_price_thousand_separator(),
+          'decimal_sep'  => wc_get_price_decimal_separator(),
+          'num_decimals' => wc_get_price_decimals(),
+        );
         // ---- Make variables available to template ----
         ob_start();
 
@@ -211,7 +218,8 @@ class CalculatorWithPriceShortcodeHandler
             file_check_required: <?php echo json_encode($file_check_required); ?>,
             product_discount_rules: <?php echo json_encode($product_discount_rules); ?>,
             global_discount_rules: <?php echo json_encode($global_discount_rules); ?>,
-            conditions: <?php echo wp_json_encode($conditions); ?>
+            conditions: <?php echo wp_json_encode($conditions); ?>,
+            ppcCurrency: <?php echo wp_json_encode( $ppc_currency ); ?>
         };
         </script>
         <?php

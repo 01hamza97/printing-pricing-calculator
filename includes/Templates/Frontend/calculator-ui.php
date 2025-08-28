@@ -689,61 +689,68 @@ document.addEventListener('DOMContentLoaded', function () {
     // If target_option_id is empty/0 => applies to whole parameter (hide/show)
     // If target_option_id is provided => only that option is disabled/enabled
     function applyGroups(groups) {
-        if (!Array.isArray(groups)) return;
-        groups.forEach(group => {
-            const rows = Array.isArray(group.rows) ? group.rows : [];
+      if (!Array.isArray(groups) || !groups.length) return;
 
-            rows.forEach(row => {
-            const tPid = parseInt(row.target_param_id || 0, 10);
-            if (!tPid) return;
+      groups.forEach(group => {
+        const rows = Array.isArray(group.rows) ? group.rows : [];
+        rows.forEach(row => {
+          const tPid = parseInt(row.target_param_id || 0, 10);
+          if (!tPid) return;
 
-            const tOid = parseInt(row.target_option_id || 0, 10); // 0 => ANY
-            const action = (row.action === "hide") ? "hide" : "show";
-            const sel = document.getElementById('param_' + tPid);
+          const sel = document.getElementById('param_' + tPid);
+          if (!sel) return;
 
-            if (!sel) return;
+          const tOid   = parseInt(row.target_option_id || 0, 10); // 0 => ANY
+          const action = (row.action === 'hide') ? 'hide' : 'show';
+          const wrap   = sel.closest('.parameter-wrapper');
 
-            if (!tOid) {
-                // Whole parameter
-                const wrap = sel.closest('.parameter-wrapper');
-                if (wrap) {
-                  if (action === "hide") {
-                      // if currently selected, clear it
-                      if (sel.value) {
-                        sel.selectedIndex = 0; // first option (e.g., "Select an option")
-                        sel.dispatchEvent(new Event('change', { bubbles: true }));
-                      }
-                      wrap.classList.add('hidden');
-                  } else {
-                      wrap.classList.remove('hidden');
-                  }
-                }
+          // --- Whole parameter (ANY) ---
+          if (tOid === 0) {
+            if (action === 'hide') {
+              // Option A (disable param completely):
+              sel.disabled = true;
+
+              // Keep placeholder (index 0) enabled so selectedIndex=0 remains valid
+              for (let i = 0; i < sel.options.length; i++) {
+                sel.options[i].disabled = (i === 0) ? false : true;
+              }
+
+              // If user had selected something, silently reset to placeholder (no dispatch)
+              if (sel.selectedIndex !== 0) sel.selectedIndex = 0;
+
+              // Or, if you prefer to hide the whole block instead of disabling:
+              // if (wrap) wrap.classList.add('hidden');
+
             } else {
-                // Specific option within the select
-                for (let i = 0; i < sel.options.length; i++) {
-                const opt = sel.options[i];
-                const oid = parseInt(opt.getAttribute('data-option-id') || '0', 10);
-                if (oid !== tOid) continue;
-
-                if (action === "hide") {
-                    opt.disabled = true;
-
-                    // If this option is currently selected, clear selection and notify
-                    const selectedOpt = sel.options[sel.selectedIndex];
-                    const selectedOid = selectedOpt ? parseInt(selectedOpt.getAttribute('data-option-id') || '0', 10) : 0;
-
-                    if (selectedOid === tOid) {
-                    sel.selectedIndex = 0; // move to placeholder
-                    sel.dispatchEvent(new Event('change', { bubbles: true }));
-                    }
-                } else {
-                    opt.disabled = false;
-                }
-                }
+              sel.disabled = false;
+              for (let i = 0; i < sel.options.length; i++) {
+                sel.options[i].disabled = false;
+              }
+              if (wrap) wrap.classList.remove('hidden');
             }
-            });
+            return; // done for ANY
+          }
+
+          // --- Specific option within the select ---
+          for (let i = 0; i < sel.options.length; i++) {
+            const opt = sel.options[i];
+            const oid = parseInt(opt.getAttribute('data-option-id') || '0', 10);
+            if (oid !== tOid) continue;
+
+            if (action === 'hide') {
+              opt.disabled = true;
+
+              // If that option was selected, silently reset to placeholder
+              const selectedOpt = sel.options[sel.selectedIndex];
+              const selectedOid = selectedOpt ? parseInt(selectedOpt.getAttribute('data-option-id') || '0', 10) : 0;
+              if (selectedOid === tOid) sel.selectedIndex = 0;
+            } else {
+              opt.disabled = false;
+            }
+          }
         });
-        }
+      });
+    }
 
     // Main evaluator — call this before recomputing totals (and on each change)
     function evaluateConditions() {
@@ -774,9 +781,9 @@ document.addEventListener('DOMContentLoaded', function () {
     evaluateConditions();
 
     // Also re-evaluate whenever any parameter changes
-    document.querySelectorAll('select[name^="parameters"]').forEach(sel => {
-        sel.addEventListener('change', evaluateConditions);
-    });
+    // document.querySelectorAll('select[name^="parameters"]').forEach(sel => {
+    //     sel.addEventListener('change', evaluateConditions);
+    // });
     })();
 
 });
