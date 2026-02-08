@@ -271,37 +271,39 @@ class ProductEdit
             // Slug logic
             $slug = $this->ppc_generate_unique_slug($title, $wpdb, $product_table, $is_edit ? $id : null);
 
-            // Image logic
-            $image_url = $data['image_url'] ?? '';
-            if (!empty($_FILES['image_file']['name'])) {
-                require_once ABSPATH . 'wp-admin/includes/file.php';
-                require_once ABSPATH . 'wp-admin/includes/media.php';
-                require_once ABSPATH . 'wp-admin/includes/image.php';
+            // // Image logic
+            // $image_url = $data['image_url'] ?? '';
+            // if (!empty($_FILES['image_file']['name'])) {
+            //     require_once ABSPATH . 'wp-admin/includes/file.php';
+            //     require_once ABSPATH . 'wp-admin/includes/media.php';
+            //     require_once ABSPATH . 'wp-admin/includes/image.php';
 
-                if ($is_edit && !empty($data['image_url'])) {
-                    $upload_dir = wp_upload_dir();
-                    $old_file_path = str_replace($upload_dir['baseurl'], $upload_dir['basedir'], $data['image_url']);
-                    if (file_exists($old_file_path)) {
-                        @unlink($old_file_path);
-                    }
-                }
+            //     if ($is_edit && !empty($data['image_url'])) {
+            //         $upload_dir = wp_upload_dir();
+            //         $old_file_path = str_replace($upload_dir['baseurl'], $upload_dir['basedir'], $data['image_url']);
+            //         if (file_exists($old_file_path)) {
+            //             @unlink($old_file_path);
+            //         }
+            //     }
 
-                $uploaded = wp_handle_upload($_FILES['image_file'], ['test_form' => false]);
-                if (!isset($uploaded['error'])) {
-                    $file_path = $uploaded['file'];
-                    $file_name = basename($file_path);
-                    $attachment = [
-                        'post_mime_type' => $uploaded['type'],
-                        'post_title'     => sanitize_file_name($file_name),
-                        'post_content'   => '',
-                        'post_status'    => 'inherit'
-                    ];
-                    $attach_id  = wp_insert_attachment($attachment, $file_path);
-                    $attach_data = wp_generate_attachment_metadata($attach_id, $file_path);
-                    wp_update_attachment_metadata($attach_id, $attach_data);
-                    $image_url = wp_get_attachment_url($attach_id);
-                }
-            }
+            //     $uploaded = wp_handle_upload($_FILES['image_file'], ['test_form' => false]);
+            //     if (!isset($uploaded['error'])) {
+            //         $file_path = $uploaded['file'];
+            //         $file_name = basename($file_path);
+            //         $attachment = [
+            //             'post_mime_type' => $uploaded['type'],
+            //             'post_title'     => sanitize_file_name($file_name),
+            //             'post_content'   => '',
+            //             'post_status'    => 'inherit'
+            //         ];
+            //         $attach_id  = wp_insert_attachment($attachment, $file_path);
+            //         $attach_data = wp_generate_attachment_metadata($attach_id, $file_path);
+            //         wp_update_attachment_metadata($attach_id, $attach_data);
+            //         $image_url = wp_get_attachment_url($attach_id);
+            //     }
+            // }
+
+            $image_url = isset($_POST['image_url']) ? esc_url_raw($_POST['image_url']) : ($data['image_url'] ?? '');
 
             // Instructions PDF upload/remove
             $existing_id = $data['instructions_file_id'];
@@ -638,6 +640,7 @@ class ProductEdit
         }
         $param = $row;
         $data = ['params' => []]; // empty for new
+        wp_enqueue_media();
         ob_start();
         include plugin_dir_path(__FILE__) . '/../Templates/Products/param-row.php';
         $html = ob_get_clean();

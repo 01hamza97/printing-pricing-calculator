@@ -61,6 +61,22 @@ $image_url = $image_id ? wp_get_attachment_image_url($image_id, 'thumbnail') : '
         </div>
     </div>
 
+    <h2 class="wp-heading-inline">Parent Category</h2>
+    <select name="parent_id" class="widefat">
+    <option value="">— None —</option>
+    <?php
+    $all_cats = $wpdb->get_results("SELECT id, name FROM " . CATEGORY_TABLE . " WHERE id != " . (int)($row['id'] ?? 0) . " ORDER BY name ASC");
+    foreach ($all_cats as $cat) {
+        printf(
+            '<option value="%d" %s>%s</option>',
+            $cat->id,
+            selected($cat->id, $row['parent_id'] ?? '', false),
+            esc_html($cat->name)
+        );
+    }
+    ?>
+    </select>
+
     <!-- Status -->
     <h2 class="wp-heading-inline"><?php echo esc_html__( 'Status', 'printing-pricing-calculator' ); ?></h2>
     <select name="status" style="margin-bottom:16px;">
@@ -69,16 +85,98 @@ $image_url = $image_id ? wp_get_attachment_image_url($image_id, 'thumbnail') : '
     </select>
 
     <!-- Image -->
-    <h2 class="wp-heading-inline"><?php echo esc_html__( 'Category Image', 'printing-pricing-calculator' ); ?></h2>
+    <h2 class="wp-heading-inline">
+        <?php echo esc_html__( 'Category Image', 'printing-pricing-calculator' ); ?>
+    </h2>
+
     <div style="margin:8px 0 16px;">
-        <?php if ($image_url): ?>
-            <img src="<?php echo esc_url($image_url); ?>" style="max-width: 150px; display:block; margin-bottom: 10px;" alt="">
-        <?php else: ?>
-            <em><?php echo esc_html__( 'No image selected.', 'printing-pricing-calculator' ); ?></em>
-        <?php endif; ?>
-        <input type="file" name="image_file" accept="image/*" />
+        <div id="ppc-category-image-preview" style="margin-bottom:10px;">
+            <?php if ( $image_id && $image_url ) : ?>
+                <img src="<?php echo esc_url( $image_url ); ?>"
+                    style="max-width: 150px; display:block; margin-bottom: 10px;"
+                    alt="">
+            <?php else : ?>
+                <em><?php echo esc_html__( 'No image selected.', 'printing-pricing-calculator' ); ?></em>
+            <?php endif; ?>
+        </div>
+
+        <input type="hidden"
+            name="image_id"
+            id="ppc-category-image-id"
+            value="<?php echo esc_attr( $image_id ); ?>">
+
+        <button type="button"
+                class="button"
+                id="ppc-category-image-select">
+            <?php esc_html_e( 'Select image', 'printing-pricing-calculator' ); ?>
+        </button>
+
+        <button type="button"
+                class="button"
+                id="ppc-category-image-remove"
+                <?php if ( ! $image_id ) echo 'style="display:none"'; ?>>
+            <?php esc_html_e( 'Remove image', 'printing-pricing-calculator' ); ?>
+        </button>
     </div>
+
 
     <?php submit_button( $editing ? __( 'Update Category', 'printing-pricing-calculator' ) : __( 'Create Category', 'printing-pricing-calculator' ) ); ?>
   </form>
 </div>
+
+<script>
+jQuery(function($) {
+    var frame;
+    var $imageId   = $('#ppc-category-image-id');
+    var $preview   = $('#ppc-category-image-preview');
+    var $removeBtn = $('#ppc-category-image-remove');
+
+    $('#ppc-category-image-select').on('click', function(e) {
+        e.preventDefault();
+
+        // Re-use existing frame if it exists
+        if (frame) {
+            frame.open();
+            return;
+        }
+
+        frame = wp.media({
+            title: '<?php echo esc_js( __( 'Select or upload image', 'printing-pricing-calculator' ) ); ?>',
+            button: {
+                text: '<?php echo esc_js( __( 'Use this image', 'printing-pricing-calculator' ) ); ?>'
+            },
+            library: {
+                type: 'image'
+            },
+            multiple: false
+        });
+
+        frame.on('select', function() {
+            var attachment = frame.state().get('selection').first().toJSON();
+
+            $imageId.val(attachment.id);
+
+            var imgUrl = attachment.sizes && attachment.sizes.medium
+                ? attachment.sizes.medium.url
+                : attachment.url;
+
+            $preview.html(
+                '<img src="' + imgUrl + '" ' +
+                'style="max-width: 150px; display:block; margin-bottom: 10px;" alt="">'
+            );
+
+            $removeBtn.show();
+        });
+
+        frame.open();
+    });
+
+    $removeBtn.on('click', function(e) {
+        e.preventDefault();
+
+        $imageId.val('');
+        $preview.html('<em><?php echo esc_js( __( 'No image selected.', 'printing-pricing-calculator' ) ); ?></em>');
+        $removeBtn.hide();
+    });
+});
+</script>

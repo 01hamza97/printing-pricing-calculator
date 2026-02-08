@@ -1,0 +1,1110 @@
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Printing Pricing Calculator\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-11-03 19:30+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: \n"
+"Language: \n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Loco https://localise.biz/\n"
+"X-Loco-Version: 2.8.0; wp-6.8.3; php-8.2.29\n"
+"X-Domain: printing-pricing-calculator"
+
+#: includes/Products/ProductEdit.php:201
+#, php-format
+msgid "%s (Copy)"
+msgstr ""
+
+#: includes/Templates/Frontend/calculator-ui-with-price.php:621
+#: includes/Templates/Frontend/calculator-ui.php:509
+msgid "(With Tax)"
+msgstr ""
+
+#: includes/Templates/Frontend/calculator-ui-with-price.php:622
+#: includes/Templates/Frontend/calculator-ui.php:510
+msgid "(Without Tax)"
+msgstr ""
+
+#. Description of the plugin
+msgid ""
+"A WooCommerce plugin for calculating product prices based on dynamic "
+"formulas."
+msgstr ""
+
+#: includes/Templates/Products/param-row.php:292
+#: includes/Templates/Products/form.php:88
+msgid "Action"
+msgstr ""
+
+#: includes/Templates/Parameters/list.php:17
+#: includes/Templates/Products/list.php:76
+msgid "Actions"
+msgstr ""
+
+#: includes/Templates/Parameters/list.php:35
+msgid "Activate"
+msgstr ""
+
+#: includes/Categories/CategoriesListTable.php:91
+#: includes/Categories/CategoriesList.php:128
+#: includes/Templates/Categories/form.php:83
+#: includes/Templates/Products/form.php:56
+#: includes/Templates/Products/list.php:24
+msgid "Active"
+msgstr ""
+
+#: includes/Templates/Products/form.php:18
+#: includes/Templates/Products/form.php:263
+msgid "Add"
+msgstr ""
+
+#: includes/Templates/Products/param-row.php:281
+msgid "Add Condition"
+msgstr ""
+
+#: includes/Templates/Products/param-row.php:122
+#: includes/Templates/Products/param-row.php:152
+msgid "Add Group"
+msgstr ""
+
+#: includes/Categories/CategoriesAdmin.php:40
+#: includes/Categories/CategoriesList.php:41
+#: includes/Templates/Parameters/list.php:5
+#: includes/Templates/Products/list.php:4
+msgid "Add New"
+msgstr ""
+
+#: includes/Templates/Categories/form.php:6
+msgid "Add New Category"
+msgstr ""
+
+#: includes/Templates/Parameters/form.php:6
+msgid "Add New Parameter"
+msgstr ""
+
+#: includes/Templates/Parameters/form.php:94
+msgid "Add Option"
+msgstr ""
+
+#: includes/Templates/Parameters/form.php:112
+msgid "Add Parameter"
+msgstr ""
+
+#: includes/Templates/Settings/form.php:99
+#: includes/Templates/Products/form.php:111
+msgid "Add Rule"
+msgstr ""
+
+#: includes/Checkout/CheckoutInit.php:83
+msgid "Add to cart failed"
+msgstr ""
+
+#: includes/Templates/Products/list.php:33
+msgid "All Categories"
+msgstr ""
+
+#: includes/Templates/Products/list.php:22
+msgid "All Statuses"
+msgstr ""
+
+#: includes/Templates/Frontend/calculator-ui-with-price.php:225
+#: includes/Templates/Frontend/calculator-ui.php:137
+msgid "Amount"
+msgstr ""
+
+#: includes/Templates/Products/param-row.php:276
+msgid "AND"
+msgstr ""
+
+#: includes/Templates/Products/param-row.php:291
+#: includes/Templates/Products/param-row.php:304
+msgid "ANY"
+msgstr ""
+
+#: includes/Templates/Frontend/calculator-ui-with-price.php:329
+#: includes/Templates/Frontend/calculator-ui.php:249
+msgid "Anything we should know about your order?"
+msgstr ""
+
+#: includes/Templates/Products/param-row.php:293
+msgid "Apply to selected target"
+msgstr ""
+
+#: includes/Templates/Parameters/list.php:44
+msgid "Are you sure you want to delete this parameter?"
+msgstr ""
+
+#: includes/Templates/Products/list.php:115
+msgid "Are you sure you want to delete this product?"
+msgstr ""
+
+#: includes/Templates/Categories/form.php:39
+#: includes/Templates/Parameters/form.php:21
+#: includes/Templates/Parameters/form.php:72
+#: includes/Templates/Parameters/form.php:87
+msgid "Auto-generated if left blank"
+msgstr ""
+
+#: includes/Templates/Categories/form.php:16
+msgid "Back to List"
+msgstr ""
+
+#: includes/Templates/Products/param-row.php:77
+msgid "Base Cost"
+msgstr ""
+
+#: includes/Templates/Products/form.php:40
+#: includes/Templates/Products/list.php:72
+msgid "Base Price"
+msgstr ""
+
+#: includes/Templates/Products/form.php:60
+msgid "Base Product Image"
+msgstr ""
+
+#: includes/Checkout/CheckoutInit.php:144
+#: includes/Checkout/CheckoutInit.php:213
+msgid "Calculated Total"
+msgstr ""
+
+#: includes/Templates/Settings/form.php:63
+msgid "Cart Expiration (days)"
+msgstr ""
+
+#: includes/Categories/CategoriesAdmin.php:12
+#: includes/Categories/CategoriesAdmin.php:13
+#: includes/Categories/CategoriesAdmin.php:37
+#: includes/Categories/CategoriesList.php:22
+#: includes/Categories/CategoriesList.php:23
+#: includes/Categories/CategoriesList.php:39
+#: includes/Templates/Products/form.php:139
+#: includes/Templates/Products/form.php:143
+msgid "Categories"
+msgstr ""
+
+#: includes/Templates/Products/list.php:71
+msgid "Category"
+msgstr ""
+
+#: includes/Categories/CategoriesEdit.php:121
+msgid "Category created."
+msgstr ""
+
+#: includes/Templates/Categories/form.php:88
+msgid "Category Image"
+msgstr ""
+
+#: includes/Frontend/CategoryShortcodes.php:90
+msgid "Category not found."
+msgstr ""
+
+#: includes/Categories/CategoriesEdit.php:116
+msgid "Category updated."
+msgstr ""
+
+#: includes/Templates/Products/param-row.php:80
+msgid "Conditions"
+msgstr ""
+
+#: includes/Templates/Products/param-row.php:120
+msgid "Conditions for option:"
+msgstr ""
+
+#: includes/Templates/Parameters/list.php:14
+#: includes/Templates/Products/form.php:32
+msgid "Content"
+msgstr ""
+
+#: includes/Templates/Parameters/form.php:73
+#: includes/Templates/Parameters/form.php:88
+msgid "Cost"
+msgstr ""
+
+#: includes/Templates/Products/form.php:289
+msgid "Could not load parameter."
+msgstr ""
+
+#: includes/Templates/Categories/form.php:98
+msgid "Create Category"
+msgstr ""
+
+#: includes/Categories/CategoriesListTable.php:27
+#: includes/Categories/CategoriesList.php:68
+#: includes/Templates/Products/list.php:75
+msgid "Created"
+msgstr ""
+
+#: includes/Templates/Settings/form.php:114
+#: includes/Templates/Products/form.php:74
+msgid "Current file:"
+msgstr ""
+
+#: includes/Templates/Settings/form.php:67
+msgid ""
+"Custom product uploads & cart items will be deleted after this number of "
+"days if not ordered."
+msgstr ""
+
+#: includes/Templates/Settings/form.php:50
+msgid "CZK"
+msgstr ""
+
+#: includes/Templates/Settings/form.php:56
+msgid "CZK to EUR Rate"
+msgstr ""
+
+#: includes/Calculator/Quotation.php:43
+msgid "Date:"
+msgstr ""
+
+#: includes/Templates/Parameters/list.php:31
+msgid "Deactivate"
+msgstr ""
+
+#: includes/Templates/Settings/form.php:47
+msgid "Default Currency"
+msgstr ""
+
+#: includes/Categories/CategoriesListTable.php:64
+#: includes/Categories/CategoriesListTable.php:105
+#: includes/Categories/CategoriesList.php:102
+#: includes/Categories/CategoriesList.php:149
+#: includes/Templates/Parameters/list.php:45
+#: includes/Templates/Products/list.php:116
+msgid "Delete"
+msgstr ""
+
+#: includes/Categories/CategoriesListTable.php:63
+#: includes/Categories/CategoriesList.php:102
+msgid "Delete this category?"
+msgstr ""
+
+#: includes/Categories/CategoriesListTable.php:26
+#: includes/Categories/CategoriesList.php:67
+#: includes/Templates/Categories/form.php:46
+#: includes/Templates/Parameters/form.php:28
+msgid "Description"
+msgstr ""
+
+#: includes/Checkout/CheckoutInit.php:130
+#: includes/Checkout/CheckoutInit.php:214
+#: includes/Templates/Frontend/calculator-ui-with-price.php:299
+#: includes/Templates/Frontend/calculator-ui.php:216
+msgid "Discount"
+msgstr ""
+
+#: includes/Templates/Settings/form.php:91
+#: includes/Templates/Settings/form.php:137
+msgid "Discount %"
+msgstr ""
+
+#: includes/Templates/Products/form.php:87
+msgid "Discount (%)"
+msgstr ""
+
+#: includes/Templates/Settings/form.php:78
+msgid "Discount Rules"
+msgstr ""
+
+#: includes/Templates/Frontend/calculator-ui-with-price.php:338
+#: includes/Templates/Frontend/calculator-ui.php:258
+msgid "download calculation (pdf?)"
+msgstr ""
+
+#: includes/Templates/Frontend/calculator-ui-with-price.php:116
+#: includes/Templates/Frontend/calculator-ui.php:77
+msgid "Download Instructions File"
+msgstr ""
+
+#: includes/Templates/Products/param-row.php:56
+msgid "Drag to reorder"
+msgstr ""
+
+#: includes/Templates/Frontend/calculator-ui-with-price.php:132
+#: includes/Templates/Frontend/calculator-ui.php:94
+msgid "Drop here to attach or"
+msgstr ""
+
+#: includes/Templates/Products/list.php:119
+msgid "Duplicate"
+msgstr ""
+
+#: includes/Templates/Products/param-row.php:133
+msgid ""
+"Each <b>Group</b> evaluates its rows with the selected operator (AND/OR). "
+"When this <i>option</i> is selected, matching groups will <i>apply action</i>"
+" to the chosen target (parameter or option)."
+msgstr ""
+
+#: includes/Categories/CategoriesListTable.php:59
+#: includes/Categories/CategoriesList.php:101
+#: includes/Templates/Parameters/list.php:41
+#: includes/Templates/Products/form.php:18
+#: includes/Templates/Products/list.php:113
+msgid "Edit"
+msgstr ""
+
+#. hidden from sidebar
+#: includes/Categories/CategoriesEdit.php:12
+#: includes/Categories/CategoriesEdit.php:13
+#: includes/Templates/Categories/form.php:6
+msgid "Edit Category"
+msgstr ""
+
+#: includes/Templates/Products/param-row.php:111
+msgid "Edit Conditions"
+msgstr ""
+
+#. hidden from sidebar
+#. page title (localized)
+#: includes/Parameters/ParameterEdit.php:12
+#: includes/Parameters/ParameterEdit.php:13
+#: includes/Templates/Parameters/form.php:6
+msgid "Edit Parameter"
+msgstr ""
+
+#: includes/Products/ProductEdit.php:60 includes/Products/ProductEdit.php:61
+msgid "Edit Product"
+msgstr ""
+
+#: includes/Templates/Categories/form.php:29
+#: includes/Templates/Categories/form.php:30
+msgid "Enter Name here"
+msgstr ""
+
+#: includes/Templates/Parameters/form.php:12
+#: includes/Templates/Parameters/form.php:13
+msgid "Enter title here"
+msgstr ""
+
+#: includes/Templates/Frontend/calculator-ui-with-price.php:192
+msgid "Enter Your Quantity"
+msgstr ""
+
+#: includes/Templates/Settings/form.php:51
+msgid "EUR"
+msgstr ""
+
+#: includes/Templates/Settings/form.php:59
+msgid "Example: 1 CZK = 0.042 EUR"
+msgstr ""
+
+#: includes/Templates/Products/list.php:47
+msgid "Export Flat CSV"
+msgstr ""
+
+#: includes/Templates/Products/list.php:50
+msgid "Export Full Data (ZIP of CSVs)"
+msgstr ""
+
+#: includes/Calculator/Quotation.php:69 includes/Checkout/CheckoutInit.php:102
+#: includes/Checkout/CheckoutInit.php:209
+#: includes/Templates/Frontend/calculator-ui-with-price.php:243
+#: includes/Templates/Frontend/calculator-ui-with-price.php:525
+#: includes/Templates/Frontend/calculator-ui-with-price.php:526
+#: includes/Templates/Frontend/calculator-ui.php:158
+#: includes/Templates/Frontend/calculator-ui.php:415
+#: includes/Templates/Frontend/calculator-ui.php:416
+msgid "Express Delivery"
+msgstr ""
+
+#: includes/Templates/Settings/form.php:7
+#: includes/Templates/Products/form.php:43
+msgid "Express Delivery Charges"
+msgstr ""
+
+#: includes/Templates/Settings/form.php:13
+msgid "Express Delivery Type"
+msgstr ""
+
+#: includes/Templates/Frontend/calculator-ui-with-price.php:768
+#: includes/Templates/Frontend/calculator-ui-with-price.php:771
+#: includes/Templates/Frontend/calculator-ui.php:653
+#: includes/Templates/Frontend/calculator-ui.php:656
+msgid "Failed to add to cart"
+msgstr ""
+
+#: includes/Templates/Products/form.php:339
+msgid "Failed to save order."
+msgstr ""
+
+#: includes/Checkout/CheckoutInit.php:109
+#: includes/Checkout/CheckoutInit.php:210
+msgid "File Check"
+msgstr ""
+
+#: includes/Templates/Settings/form.php:71
+#: includes/Templates/Products/form.php:120
+msgid "File Check Price"
+msgstr ""
+
+#: includes/Templates/Products/form.php:127
+msgid "File Check Required?"
+msgstr ""
+
+#: includes/Templates/Frontend/calculator-ui-with-price.php:265
+#: includes/Templates/Frontend/calculator-ui-with-price.php:496
+#: includes/Templates/Frontend/calculator-ui.php:181
+#: includes/Templates/Frontend/calculator-ui.php:386
+#: includes/Templates/Products/form.php:117
+msgid "File Check Service"
+msgstr ""
+
+#: includes/Checkout/CheckoutInit.php:212
+msgid "File Name"
+msgstr ""
+
+#: includes/Checkout/CheckoutInit.php:211
+msgid "File URL"
+msgstr ""
+
+#: includes/Templates/Products/list.php:41
+msgid "Filter"
+msgstr ""
+
+#: includes/Templates/Settings/form.php:17
+#: includes/Templates/Products/form.php:47
+msgid "Flat Amount"
+msgstr ""
+
+#: includes/Templates/Parameters/form.php:45
+msgid "Front Name"
+msgstr ""
+
+#: includes/Templates/Parameters/form.php:46
+msgid "Front Screen Name"
+msgstr ""
+
+#: includes/Templates/Settings/form.php:106
+msgid "Global Instructions (PDF)"
+msgstr ""
+
+#: includes/Templates/Products/param-row.php:274
+#: includes/Templates/Products/param-row.php:321
+#: includes/Templates/Products/param-row.php:328
+msgid "Group"
+msgstr ""
+
+#. Author of the plugin
+msgid "Hamza Samad"
+msgstr ""
+
+#: includes/Templates/Products/param-row.php:292
+msgid "Hide"
+msgstr ""
+
+#: includes/Templates/Parameters/list.php:12
+#: includes/Templates/Products/list.php:68
+msgid "ID"
+msgstr ""
+
+#: includes/Templates/Products/param-row.php:97
+msgid "ID:"
+msgstr ""
+
+#: includes/Categories/CategoriesListTable.php:21
+#: includes/Categories/CategoriesList.php:62
+#: includes/Templates/Products/list.php:69
+msgid "Image"
+msgstr ""
+
+#: includes/Templates/Products/list.php:60
+msgid "Import ZIP"
+msgstr ""
+
+#: includes/Categories/CategoriesListTable.php:91
+#: includes/Categories/CategoriesList.php:128
+#: includes/Templates/Categories/form.php:84
+#: includes/Templates/Products/form.php:57
+#: includes/Templates/Products/list.php:27
+msgid "Inactive"
+msgstr ""
+
+#: includes/Templates/Frontend/calculator-ui-with-price.php:280
+#: includes/Templates/Frontend/calculator-ui.php:197
+msgid "Item"
+msgstr ""
+
+#: includes/Templates/Categories/form.php:40
+msgid "Leave blank to auto-generate from name. Must be unique."
+msgstr ""
+
+#: includes/Templates/Parameters/form.php:23
+msgid "Leave blank to auto-generate from title. Must be unique."
+msgstr ""
+
+#: includes/Templates/Settings/form.php:74
+#: includes/Templates/Products/form.php:123
+msgid "Leave blank to use global setting."
+msgstr ""
+
+#: includes/Templates/Products/form.php:49
+msgid "Leave blank to use the global setting."
+msgstr ""
+
+#: includes/Calculator/Quotation.php:41
+msgid "Logo"
+msgstr ""
+
+#: includes/Templates/Frontend/calculator-ui-with-price.php:135
+#: includes/Templates/Frontend/calculator-ui.php:99
+msgid "Max size: 5GB"
+msgstr ""
+
+#: includes/Templates/Frontend/calculator-ui-with-price.php:640
+#: includes/Templates/Frontend/calculator-ui.php:527
+msgid "Minimum order is"
+msgstr ""
+
+#: includes/Templates/Settings/form.php:22
+#: includes/Templates/Products/form.php:51
+msgid "Minimum Order Quantity"
+msgstr ""
+
+#: includes/Templates/Frontend/calculator-ui-with-price.php:195
+#: includes/Templates/Frontend/calculator-ui.php:147
+msgid "Minimum order:"
+msgstr ""
+
+#: includes/Categories/CategoriesListTable.php:22
+#: includes/Categories/CategoriesList.php:63
+msgid "Name"
+msgstr ""
+
+#: includes/Categories/CategoriesEdit.php:60
+msgid "Name is required."
+msgstr ""
+
+#: includes/Templates/Products/form.php:162
+msgid "No active categories found."
+msgstr ""
+
+#: includes/Frontend/CategoryShortcodes.php:287
+msgid "No categories found."
+msgstr ""
+
+#: includes/Frontend/CategoryShortcodes.php:75
+msgid "No category specified."
+msgstr ""
+
+#: includes/Templates/Frontend/calculator-ui-with-price.php:121
+#: includes/Templates/Frontend/calculator-ui-with-price.php:1058
+#: includes/Templates/Frontend/calculator-ui.php:83
+#: includes/Templates/Frontend/calculator-ui.php:842
+msgid "No File Selected"
+msgstr ""
+
+#: includes/Frontend/CategoryShortcodes.php:154
+#: includes/Frontend/CategoryShortcodes.php:273
+msgid "No image"
+msgstr ""
+
+#: includes/Templates/Categories/form.php:93
+msgid "No image selected."
+msgstr ""
+
+#: includes/Templates/Parameters/list.php:51
+msgid "No parameters found."
+msgstr ""
+
+#: includes/Products/ProductEdit.php:580
+msgid "No permission"
+msgstr ""
+
+#: includes/Templates/Products/list.php:81
+msgid "No products found."
+msgstr ""
+
+#: includes/Frontend/CategoryShortcodes.php:178
+msgid "No products in this category."
+msgstr ""
+
+#: includes/Templates/Products/form.php:255
+#: includes/Templates/Products/form.php:267
+msgid "No results"
+msgstr ""
+
+#: includes/Checkout/CheckoutInit.php:151
+#: includes/Checkout/CheckoutInit.php:217
+msgid "Note"
+msgstr ""
+
+#: includes/Templates/Frontend/calculator-ui-with-price.php:324
+#: includes/Templates/Frontend/calculator-ui.php:244
+msgid "Notes / Instructions (optional)"
+msgstr ""
+
+#: includes/Templates/Frontend/calculator-ui-with-price.php:144
+msgid "Number Of Pieces"
+msgstr ""
+
+#: includes/Templates/Frontend/calculator-ui-with-price.php:342
+msgid "OBJEDNAT"
+msgstr ""
+
+#: includes/Templates/Products/param-row.php:275
+msgid "Operator"
+msgstr ""
+
+#: includes/Templates/Products/param-row.php:76
+msgid "Option"
+msgstr ""
+
+#: includes/Templates/Parameters/form.php:71
+#: includes/Templates/Parameters/form.php:86
+msgid "Option title"
+msgstr ""
+
+#: includes/Templates/Products/form.php:130
+msgid "Optional"
+msgstr ""
+
+#: includes/Templates/Parameters/form.php:51
+msgid "Options"
+msgstr ""
+
+#: includes/Templates/Products/param-row.php:276
+msgid "OR"
+msgstr ""
+
+#: includes/Templates/Frontend/calculator-ui.php:262
+msgid "ORDER"
+msgstr ""
+
+#: includes/Templates/Products/param-row.php:78
+msgid "Override Price"
+msgstr ""
+
+#: includes/Calculator/Quotation.php:53
+msgid "Parameter"
+msgstr ""
+
+#: includes/Parameters/ParametersList.php:15
+msgid "Parameter List"
+msgstr ""
+
+#: includes/Templates/Products/form.php:337
+msgid "Parameter order saved!"
+msgstr ""
+
+#: includes/Templates/Products/param-row.php:150
+msgid "Parameter-level Conditions (apply to the entire parameter)"
+msgstr ""
+
+#: includes/Parameters/ParametersList.php:16
+#: includes/Templates/Frontend/calculator-ui-with-price.php:50
+#: includes/Templates/Frontend/calculator-ui.php:7
+#: includes/Templates/Parameters/list.php:3
+msgid "Parameters"
+msgstr ""
+
+#: includes/Categories/CategoriesListTable.php:24
+#: includes/Categories/CategoriesList.php:65
+msgid "Parent"
+msgstr ""
+
+#: includes/Templates/Frontend/calculator-ui-with-price.php:184
+#: includes/Templates/Frontend/calculator-ui-with-price.php:234
+#: includes/Templates/Frontend/calculator-ui.php:144
+msgid "PCS"
+msgstr ""
+
+#: includes/Templates/Frontend/calculator-ui-with-price.php:707
+#: includes/Templates/Frontend/calculator-ui.php:592
+msgid "PDF download failed."
+msgstr ""
+
+#: includes/Templates/Settings/form.php:28
+msgid "PDF Quotation Note"
+msgstr ""
+
+#: includes/Templates/Frontend/calculator-ui-with-price.php:618
+#: includes/Templates/Frontend/calculator-ui.php:506
+msgid "Per Piece"
+msgstr ""
+
+#: includes/Templates/Settings/form.php:16
+#: includes/Templates/Products/form.php:46
+msgid "Percent (%)"
+msgstr ""
+
+#: includes/Admin/AdminInit.php:96 includes/Products/ProductEdit.php:323
+msgid "Please upload a valid PDF file."
+msgstr ""
+
+#: printing-pricing-calculator.php:176
+msgid "Plugin dependency check"
+msgstr ""
+
+#: includes/Templates/Settings/form.php:2
+msgid "PPC Global Settings"
+msgstr ""
+
+#: printing-pricing-calculator.php:157
+msgid "PPC Pricing Calculator"
+msgstr ""
+
+#: printing-pricing-calculator.php:175
+msgid "PPC Pricing Calculator requires WooCommerce to be installed and active."
+msgstr ""
+
+#: printing-pricing-calculator.php:87
+msgid "PPC Runtime Product"
+msgstr ""
+
+#: includes/Templates/Frontend/calculator-ui-with-price.php:282
+#: includes/Templates/Frontend/calculator-ui.php:199
+msgid "Price"
+msgstr ""
+
+#: includes/Templates/Frontend/calculator-ui-with-price.php:201
+msgid "Price Gross / Net"
+msgstr ""
+
+#: includes/Templates/Frontend/calculator-ui-with-price.php:208
+msgid "Price Per Piece"
+msgstr ""
+
+#: includes/Admin/AdminInit.php:12 includes/Admin/AdminInit.php:13
+#: includes/Admin/AdminInit.php:32
+msgid "Print Calculator"
+msgstr ""
+
+#. Name of the plugin
+msgid "Printing Pricing Calculator"
+msgstr ""
+
+#: includes/Calculator/Quotation.php:45 includes/Templates/Products/form.php:18
+msgid "Product"
+msgstr ""
+
+#: includes/Products/ProductList.php:29
+msgid "Product deleted."
+msgstr ""
+
+#: includes/Templates/Products/form.php:16
+msgid "Product duplicated successfully. You are editing the new copy."
+msgstr ""
+
+#: includes/Calculator/Quotation.php:47 includes/Templates/Products/form.php:62
+#: includes/Templates/Products/list.php:100
+msgid "Product Image"
+msgstr ""
+
+#: includes/Templates/Products/form.php:67
+msgid "Product Instructions File"
+msgstr ""
+
+#: includes/Frontend/CalculatorShortcodeHandler.php:56
+#: includes/Frontend/CalculatorWithPriceShortcodeHandler.php:56
+msgid "Product not found."
+msgstr ""
+
+#: includes/Templates/Products/form.php:21
+msgid "Product saved successfully."
+msgstr ""
+
+#: includes/Templates/Products/form.php:82
+msgid "Product-Specific Discount Rules"
+msgstr ""
+
+#: includes/Products/ProductList.php:12 includes/Products/ProductList.php:13
+#: includes/Templates/Products/list.php:2
+msgid "Products"
+msgstr ""
+
+#: includes/Calculator/Quotation.php:65 includes/Checkout/CheckoutInit.php:123
+#: includes/Checkout/CheckoutInit.php:216
+#: includes/Templates/Settings/form.php:88
+#: includes/Templates/Settings/form.php:136
+msgid "Quantity"
+msgstr ""
+
+#: includes/Templates/Products/form.php:86
+msgid "Quantity ≥"
+msgstr ""
+
+#: includes/Calculator/Quotation.php:42
+msgid "Quotation"
+msgstr ""
+
+#: includes/Templates/Parameters/form.php:22
+msgid "readonly"
+msgstr ""
+
+#: includes/Templates/Frontend/calculator-ui-with-price.php:219
+#: includes/Templates/Frontend/calculator-ui.php:131
+msgid "Recapitulation"
+msgstr ""
+
+#: includes/Templates/Settings/form.php:94
+#: includes/Templates/Settings/form.php:138
+#: includes/Templates/Parameters/form.php:90
+#: includes/Templates/Products/param-row.php:63
+#: includes/Templates/Products/param-row.php:294
+#: includes/Templates/Products/form.php:104
+#: includes/Templates/Products/form.php:214
+msgid "Remove"
+msgstr ""
+
+#: includes/Templates/Settings/form.php:119
+#: includes/Templates/Products/form.php:77
+msgid "Remove current file"
+msgstr ""
+
+#: includes/Templates/Products/param-row.php:278
+msgid "Remove group"
+msgstr ""
+
+#: includes/Templates/Products/form.php:131
+msgid "Required"
+msgstr ""
+
+#. %s: WooCommerce plugin link
+#: printing-pricing-calculator.php:161
+#, php-format
+msgid "requires %s to be installed and active."
+msgstr ""
+
+#: includes/Checkout/CheckoutInit.php:43
+msgid "Runtime product not found"
+msgstr ""
+
+#: includes/Templates/Products/form.php:184
+msgid "Save Product"
+msgstr ""
+
+#: includes/Templates/Settings/form.php:127
+msgid "Save Settings"
+msgstr ""
+
+#: includes/Categories/CategoriesAdmin.php:50
+#: includes/Categories/CategoriesList.php:51
+msgid "Search Categories"
+msgstr ""
+
+#: includes/Templates/Products/form.php:177
+msgid "Search Parameters"
+msgstr ""
+
+#: includes/Templates/Products/form.php:179
+msgid "Search parameters..."
+msgstr ""
+
+#: includes/Templates/Products/list.php:18
+msgid "Search title..."
+msgstr ""
+
+#: includes/Templates/Products/form.php:248
+msgid "Searching..."
+msgstr ""
+
+#: includes/Templates/Products/param-row.php:79
+msgid "Select"
+msgstr ""
+
+#: includes/Templates/Frontend/calculator-ui-with-price.php:78
+#: includes/Templates/Frontend/calculator-ui.php:37
+msgid "Select an option"
+msgstr ""
+
+#: includes/Products/ProductEdit.php:37
+msgid "Select categories"
+msgstr ""
+
+#: includes/Calculator/Quotation.php:54
+msgid "Selected Option"
+msgstr ""
+
+#: includes/Checkout/CheckoutInit.php:208
+#: includes/Checkout/CheckoutInit.php:282
+msgid "Selected Options"
+msgstr ""
+
+#: includes/Templates/Products/form.php:168
+msgid "Selected Parameters"
+msgstr ""
+
+#: includes/Templates/Settings/form.php:102
+msgid ""
+"Set discount percentages for quantity breakpoints (e.g., 200+ gets 10%). "
+"Sorted automatically, highest quantity first."
+msgstr ""
+
+#: includes/Templates/Products/form.php:115
+msgid ""
+"Set discount percentages for quantity breakpoints (leave empty for no "
+"product-specific discount; global will be used)."
+msgstr ""
+
+#: includes/Templates/Settings/form.php:43
+msgid "Set to 0 for no tax."
+msgstr ""
+
+#: includes/Admin/AdminInit.php:22 includes/Admin/AdminInit.php:23
+msgid "Settings"
+msgstr ""
+
+#: includes/Admin/AdminInit.php:121
+msgid "Settings saved."
+msgstr ""
+
+#: includes/Templates/Products/param-row.php:292
+msgid "Show"
+msgstr ""
+
+#: includes/Categories/CategoriesListTable.php:23
+#: includes/Categories/CategoriesList.php:64
+#: includes/Templates/Categories/form.php:36
+#: includes/Templates/Parameters/form.php:18
+#: includes/Templates/Parameters/list.php:15
+#: includes/Templates/Products/form.php:29
+#: includes/Templates/Products/list.php:73
+msgid "Slug"
+msgstr ""
+
+#: includes/Categories/CategoriesEdit.php:62
+msgid "Slug is required."
+msgstr ""
+
+#: includes/Categories/CategoriesListTable.php:25
+#: includes/Categories/CategoriesList.php:66
+#: includes/Templates/Categories/form.php:81
+#: includes/Templates/Parameters/list.php:16
+#: includes/Templates/Products/form.php:54
+#: includes/Templates/Products/list.php:74
+msgid "Status"
+msgstr ""
+
+#: includes/Calculator/Quotation.php:74
+msgid "Summary"
+msgstr ""
+
+#: includes/Templates/Products/param-row.php:291
+msgid "Target Option"
+msgstr ""
+
+#: includes/Templates/Products/param-row.php:290
+msgid "Target Param"
+msgstr ""
+
+#: includes/Checkout/CheckoutInit.php:137
+#: includes/Checkout/CheckoutInit.php:215
+#: includes/Templates/Frontend/calculator-ui-with-price.php:309
+#: includes/Templates/Frontend/calculator-ui.php:227
+msgid "Tax"
+msgstr ""
+
+#: includes/Templates/Settings/form.php:40
+msgid "Tax Percentage (%)"
+msgstr ""
+
+#: includes/Templates/Frontend/calculator-ui-with-price.php:193
+msgid "text"
+msgstr ""
+
+#: printing-pricing-calculator.php:88
+msgid "This is a stub for custom print orders."
+msgstr ""
+
+#: includes/Admin/AdminInit.php:33
+msgid ""
+"This plugin uses a custom post type to manage print products with categories "
+"and pricing parameters."
+msgstr ""
+
+#: includes/Templates/Parameters/list.php:13
+#: includes/Templates/Products/form.php:27
+#: includes/Templates/Products/list.php:70
+msgid "Title"
+msgstr ""
+
+#: includes/Calculator/Quotation.php:76
+#: includes/Templates/Frontend/calculator-ui-with-price.php:313
+#: includes/Templates/Frontend/calculator-ui-with-price.php:619
+#: includes/Templates/Frontend/calculator-ui.php:233
+#: includes/Templates/Frontend/calculator-ui.php:507
+msgid "Total"
+msgstr ""
+
+#: includes/Templates/Frontend/calculator-ui-with-price.php:305
+#: includes/Templates/Frontend/calculator-ui.php:222
+msgid "Total W/O Tax"
+msgstr ""
+
+#: includes/Templates/Products/form.php:160
+msgid "Type to search, select multiple. Use Backspace or the “x” to remove."
+msgstr ""
+
+#: includes/Categories/CategoriesAdmin.php:22
+#: includes/Categories/CategoriesList.php:32
+#: includes/Categories/CategoriesEdit.php:22
+#: includes/Parameters/ParameterEdit.php:22
+#: includes/Templates/Categories/form.php:3
+msgid "Unauthorized"
+msgstr ""
+
+#: includes/Templates/Frontend/calculator-ui.php:198
+msgid "Unit"
+msgstr ""
+
+#: includes/Templates/Categories/form.php:98
+msgid "Update Category"
+msgstr ""
+
+#: includes/Templates/Parameters/form.php:112
+msgid "Update Parameter"
+msgstr ""
+
+#: includes/Templates/Frontend/calculator-ui-with-price.php:133
+#: includes/Templates/Frontend/calculator-ui.php:96
+msgid "upload"
+msgstr ""
+
+#: includes/Templates/Settings/form.php:122
+#: includes/Templates/Products/form.php:80
+msgid ""
+"Upload a single PDF used as the global instructions file shown on all "
+"product pages."
+msgstr ""
+
+#: includes/Admin/AdminInit.php:107 includes/Products/ProductEdit.php:333
+#, php-format
+msgid "Upload failed: %s"
+msgstr ""
+
+#: includes/Checkout/CheckoutInit.php:116
+msgid "Uploaded File"
+msgstr ""
+
+#: includes/Templates/Products/param-row.php:162
+msgid ""
+"Use these rules when you want to hide/show targets based on this <b>"
+"parameter</b> (not a specific option). For example: “If Param A = ANY, hide "
+"Param B”."
+msgstr ""
+
+#: includes/Templates/Settings/form.php:115
+#: includes/Templates/Products/form.php:74
+msgid "View/Download"
+msgstr ""
+
+#: includes/Checkout/CheckoutInit.php:38
+msgid "WooCommerce not active"
+msgstr ""
+
+#: includes/Checkout/CheckoutInit.php:103
+#: includes/Checkout/CheckoutInit.php:110
+#: includes/Checkout/CheckoutInit.php:252
+msgid "Yes"
+msgstr ""
+
+#: includes/Templates/Products/param-row.php:290
+msgid "— select —"
+msgstr ""

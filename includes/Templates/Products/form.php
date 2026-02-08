@@ -10,6 +10,7 @@
     }
 
     $assigned_set = array_map('intval', $assigned_category_ids ?? []);
+    $image_url = ! empty( $data['image_url'] ) ? $data['image_url'] : '';
 ?>
 <div class="wrap">
     <?php if (isset($_GET['duplicated'])): ?>
@@ -57,12 +58,39 @@
             <option value="inactive" <?php selected($data['status'], 'inactive'); ?>><?php echo esc_html__( 'Inactive', 'printing-pricing-calculator' ); ?></option>
         </select>
 
-        <h2 class="wp-heading-inline"><?php echo esc_html__( 'Base Product Image', 'printing-pricing-calculator' ); ?></h2>
-        <?php if (! empty($data['image_url'])): ?>
-            <img src="<?php echo esc_url($data['image_url']); ?>" style="max-width: 150px; display:block; margin-bottom: 10px;" alt="<?php echo esc_attr__( 'Product Image', 'printing-pricing-calculator' ); ?>" />
-        <?php endif; ?>
-        <input type="file" name="image_file" accept="image/*" />
-        <input type="hidden" name="image_url" value="<?php echo esc_attr($data['image_url']); ?>" />
+        <h2 class="wp-heading-inline">
+            <?php echo esc_html__( 'Base Product Image', 'printing-pricing-calculator' ); ?>
+        </h2>
+
+        <div style="margin:8px 0 16px;">
+            <div id="ppc-product-image-preview" style="margin-bottom:10px;">
+                <?php if ( $image_url ) : ?>
+                    <img src="<?php echo esc_url( $image_url ); ?>"
+                        style="max-width: 150px; display:block; margin-bottom: 10px;"
+                        alt="<?php echo esc_attr__( 'Product Image', 'printing-pricing-calculator' ); ?>" />
+                <?php else : ?>
+                    <em><?php echo esc_html__( 'No image selected.', 'printing-pricing-calculator' ); ?></em>
+                <?php endif; ?>
+            </div>
+
+            <input type="hidden"
+                name="image_url"
+                id="ppc-product-image-url"
+                value="<?php echo esc_attr( $image_url ); ?>" />
+
+            <button type="button"
+                    class="button"
+                    id="ppc-product-image-select">
+                <?php esc_html_e( 'Select image', 'printing-pricing-calculator' ); ?>
+            </button>
+
+            <button type="button"
+                    class="button"
+                    id="ppc-product-image-remove"
+                    <?php if ( ! $image_url ) echo 'style="display:none"'; ?>>
+                <?php esc_html_e( 'Remove image', 'printing-pricing-calculator' ); ?>
+            </button>
+        </div>
 
         <h2 class="wp-heading-inline"><?php echo esc_html__( 'Product Instructions File', 'printing-pricing-calculator' ); ?></h2>
         <?php
@@ -186,21 +214,21 @@
     </form>
 </div>
 <style>
-/* Highlight on drag */
-.ppc-param-placeholder {
-    border: 2px dashed #2196F3;
-    background: #e3f2fd;
-    min-height: 48px;
-}
-.ppc-param-row { transition: box-shadow 0.1s; }
-.ppc-param-row.ui-sortable-helper { box-shadow: 0 4px 12px rgba(60,60,100,0.08); }
+    /* Highlight on drag */
+    .ppc-param-placeholder {
+        border: 2px dashed #2196F3;
+        background: #e3f2fd;
+        min-height: 48px;
+    }
+    .ppc-param-row { transition: box-shadow 0.1s; }
+    .ppc-param-row.ui-sortable-helper { box-shadow: 0 4px 12px rgba(60,60,100,0.08); }
 
-.ppc-param-toggle {
-    transition: transform 0.2s;
-}
-.ppc-param-toggle.rotated {
-    transform: rotate(180deg);
-}
+    .ppc-param-toggle {
+        transition: transform 0.2s;
+    }
+    .ppc-param-toggle.rotated {
+        transform: rotate(180deg);
+    }
 </style>
 
 <script>
@@ -223,74 +251,74 @@
     });
 </script>
 <script>
-(function($) {
-    // Track selected parameter IDs
-    var selectedIds = <?php echo json_encode(array_column($selectedParameters, 'id')); ?>;
-    var $search = $('#ppc-param-search');
-    var $results = $('#ppc-param-search-results');
-    var $selected = $('#ppc-selected-params');
+    (function($) {
+        // Track selected parameter IDs
+        var selectedIds = <?php echo json_encode(array_column($selectedParameters, 'id')); ?>;
+        var $search = $('#ppc-param-search');
+        var $results = $('#ppc-param-search-results');
+        var $selected = $('#ppc-selected-params');
 
-    // Remove handler
-    $selected.on('click', '.ppc-param-remove', function() {
-        var $row = $(this).closest('.ppc-param-row');
-        var paramId = $row.data('param-id');
-        $row.remove();
-        selectedIds = selectedIds.filter(function(id) { return id != paramId; });
-    });
+        // Remove handler
+        $selected.on('click', '.ppc-param-remove', function() {
+            var $row = $(this).closest('.ppc-param-row');
+            var paramId = $row.data('param-id');
+            $row.remove();
+            selectedIds = selectedIds.filter(function(id) { return id != paramId; });
+        });
 
-    // AJAX search
-    $search.on('input', function() {
-        var val = $(this).val().trim();
-        if (val.length < 2) {
-            $results.html('');
-            return;
-        }
-        $results.html('<em><?php echo esc_js( __( 'Searching...', 'printing-pricing-calculator' ) ); ?></em>');
-        $.post(ajaxurl, {
-            action: 'ppc_param_search',
-            search: val,
-            exclude: selectedIds
-        }, function(resp) {
-            if (!resp.success || !resp.data || !resp.data.params) {
-                $results.html('<em><?php echo esc_js( __( 'No results', 'printing-pricing-calculator' ) ); ?></em>');
+        // AJAX search
+        $search.on('input', function() {
+            var val = $(this).val().trim();
+            if (val.length < 2) {
+                $results.html('');
                 return;
             }
-            var html = '';
-            if (resp.data.params.length) {
-                resp.data.params.forEach(function(param) {
-                    if (selectedIds.includes(parseInt(param.id))) return;
-                    html += '<div class="ppc-param-search-row" data-param-id="' + param.id + '" style="padding:6px 0; border-bottom:1px #eee solid;">';
-                    html += '<strong>' + param.title + '</strong> (' + param.front_name + ') <button type="button" class="button ppc-param-add" style="margin-left:10px;"><?php echo esc_js( __( 'Add', 'printing-pricing-calculator' ) ); ?></button>';
-                    html += '</div>';
-                });
-            } else {
-                html = '<em><?php echo esc_js( __( 'No results', 'printing-pricing-calculator' ) ); ?></em>';
-            }
-            $results.html(html);
+            $results.html('<em><?php echo esc_js( __( 'Searching...', 'printing-pricing-calculator' ) ); ?></em>');
+            $.post(ajaxurl, {
+                action: 'ppc_param_search',
+                search: val,
+                exclude: selectedIds
+            }, function(resp) {
+                if (!resp.success || !resp.data || !resp.data.params) {
+                    $results.html('<em><?php echo esc_js( __( 'No results', 'printing-pricing-calculator' ) ); ?></em>');
+                    return;
+                }
+                var html = '';
+                if (resp.data.params.length) {
+                    resp.data.params.forEach(function(param) {
+                        if (selectedIds.includes(parseInt(param.id))) return;
+                        html += '<div class="ppc-param-search-row" data-param-id="' + param.id + '" style="padding:6px 0; border-bottom:1px #eee solid;">';
+                        html += '<strong>' + param.title + '</strong> (' + param.front_name + ') <button type="button" class="button ppc-param-add" style="margin-left:10px;"><?php echo esc_js( __( 'Add', 'printing-pricing-calculator' ) ); ?></button>';
+                        html += '</div>';
+                    });
+                } else {
+                    html = '<em><?php echo esc_js( __( 'No results', 'printing-pricing-calculator' ) ); ?></em>';
+                }
+                $results.html(html);
+            });
         });
-    });
 
-    // Handler for adding a parameter (fetch row markup via AJAX)
-    $results.on('click', '.ppc-param-add', function() {
-        var $row = $(this).closest('.ppc-param-search-row');
-        var paramId = $row.data('param-id');
-        if (selectedIds.includes(paramId)) return;
+        // Handler for adding a parameter (fetch row markup via AJAX)
+        $results.on('click', '.ppc-param-add', function() {
+            var $row = $(this).closest('.ppc-param-search-row');
+            var paramId = $row.data('param-id');
+            if (selectedIds.includes(paramId)) return;
 
-        // Fetch parameter markup from server
-        $.post(ajaxurl, {
-            action: 'ppc_param_row_markup',
-            param_id: paramId
-        }, function(resp) {
-            if (resp.success && resp.data && resp.data.html) {
-                $selected.append(resp.data.html);
-                selectedIds.push(paramId);
-                $row.remove();
-            } else {
-                alert('<?php echo esc_js( __( 'Could not load parameter.', 'printing-pricing-calculator' ) ); ?>');
-            }
+            // Fetch parameter markup from server
+            $.post(ajaxurl, {
+                action: 'ppc_param_row_markup',
+                param_id: paramId
+            }, function(resp) {
+                if (resp.success && resp.data && resp.data.html) {
+                    $selected.append(resp.data.html);
+                    selectedIds.push(paramId);
+                    $row.remove();
+                } else {
+                    alert('<?php echo esc_js( __( 'Could not load parameter.', 'printing-pricing-calculator' ) ); ?>');
+                }
+            });
         });
-    });
-})(jQuery);
+    })(jQuery);
 </script>
 
 <script>
@@ -350,4 +378,62 @@
         });
     });
     
+</script>
+
+<script>
+    jQuery(function($) {
+        var frame;
+        var $imageUrl  = $('#ppc-product-image-url');
+        var $preview   = $('#ppc-product-image-preview');
+        var $removeBtn = $('#ppc-product-image-remove');
+
+        $('#ppc-product-image-select').on('click', function(e) {
+            e.preventDefault();
+
+            if (frame) {
+                frame.open();
+                return;
+            }
+
+            frame = wp.media({
+                title: '<?php echo esc_js( __( 'Select or upload image', "printing-pricing-calculator" ) ); ?>',
+                button: {
+                    text: '<?php echo esc_js( __( 'Use this image', "printing-pricing-calculator" ) ); ?>'
+                },
+                library: {
+                    type: 'image'
+                },
+                multiple: false
+            });
+
+            frame.on('select', function() {
+                var attachment = frame.state().get('selection').first().toJSON();
+
+                // Store full URL (same as wp_get_attachment_url did before)
+                $imageUrl.val(attachment.url);
+
+                // For preview, prefer a smaller size if available
+                var previewUrl = (attachment.sizes && attachment.sizes.medium)
+                    ? attachment.sizes.medium.url
+                    : attachment.url;
+
+                $preview.html(
+                    '<img src="' + previewUrl + '" ' +
+                    'style="max-width: 150px; display:block; margin-bottom: 10px;" alt="<?php echo esc_attr__( 'Product Image', 'printing-pricing-calculator' ); ?>" />'
+                );
+
+                $removeBtn.show();
+            });
+
+            frame.open();
+        });
+
+        $removeBtn.on('click', function(e) {
+            e.preventDefault();
+
+            $imageUrl.val('');
+            $preview.html('<em><?php echo esc_js( __( 'No image selected.', 'printing-pricing-calculator' ) ); ?></em>');
+            $removeBtn.hide();
+        });
+    });
 </script>

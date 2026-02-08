@@ -54,6 +54,7 @@ class CategoriesEdit {
             $slug   = isset($_POST['slug']) && trim($_POST['slug']) !== '' ? sanitize_title($_POST['slug']) : sanitize_title($name);
             $desc   = isset($_POST['description']) ? wp_kses_post( wp_unslash($_POST['description']) ) : '';
             $status = (isset($_POST['status']) && $_POST['status'] === 'inactive') ? 'inactive' : 'active';
+            $parent_id = isset($_POST['parent_id']) && $_POST['parent_id'] !== '' ? (int)$_POST['parent_id'] : null;
 
             if ($name === '') {
                 $error = __( 'Name is required.', 'printing-pricing-calculator' );
@@ -73,36 +74,39 @@ class CategoriesEdit {
                 }
             }
 
-            // Handle image upload (store attachment ID)
-            $attach_id = isset($row['image_id']) ? (int)$row['image_id'] : 0;
+            // // Handle image upload (store attachment ID)
+            // $attach_id = isset($row['image_id']) ? (int)$row['image_id'] : 0;
 
-            if ( ! empty($_FILES['image_file']['name']) ) {
-                require_once ABSPATH . 'wp-admin/includes/file.php';
-                require_once ABSPATH . 'wp-admin/includes/media.php';
-                require_once ABSPATH . 'wp-admin/includes/image.php';
+            // if ( ! empty($_FILES['image_file']['name']) ) {
+            //     require_once ABSPATH . 'wp-admin/includes/file.php';
+            //     require_once ABSPATH . 'wp-admin/includes/media.php';
+            //     require_once ABSPATH . 'wp-admin/includes/image.php';
 
-                $uploaded = wp_handle_upload( $_FILES['image_file'], ['test_form' => false] );
-                if ( ! isset($uploaded['error']) ) {
-                    $file_path = $uploaded['file'];
-                    $file_name = basename($file_path);
-                    $attachment = [
-                        'post_mime_type' => $uploaded['type'],
-                        'post_title'     => sanitize_file_name($file_name),
-                        'post_content' => '',
-                        'post_status'    => 'inherit',
-                    ];
-                    $attach_id = (int) wp_insert_attachment($attachment, $file_path);
-                    if ($attach_id) {
-                        $attach_data = wp_generate_attachment_metadata($attach_id, $file_path);
-                        wp_update_attachment_metadata($attach_id, $attach_data);
-                    }
-                }
-            }
+            //     $uploaded = wp_handle_upload( $_FILES['image_file'], ['test_form' => false] );
+            //     if ( ! isset($uploaded['error']) ) {
+            //         $file_path = $uploaded['file'];
+            //         $file_name = basename($file_path);
+            //         $attachment = [
+            //             'post_mime_type' => $uploaded['type'],
+            //             'post_title'     => sanitize_file_name($file_name),
+            //             'post_content' => '',
+            //             'post_status'    => 'inherit',
+            //         ];
+            //         $attach_id = (int) wp_insert_attachment($attachment, $file_path);
+            //         if ($attach_id) {
+            //             $attach_data = wp_generate_attachment_metadata($attach_id, $file_path);
+            //             wp_update_attachment_metadata($attach_id, $attach_data);
+            //         }
+            //     }
+            // }
+
+            $attach_id = isset($_POST['image_id']) ? (int) $_POST['image_id'] : (isset($row['image_id']) ? (int) $row['image_id'] : 0);
 
             if (empty($error)) {
                 $data = [
                     'name'        => $name,
                     'slug'        => $slug,
+                    'parent_id'   => $parent_id,
                     'description' => $desc,
                     'status'      => $status,
                     'image_id'    => $attach_id,
@@ -127,6 +131,7 @@ class CategoriesEdit {
             $row = [
                 'id'          => $cid,
                 'name'        => $name,
+                'parent_id'   => $parent_id,
                 'slug'        => $slug,
                 'description' => $desc,
                 'status'      => $status,
@@ -134,7 +139,7 @@ class CategoriesEdit {
             ];
             $is_edit = (bool) $cid;
         }
-
+        wp_enqueue_media();
         // Render form template
         include plugin_dir_path(__FILE__) . '../Templates/Categories/form.php';
     }
