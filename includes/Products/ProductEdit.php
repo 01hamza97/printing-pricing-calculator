@@ -108,11 +108,17 @@ class ProductEdit
             'image_url'            => '',
             'params'               => [],
             'option_prices'        => [],
+            'override_prices'      => [],
             'min_order_qty'        => null,
             'discount_rules'       => [],
             'file_check_price'     => '',
             'file_check_required'  => 0,
-            'instructions_file_id' => 0
+            'instructions_file_id' => 0,
+            'with_price'           => 0,
+            'popis_1'              => '',
+            'popis_2'              => '',
+            'seo_title'            => '',
+            'seo_description'      => ''
         ];
 
         // ----- LOAD EXISTING DATA -----
@@ -129,13 +135,15 @@ class ProductEdit
                     )
                 );
 
-                // Option prices
-                $existing_prices = $wpdb->get_results(
-                    $wpdb->prepare("SELECT option_id, override_price FROM $option_price_table WHERE product_id = %d", $id),
+                // Option prices and flat flag
+                $existing_meta = $wpdb->get_results(
+                    $wpdb->prepare("SELECT option_id, override_price, is_flat FROM $option_price_table WHERE product_id = %d", $id),
                     OBJECT_K
                 );
-                foreach ($existing_prices as $opt_id => $obj) {
+                foreach ($existing_meta as $opt_id => $obj) {
                     $data['option_prices'][$opt_id] = $obj->override_price;
+                    $data['override_prices'][$opt_id] = $obj->override_price;
+                    $data['option_flat'][$opt_id]     = $obj->is_flat;
                 }
 
                 // Product-level discount rules
@@ -152,7 +160,6 @@ class ProductEdit
                 $wpdb->prepare("SELECT * FROM {$conditions_table} WHERE product_id = %d ORDER BY logic_group, id", $id),
                 ARRAY_A
             );
-
             // Group function
             function ppc_group_conditions_for_ui($rows) {
                 $byGroup = [];
@@ -230,8 +237,11 @@ class ProductEdit
 
         // ----- HANDLE FORM SUBMISSION -----
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && check_admin_referer('save_product')) {
-            $title   = sanitize_text_field($_POST['title']);
-            $content = wp_kses_post($_POST['content']);
+            $id = isset($_POST['id']) ? intval($_POST['id']) : (isset($_GET['id']) ? intval($_GET['id']) : 0);
+            $is_edit = ($id > 0);
+
+            $title   = sanitize_text_field(wp_unslash($_POST['title']));
+            $content = wp_kses_post(wp_unslash($_POST['content']));
             $base_price = floatval($_POST['base_price']);
             $status = in_array($_POST['status'], ['active', 'inactive']) ? $_POST['status'] : 'inactive';
             $express_delivery_value = isset($_POST['express_delivery_value']) && $_POST['express_delivery_value'] !== ''
@@ -269,7 +279,23 @@ class ProductEdit
             $file_check_required = !empty($_POST['file_check_required']) ? intval($_POST['file_check_required']) : 0;
 
             // Slug logic
-            $slug = $this->ppc_generate_unique_slug($title, $wpdb, $product_table, $is_edit ? $id : null);
+            $slug_input = isset($_POST['slug']) ? sanitize_title($_POST['slug']) : '';
+            if ($is_edit) {
+                $current_db_slug = isset($data['slug']) ? $data['slug'] : '';
+                if (!empty($slug_input) && $slug_input !== $current_db_slug) {
+                    // Slug was changed manually in the form
+                    $slug = $this->ppc_generate_unique_slug($slug_input, $wpdb, $product_table, $id);
+                } elseif (empty($slug_input)) {
+                    // Slug field was cleared, so auto-generate from title
+                    $slug = $this->ppc_generate_unique_slug($title, $wpdb, $product_table, $id);
+                } else {
+                    // Slug is either unchanged or no input provided, keep current
+                    $slug = $current_db_slug;
+                }
+            } else {
+                $slug_base = !empty($slug_input) ? $slug_input : $title;
+                $slug = $this->ppc_generate_unique_slug($slug_base, $wpdb, $product_table);
+            }
 
             // // Image logic
             // $image_url = $data['image_url'] ?? '';
@@ -358,7 +384,12 @@ class ProductEdit
                 'discount_rules'       => $discount_rules_serialized,
                 'file_check_price'     => $file_check_price,
                 'file_check_required'  => $file_check_required,
-                'instructions_file_id' => $attach_pdf_id ? $attach_pdf_id : null
+                'instructions_file_id' => $attach_pdf_id ? $attach_pdf_id : null,
+                'with_price'           => isset($_POST['with_price']) ? 1 : 0,
+                'popis_1'              => wp_kses_post(wp_unslash($_POST['popis_1'] ?? '')),
+                'popis_2'              => wp_kses_post(wp_unslash($_POST['popis_2'] ?? '')),
+                'seo_title'            => sanitize_text_field(wp_unslash($_POST['seo_title'] ?? '')),
+                'seo_description'      => sanitize_textarea_field(wp_unslash($_POST['seo_description'] ?? ''))
             ];
 
             if ($is_edit) {
@@ -388,10 +419,12 @@ class ProductEdit
             if (!empty($_POST['selected_options'])) {
                 foreach ($_POST['selected_options'] as $option_id) {
                     $override_price = isset($_POST['override_prices'][$option_id]) ? floatval($_POST['override_prices'][$option_id]) : null;
+                    $is_flat = isset($_POST['is_flat'][$option_id]) ? 1 : 0;
                     $wpdb->insert($option_price_table, [
                         'product_id'    => $id,
                         'option_id'     => intval($option_id),
-                        'override_price'=> $override_price
+                        'override_price'=> $override_price,
+                        'is_flat'       => $is_flat
                     ]);
                 }
             }
@@ -501,7 +534,7 @@ class ProductEdit
                 }
             }
 
-            echo "<script>location.href='" . admin_url('admin.php?page=ppc-product-edit&id=' . $id) . "'</script>";
+            echo "<script>location.href='" . admin_url('admin.php?page=ppc-product-edit&id=' . $id . '&updated=1') . "'</script>";
             exit;
         }
 

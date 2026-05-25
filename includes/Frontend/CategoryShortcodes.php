@@ -132,9 +132,9 @@ class CategoryShortcodes {
         ?>
         <div class="w-11/12 mx-auto my-10 font-sans">
             <!-- 1) Category Title -->
-            <h1 class="text-3xl md:text-4xl font-semibold tracking-tight mb-6">
-                <?php echo esc_html($cat['name']); ?>
-            </h1>
+            <!-- <h1 class="text-3xl md:text-4xl font-semibold tracking-tight mb-6">
+                <?php // echo esc_html($cat['name']); ?>
+            </h1> -->
 
             <!-- 2) Products Grid -->
             <?php if (!empty($products)): ?>
@@ -157,9 +157,9 @@ class CategoryShortcodes {
                                         </div>
                                     <?php endif; ?>
                                 </div>
-                                <h3 class="mt-3 text-base font-semibold group-hover:[color:rgb(0,163,202)] line-clamp-2">
+                                <p class="mt-3 font-semibold group-hover:[color:rgb(0,163,202)] line-clamp-2">
                                     <?php echo esc_html($title); ?>
-                                </h3>
+                                </p>
                             </a>
                             <!--
                             <div class="text-sm text-gray-600 mt-1">
@@ -333,6 +333,7 @@ class CategoryShortcodes {
     }
 
     public function render_child_categories_grid($atts = []) {
+        $this->ensure_tailwind();
         global $wpdb;
         // Shortcode attributes
         $atts = shortcode_atts([
@@ -383,8 +384,10 @@ class CategoryShortcodes {
             }
         }
 
+        $child_ids_raw = trim($atts['child_ids']);
+        $child_slugs_raw = trim($atts['child_slugs']);
         /** If still no parent category found */
-        if (!$parent_id) {
+        if (!$parent_id && empty($child_ids_raw) && empty($child_slugs_raw)) {
             return '<div class="w-11/12 mx-auto my-8 p-4 bg-yellow-50 border border-yellow-200 rounded">'
                 . esc_html__('Parent category not found.', 'printing-pricing-calculator')
                 . '</div>';
@@ -393,8 +396,6 @@ class CategoryShortcodes {
         2. NEW FEATURE: FETCH ONLY SPECIFIC CHILD IDs (if provided)
         ------------------------------------------------------------ */
 
-        $child_ids_raw = trim($atts['child_ids']);
-        $child_slugs_raw = trim($atts['child_slugs']);
         $cats = [];
 
         if (!empty($child_ids_raw)) {
@@ -414,9 +415,8 @@ class CategoryShortcodes {
                     "SELECT id, name, slug, image_id, description
                     FROM " . CATEGORY_TABLE . "
                     WHERE status = 'active'
-                    AND parent_id = %d
                     AND id IN ($placeholders)",
-                    array_merge([$parent_id], $child_ids)
+                    ...$child_ids
                 );
 
                 $cats = $wpdb->get_results($query, ARRAY_A);
@@ -426,19 +426,14 @@ class CategoryShortcodes {
             $child_slugs = array_filter(array_map('sanitize_title', explode(',', $child_slugs_raw)));
 
             if (!empty($child_slugs)) {
-
-                // Prepare placeholders for IN clause
                 $placeholders = implode(',', array_fill(0, count($child_slugs), '%s'));
-                // Fetch only children that:
-                // → match provided IDs
-                // → AND belong to this parent
+
                 $query = $wpdb->prepare(
                     "SELECT id, name, slug, image_id, description
                     FROM " . CATEGORY_TABLE . "
                     WHERE status = 'active'
-                    AND parent_id = %d
-                    AND slug  IN ($placeholders)",
-                    array_merge([$parent_id], $child_slugs)
+                    AND slug IN ($placeholders)",
+                    ...$child_slugs
                 );
 
                 $cats = $wpdb->get_results($query, ARRAY_A);
@@ -505,10 +500,10 @@ class CategoryShortcodes {
                                         </div>
                                     <?php endif; ?>
                                 </div>
-                                <div class="p-3">
-                                    <h3 class="text-base font-semibold group-hover:[color:rgb(0,163,202)] transition">
+                                <div class="p-3 ppc-category-title-container">
+                                    <p class="ppc-category-title text-base font-semibold group-hover:[color:rgb(0,163,202)] transition">
                                         <?php echo esc_html($c['name']); ?>
-                                    </h3>
+                                    </p>
                                 </div>
                             </div>
                         </a>

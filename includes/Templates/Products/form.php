@@ -24,7 +24,7 @@
 
     <form method="post" enctype="multipart/form-data">
         <?php wp_nonce_field('save_product'); ?>
-
+        <input type="hidden" name="id" value="<?php echo esc_attr($id); ?>" />
         <h2 class="wp-heading-inline"><?php echo esc_html__( 'Title', 'printing-pricing-calculator' ); ?></h2>
         <input type="text" name="title" class="widefat" value="<?php echo esc_attr($data['title']); ?>" required />
         <h2 class="wp-heading-inline"><?php echo esc_html__( 'Slug', 'printing-pricing-calculator' ); ?></h2>
@@ -38,8 +38,37 @@
             ]);
         ?>
 
+        <h2 class="wp-heading-inline"><?php echo esc_html__( 'Popis 1', 'printing-pricing-calculator' ); ?></h2>
+        <?php
+            wp_editor($data['popis_1'], 'popis_1', [
+                'textarea_name' => 'popis_1',
+                'textarea_rows' => 6,
+            ]);
+        ?>
+
+        <h2 class="wp-heading-inline"><?php echo esc_html__( 'Popis 2', 'printing-pricing-calculator' ); ?></h2>
+        <?php
+            wp_editor($data['popis_2'], 'popis_2', [
+                'textarea_name' => 'popis_2',
+                'textarea_rows' => 6,
+            ]);
+        ?>
+
         <h2 class="wp-heading-inline"><?php echo esc_html__( 'Base Price', 'printing-pricing-calculator' ); ?></h2>
         <input type="number" step="0.01" name="base_price" class="regular-text" value="<?php echo esc_attr($data['base_price']); ?>" required />
+
+        <div style="margin: 10px 0;">
+            <label>
+                <input type="checkbox" name="with_price" value="1" <?php checked($data['with_price'], 1); ?> />
+                <?php echo esc_html__( 'Display with Price', 'printing-pricing-calculator' ); ?>
+            </label>
+        </div>
+
+        <h2 class="wp-heading-inline"><?php echo esc_html__( 'SEO Title', 'printing-pricing-calculator' ); ?></h2>
+        <input type="text" name="seo_title" class="widefat" value="<?php echo esc_attr($data['seo_title'] ?? ''); ?>" />
+
+        <h2 class="wp-heading-inline"><?php echo esc_html__( 'SEO Description', 'printing-pricing-calculator' ); ?></h2>
+        <textarea name="seo_description" class="widefat" rows="3"><?php echo esc_textarea($data['seo_description'] ?? ''); ?></textarea>
 
         <h2 class="wp-heading-inline"><?php echo esc_html__( 'Express Delivery Charges', 'printing-pricing-calculator' ); ?></h2>
         <input type="number" step="0.01" name="express_delivery_value" class="regular-text" value="<?php echo esc_attr($data['express_delivery_value'] ?? ''); ?>" />
