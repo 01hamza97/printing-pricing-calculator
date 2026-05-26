@@ -70,6 +70,8 @@
         <h2 class="wp-heading-inline"><?php echo esc_html__( 'SEO Description', 'printing-pricing-calculator' ); ?></h2>
         <textarea name="seo_description" class="widefat" rows="3"><?php echo esc_textarea($data['seo_description'] ?? ''); ?></textarea>
 
+
+
         <h2 class="wp-heading-inline"><?php echo esc_html__( 'Express Delivery Charges', 'printing-pricing-calculator' ); ?></h2>
         <input type="number" step="0.01" name="express_delivery_value" class="regular-text" value="<?php echo esc_attr($data['express_delivery_value'] ?? ''); ?>" />
         <select name="express_delivery_type">
@@ -80,6 +82,10 @@
 
         <h2 class="wp-heading-inline"><?php echo esc_html__( 'Minimum Order Quantity', 'printing-pricing-calculator' ); ?></h2>
         <input type="number" step="1" name="min_order_qty" class="regular-text" value="<?php echo esc_attr(isset($data['min_order_qty']) ? $data['min_order_qty'] : ''); ?>"/>
+
+        <h2 class="wp-heading-inline"><?php echo esc_html__( 'Quantity Unit', 'printing-pricing-calculator' ); ?></h2>
+        <input type="text" name="unit" class="regular-text" value="<?php echo esc_attr(isset($data['unit']) ? $data['unit'] : 'pcs'); ?>" required />
+        <p class="description"><?php echo esc_html__( 'The unit of measurement for product quantity (e.g. pcs, days, meters). Defaults to pcs.', 'printing-pricing-calculator' ); ?></p>
 
         <h2 class="wp-heading-inline"><?php echo esc_html__( 'Status', 'printing-pricing-calculator' ); ?></h2>
         <select name="status">
@@ -118,6 +124,34 @@
                     id="ppc-product-image-remove"
                     <?php if ( ! $image_url ) echo 'style="display:none"'; ?>>
                 <?php esc_html_e( 'Remove image', 'printing-pricing-calculator' ); ?>
+            </button>
+        </div>
+
+        <h2 class="wp-heading-inline">
+            <?php echo esc_html__( 'Product Gallery Images', 'printing-pricing-calculator' ); ?>
+        </h2>
+        <div style="margin:8px 0 16px;">
+            <div id="ppc-product-gallery-preview" style="margin-bottom:10px; display:flex; flex-wrap:wrap; gap:10px;">
+                <?php
+                $gallery_image_ids = $data['gallery_image_ids'] ?? '';
+                $gallery_ids = !empty($gallery_image_ids) ? explode(',', $gallery_image_ids) : [];
+                foreach ($gallery_ids as $img_id):
+                    $img_id = intval($img_id);
+                    $thumb = wp_get_attachment_image_url($img_id, 'thumbnail');
+                    if ($thumb):
+                    ?>
+                        <div class="ppc-gallery-image-wrapper" data-id="<?php echo $img_id; ?>" style="display:inline-block; position:relative; border:1px solid #ddd; padding:4px; background:#fff;">
+                            <img src="<?php echo esc_url($thumb); ?>" style="width:80px; height:80px; object-fit:cover; display:block;" />
+                            <a href="#" class="ppc-gallery-image-remove" style="position:absolute; top:-5px; right:-5px; background:#f00; color:#fff; border-radius:50%; width:16px; height:16px; line-height:14px; text-align:center; font-size:10px; text-decoration:none; font-weight:bold;">&times;</a>
+                        </div>
+                    <?php
+                    endif;
+                endforeach;
+                ?>
+            </div>
+            <input type="hidden" name="gallery_image_ids" id="ppc-gallery-ids" value="<?php echo esc_attr($gallery_image_ids); ?>" />
+            <button type="button" class="button" id="ppc-product-gallery-select">
+                <?php esc_html_e( 'Select gallery images', 'printing-pricing-calculator' ); ?>
             </button>
         </div>
 
@@ -463,6 +497,66 @@
             $imageUrl.val('');
             $preview.html('<em><?php echo esc_js( __( 'No image selected.', 'printing-pricing-calculator' ) ); ?></em>');
             $removeBtn.hide();
+        });
+
+        // Product Gallery Media Uploader
+        var galleryFrame;
+        var $galleryIds  = $('#ppc-gallery-ids');
+        var $galleryPreview = $('#ppc-product-gallery-preview');
+
+        $('#ppc-product-gallery-select').on('click', function(e) {
+            e.preventDefault();
+
+            if (galleryFrame) {
+                galleryFrame.open();
+                return;
+            }
+
+            galleryFrame = wp.media({
+                title: '<?php echo esc_js( __( "Select Gallery Images", "printing-pricing-calculator" ) ); ?>',
+                button: {
+                    text: '<?php echo esc_js( __( "Add to Gallery", "printing-pricing-calculator" ) ); ?>'
+                },
+                multiple: true
+            });
+
+            galleryFrame.on('select', function() {
+                var selection = galleryFrame.state().get('selection');
+                var ids = $galleryIds.val() ? $galleryIds.val().split(',').map(Number) : [];
+                
+                selection.map(function(attachment) {
+                    attachment = attachment.toJSON();
+                    if (!ids.includes(attachment.id)) {
+                        ids.push(attachment.id);
+                        var imgUrl = (attachment.sizes && attachment.sizes.thumbnail)
+                            ? attachment.sizes.thumbnail.url
+                            : attachment.url;
+                        // Append thumbnail preview
+                        $galleryPreview.append(
+                            '<div class="ppc-gallery-image-wrapper" data-id="' + attachment.id + '" style="display:inline-block; position:relative; border:1px solid #ddd; padding:4px; background:#fff;">' +
+                            '<img src="' + imgUrl + '" style="width:80px; height:80px; object-fit:cover; display:block;" />' +
+                            '<a href="#" class="ppc-gallery-image-remove" style="position:absolute; top:-5px; right:-5px; background:#f00; color:#fff; border-radius:50%; width:16px; height:16px; line-height:14px; text-align:center; font-size:10px; text-decoration:none; font-weight:bold;">&times;</a>' +
+                            '</div>'
+                        );
+                    }
+                });
+
+                $galleryIds.val(ids.join(','));
+            });
+
+            galleryFrame.open();
+        });
+
+        // Handle removing image from gallery preview
+        $galleryPreview.on('click', '.ppc-gallery-image-remove', function(e) {
+            e.preventDefault();
+            var $wrapper = $(this).closest('.ppc-gallery-image-wrapper');
+            var id = Number($wrapper.data('id'));
+            $wrapper.remove();
+            
+            var ids = $galleryIds.val() ? $galleryIds.val().split(',').map(Number) : [];
+            ids = ids.filter(function(item) { return item !== id; });
+            $galleryIds.val(ids.join(','));
         });
     });
 </script>

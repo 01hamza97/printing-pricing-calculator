@@ -122,29 +122,62 @@ textarea::placeholder {
 
       <h4 class="text-base !font-bold mb-[14px] text-[#008ec0]"><?php echo esc_html__( 'Parameters', 'printing-pricing-calculator' ); ?></h4>
 
-      <div class="<?php echo empty($product['image_url']) ? "hidden " : "" ?>col-span-2 px-5 py-6 border border-[#008ec0] mb-4 rounded">
+      <?php
+      $gallery_image_ids = !empty($product['gallery_image_ids']) ? explode(',', $product['gallery_image_ids']) : [];
+      $gallery_images = [];
+      $seen_urls = [];
 
-        <div class="">
+      if (!empty($product['image_url'])) {
+          $gallery_images[] = [
+              'full' => $product['image_url'],
+              'thumb' => $product['image_url']
+          ];
+          $seen_urls[] = $product['image_url'];
+      }
 
-          <div class="relative overflow-hidden ">
+      foreach ($gallery_image_ids as $img_id) {
+          $img_id = intval($img_id);
+          if (!$img_id) continue;
+          $full_url = wp_get_attachment_image_url($img_id, 'large');
+          $thumb_url = wp_get_attachment_image_url($img_id, 'thumbnail');
+          if ($full_url && !in_array($full_url, $seen_urls)) {
+              $gallery_images[] = [
+                  'full' => $full_url,
+                  'thumb' => $thumb_url ?: $full_url
+              ];
+              $seen_urls[] = $full_url;
+          }
+      }
+      ?>
 
+      <?php if (!empty($gallery_images)): ?>
+        <div class="col-span-2 px-5 py-6 border border-[#008ec0] mb-4 rounded bg-white">
+          <div class="relative overflow-hidden aspect-square flex items-center justify-center bg-gray-50 rounded border border-gray-100">
             <img
-
-              src="<?php echo esc_url($product['image_url']); ?>"
-
+              id="ppc-main-product-image"
+              src="<?php echo esc_url($gallery_images[0]['full']); ?>"
               alt="<?php echo esc_attr($product['title']); ?>"
-
-              class="w-full h-auto object-cover transition-transform duration-200 ease-out will-change-transform select-none pointer-events-none"
-
+              class="max-w-full max-h-full object-contain transition-opacity duration-300 ease-in-out select-none pointer-events-none"
               draggable="false"
-
+              style="opacity: 1;"
             />
-
           </div>
 
+          <?php if (count($gallery_images) > 1): ?>
+            <div class="flex flex-wrap gap-2 mt-4" id="ppc-gallery-thumbnails">
+              <?php foreach ($gallery_images as $index => $img): ?>
+                <button
+                  type="button"
+                  class="ppc-gallery-thumb-btn w-16 h-16 border-2 rounded overflow-hidden transition-all duration-200 <?php echo $index === 0 ? 'border-[#00a3ca]' : 'border-gray-200 opacity-70 hover:opacity-100'; ?>"
+                  data-full="<?php echo esc_url($img['full']); ?>"
+                >
+                  <img src="<?php echo esc_url($img['thumb']); ?>" class="w-full h-full object-cover select-none pointer-events-none" draggable="false" />
+                </button>
+              <?php endforeach; ?>
+            </div>
+          <?php endif; ?>
         </div>
-
-      </div>
+      <?php endif; ?>
 
       <div class="col-span-2  px-5 py-6 border border-[#008ec0] mb-4 rounded">
 
@@ -378,7 +411,7 @@ textarea::placeholder {
 
                       <span class="font-normal text-sm text-zinc-700">
 
-                        <?php echo (int)$q; ?> <?php echo esc_html__( 'PCS', 'printing-pricing-calculator' ); ?>
+                        <?php echo (int)$q; ?> <?php echo esc_html(!empty($product['unit']) ? $product['unit'] : __( 'PCS', 'printing-pricing-calculator' )); ?>
 
                       </span>
 
@@ -426,7 +459,7 @@ textarea::placeholder {
 
           <div class="text-end">
 
-            <div class="text-sm font-medium mb-2"><?php echo esc_html__( 'Price Per Piece', 'printing-pricing-calculator' ); ?></div>
+            <div class="text-sm font-medium mb-2"><?php printf( esc_html__( 'Price Per %s', 'printing-pricing-calculator' ), !empty($product['unit']) ? $product['unit'] : __( 'Piece', 'printing-pricing-calculator' ) ); ?></div>
 
             <label for="ppc-price-unit-toggle" class="inline-flex items-center cursor-pointer">
 
@@ -478,7 +511,7 @@ textarea::placeholder {
 
                   />
 
-                  <span class=""><?php echo esc_html__( 'PCS', 'printing-pricing-calculator' ); ?></span>
+                  <span class=""><?php echo esc_html(!empty($product['unit']) ? $product['unit'] : __( 'PCS', 'printing-pricing-calculator' )); ?></span>
 
                 </div>
 
@@ -690,7 +723,7 @@ textarea::placeholder {
 
 
 
- <?php if (!empty($product['content'])): ?>
+  <?php if (!empty($product['content'])): ?>
 
     <div class="ppc-product-content mt-8 prose max-w-none">
 
@@ -719,6 +752,33 @@ textarea::placeholder {
 window.ajaxurl = window.ajaxurl || "<?php echo esc_url( admin_url('admin-ajax.php') ); ?>";
 
 document.addEventListener('DOMContentLoaded', function () {
+
+  // Gallery slider logic
+  const mainImage = document.getElementById('ppc-main-product-image');
+  const thumbButtons = document.querySelectorAll('.ppc-gallery-thumb-btn');
+
+  if (mainImage && thumbButtons.length > 0) {
+    thumbButtons.forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        const newSrc = this.getAttribute('data-full');
+        if (!newSrc || mainImage.getAttribute('src') === newSrc) return;
+
+        mainImage.style.opacity = '0';
+        setTimeout(() => {
+          mainImage.setAttribute('src', newSrc);
+          mainImage.style.opacity = '1';
+        }, 150);
+
+        thumbButtons.forEach(b => {
+          b.classList.remove('border-[#00a3ca]');
+          b.classList.add('border-gray-200', 'opacity-70');
+        });
+        this.classList.remove('border-gray-200', 'opacity-70');
+        this.classList.add('border-[#00a3ca]');
+      });
+    });
+  }
 
   // Settings
 

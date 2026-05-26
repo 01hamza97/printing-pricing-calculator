@@ -64,6 +64,8 @@ class CheckoutInit {
 
         add_action( 'wp_head', [ $this, 'conditionally_hide_totals_css' ], 20 );
 
+        add_action('init', [$this, 'handle_file_download_redirect']);
+
     }
 
 
@@ -103,6 +105,22 @@ class CheckoutInit {
 
 
         $qty = max(1, intval($_POST['qty'] ?? 1));
+
+        global $wpdb;
+        $ppc_pid_raw = sanitize_text_field($_POST['ppc_product_id'] ?? '');
+        $ppc_product = null;
+        if (is_numeric($ppc_pid_raw)) {
+            $ppc_product = $wpdb->get_row(
+                $wpdb->prepare("SELECT * FROM " . PRODUCT_TABLE . " WHERE id = %d", intval($ppc_pid_raw)),
+                ARRAY_A
+            );
+        } else {
+            $ppc_product = $wpdb->get_row(
+                $wpdb->prepare("SELECT * FROM " . PRODUCT_TABLE . " WHERE slug = %s", $ppc_pid_raw),
+                ARRAY_A
+            );
+        }
+        $unit = ($ppc_product && !empty($ppc_product['unit'])) ? $ppc_product['unit'] : 'pcs';
 
 
 
@@ -166,11 +184,12 @@ class CheckoutInit {
 
                 // Upload to R2
 
+                $s3_key = 'orders/' . time() . '-' . $file_name;
                 $result = $s3->putObject([
 
                     'Bucket'      => $bucket,
 
-                    'Key'         => 'orders/' . time() . '-' . $file_name,
+                    'Key'         => $s3_key,
 
                     'SourceFile'  => $tmpPath,
 
@@ -182,9 +201,11 @@ class CheckoutInit {
 
 
 
-                // Public URL
-
-                $file_url = $base_url . '/' . $result['ObjectURL'];
+                // Secure proxy redirect URL
+                $file_url = add_query_arg([
+                    'ppc_download_file' => $s3_key,
+                    'token'             => wp_hash($s3_key)
+                ], home_url('/'));
 
 
 
@@ -208,7 +229,9 @@ class CheckoutInit {
 
         $item_data = [
 
-            'ppc_product_id'    => sanitize_text_field($_POST['ppc_product_id'] ?? ''), // ID or slug
+            'ppc_product_id'    => $ppc_pid_raw,
+
+            'unit'              => $unit,
 
             'params'            => isset($_POST['params']) ? json_decode(stripslashes($_POST['params']), true) : [],
 
@@ -317,12 +340,12 @@ class CheckoutInit {
         }
 
         if (! empty($cart_item['qty'])) {
-
+            $unit = !empty($cart_item['unit']) ? $cart_item['unit'] : 'pcs';
             $item_data[] = [
 
                 'key'   => __('Quantity', 'printing-pricing-calculator'),
 
-                'value' => intval($cart_item['qty']),
+                'value' => intval($cart_item['qty']) . ' ' . $unit,
 
             ];
 
@@ -586,6 +609,8 @@ class CheckoutInit {
 
             'ppc_product_id',
 
+            'unit',
+
             'params',
 
             'express',
@@ -771,9 +796,12 @@ class CheckoutInit {
         }
 
         if (! empty($values['qty'])) {
+            $unit = !empty($values['unit']) ? $values['unit'] : 'pcs';
+            $item->add_meta_data('Quantity', intval($values['qty']) . ' ' . $unit);
 
-            $item->add_meta_data('Quantity', intval($values['qty']));
-
+        }
+        if (! empty($values['unit'])) {
+            $item->add_meta_data('unit', $values['unit']);
         }
 
         if (! empty($values['customer_note'])) {
@@ -920,6 +948,61 @@ class CheckoutInit {
 
         }
 
+    }
+
+    public function handle_file_download_redirect() {
+        if (! isset($_GET['ppc_download_file'])) {
+            return;
+        }
+
+        $s3_key = sanitize_text_field(wp_unslash($_GET['ppc_download_file']));
+        $token  = isset($_GET['token']) ? sanitize_text_field(wp_unslash($_GET['token'])) : '';
+
+        // Validate token
+        if (empty($token) || $token !== wp_hash($s3_key)) {
+            wp_die(__('Invalid or expired download link.', 'printing-pricing-calculator'), __('Access Denied', 'printing-pricing-calculator'), ['response' => 403]);
+        }
+
+        // Fetch Cloudflare R2 configurations
+        $account_id = get_option('R2_ACCOUNT_ID');
+        $access_key = get_option('R2_ACCESS_KEY_ID');
+        $secret_key = get_option('R2_SECRET_ACCESS_KEY');
+        $bucket     = get_option('R2_BUCKET');
+
+        if (!$account_id || !$access_key || !$secret_key || !$bucket) {
+            wp_die(__('Cloudflare R2 storage is not properly configured.', 'printing-pricing-calculator'));
+        }
+
+        // Load AWS SDK
+        require_once WP_PLUGIN_DIR . '/printing-pricing-calculator/vendor/autoload.php';
+
+        try {
+            $s3 = new \Aws\S3\S3Client([
+                'version'     => 'latest',
+                'region'      => 'auto',
+                'endpoint'    => "https://{$account_id}.r2.cloudflarestorage.com",
+                'credentials' => [
+                    'key'    => $access_key,
+                    'secret' => $secret_key,
+                ],
+            ]);
+
+            // Generate a 15-minute presigned URL
+            $cmd = $s3->getCommand('GetObject', [
+                'Bucket' => $bucket,
+                'Key'    => $s3_key,
+            ]);
+
+            $request = $s3->createPresignedRequest($cmd, '+15 minutes');
+            $presignedUrl = (string) $request->getUri();
+
+            // Redirect the user
+            wp_redirect($presignedUrl);
+            exit;
+
+        } catch (\Exception $e) {
+            wp_die(sprintf(__('Download failed: %s', 'printing-pricing-calculator'), esc_html($e->getMessage())));
+        }
     }
 
 }

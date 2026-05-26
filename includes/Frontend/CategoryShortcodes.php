@@ -16,7 +16,7 @@ class CategoryShortcodes {
         if ( ! wp_script_is('ppc-tailwind', 'enqueued') ) {
             wp_enqueue_script(
                 'ppc-tailwind',
-                'https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4',
+                'https://cdn.tailwindcss.com',
                 [],
                 null,
                 true

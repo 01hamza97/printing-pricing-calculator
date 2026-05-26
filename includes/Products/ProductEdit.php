@@ -118,7 +118,9 @@ class ProductEdit
             'popis_1'              => '',
             'popis_2'              => '',
             'seo_title'            => '',
-            'seo_description'      => ''
+            'seo_description'      => '',
+            'unit'                 => 'pcs',
+            'gallery_image_ids'    => ''
         ];
 
         // ----- LOAD EXISTING DATA -----
@@ -253,6 +255,13 @@ class ProductEdit
             $min_order_qty = isset($_POST['min_order_qty']) && $_POST['min_order_qty'] !== ''
                 ? floatval($_POST['min_order_qty'])
                 : null;
+
+            $unit = isset($_POST['unit']) ? sanitize_text_field(wp_unslash($_POST['unit'])) : 'pcs';
+            if (empty($unit)) {
+                $unit = 'pcs';
+            }
+
+            $gallery_image_ids = isset($_POST['gallery_image_ids']) ? sanitize_text_field(wp_unslash($_POST['gallery_image_ids'])) : '';
 
             // Product discount rules
             $discount_rules = [];
@@ -389,7 +398,9 @@ class ProductEdit
                 'popis_1'              => wp_kses_post(wp_unslash($_POST['popis_1'] ?? '')),
                 'popis_2'              => wp_kses_post(wp_unslash($_POST['popis_2'] ?? '')),
                 'seo_title'            => sanitize_text_field(wp_unslash($_POST['seo_title'] ?? '')),
-                'seo_description'      => sanitize_textarea_field(wp_unslash($_POST['seo_description'] ?? ''))
+                'seo_description'      => sanitize_textarea_field(wp_unslash($_POST['seo_description'] ?? '')),
+                'unit'                 => $unit,
+                'gallery_image_ids'    => !empty($gallery_image_ids) ? $gallery_image_ids : null
             ];
 
             if ($is_edit) {

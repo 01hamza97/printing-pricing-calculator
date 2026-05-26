@@ -81,13 +81,15 @@ class ProductsInit
 
                 seo_description TEXT DEFAULT NULL,
 
+                unit VARCHAR(50) DEFAULT 'pcs',
+
+                gallery_image_ids TEXT DEFAULT NULL,
+
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 
                 updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 
-            ) $charset_collate;
-
-        ) $charset_collate;");
+            ) $charset_collate;");
 
         }
 
