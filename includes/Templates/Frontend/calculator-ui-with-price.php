@@ -549,6 +549,17 @@ textarea::placeholder {
 
                 </span>
 
+                <?php 
+                $express_desc = get_option('ppc_express_delivery_desc', '');
+                if (!empty($express_desc)): ?>
+                  <span class="inline-block align-middle relative group ml-2 cursor-pointer">
+                    <i class="text-[16pt] text-[#008ec0] fa fa-exclamation-circle"></i>
+                    <span class="absolute left-7 top-1/2 -translate-y-1/2 bg-[#00a3ca] text-white text-[13px] rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition pointer-events-none z-50 shadow-lg min-w-[200px] max-w-xs whitespace-normal break-words font-normal">
+                      <?php echo wp_kses_post(html_entity_decode($express_desc, ENT_QUOTES, 'UTF-8')); ?>
+                    </span>
+                  </span>
+                <?php endif; ?>
+
               </label>
 
             </div>
@@ -574,6 +585,17 @@ textarea::placeholder {
                   <?php echo esc_html__( 'File Check Service', 'printing-pricing-calculator' ); ?> (<?php echo number_format((float)$file_check_price, 2); ?>)
 
                 </span>
+
+                <?php 
+                $file_check_desc = get_option('ppc_file_check_desc', '');
+                if (!empty($file_check_desc)): ?>
+                  <span class="inline-block align-middle relative group ml-2 cursor-pointer">
+                    <i class="text-[16pt] text-[#008ec0] fa fa-exclamation-circle"></i>
+                    <span class="absolute left-7 top-1/2 -translate-y-1/2 bg-[#00a3ca] text-white text-[13px] rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition pointer-events-none z-50 shadow-lg min-w-[200px] max-w-xs whitespace-normal break-words font-normal">
+                      <?php echo wp_kses_post(html_entity_decode($file_check_desc, ENT_QUOTES, 'UTF-8')); ?>
+                    </span>
+                  </span>
+                <?php endif; ?>
 
               </label>
 
