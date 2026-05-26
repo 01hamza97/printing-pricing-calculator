@@ -1,4 +1,56 @@
+<?php
+global $wpdb;
+$breadcrumbs_data = [
+    [
+        'name' => 'tiskárna REPRESS.cz',
+        'url'  => home_url('/')
+    ]
+];
+
+$cat_rows = $wpdb->get_results(
+    $wpdb->prepare(
+        "SELECT c.id, c.name, c.slug, c.parent_id 
+         FROM " . CATEGORY_TABLE . " c
+         INNER JOIN " . PRODUCT_CATEGORY_TABLE . " pc ON pc.category_id = c.id
+         WHERE pc.product_id = %d AND c.status = 'active'
+         LIMIT 1",
+        $product['id']
+    ),
+    ARRAY_A
+);
+
+if (!empty($cat_rows)) {
+    $current_cat = $cat_rows[0];
+    
+    if (!empty($current_cat['parent_id'])) {
+        $parent_cat = $wpdb->get_row(
+            $wpdb->prepare(
+                "SELECT id, name, slug, parent_id FROM " . CATEGORY_TABLE . " WHERE id = %d AND status = 'active'",
+                $current_cat['parent_id']
+            ),
+            ARRAY_A
+        );
+        if ($parent_cat) {
+            $breadcrumbs_data[] = [
+                'name' => $parent_cat['name'],
+                'url'  => home_url('/portfolio/' . $parent_cat['slug'] . '/')
+            ];
+        }
+    }
+    
+    $breadcrumbs_data[] = [
+        'name' => $current_cat['name'],
+        'url'  => home_url('/portfolio/' . $current_cat['slug'] . '/')
+    ];
+}
+
+$breadcrumbs_data[] = [
+    'name' => $product['title'],
+    'url'  => ''
+];
+?>
 <!-- templates/frontend/calculator-ui.php -->
+
 
 <style>
 
@@ -696,6 +748,46 @@ textarea::placeholder {
 window.ajaxurl = window.ajaxurl || "<?php echo esc_url( admin_url('admin-ajax.php') ); ?>";
 
 document.addEventListener('DOMContentLoaded', function () {
+
+  // Override page breadcrumbs
+  const breadcrumbsContainer = document.querySelector('.page-breadcrumbs');
+  const breadcrumbsData = <?php echo wp_json_encode($breadcrumbs_data); ?>;
+  if (breadcrumbsContainer && breadcrumbsData && breadcrumbsData.length > 0) {
+    breadcrumbsContainer.innerHTML = '';
+    breadcrumbsData.forEach((item, index) => {
+      const itemDiv = document.createElement('div');
+      itemDiv.className = 'page-breadcrumbs-item';
+      
+      if (index === 0) {
+        const homeImg = document.createElement('img');
+        homeImg.className = 'page-breadcrumbs-item-icon';
+        homeImg.src = 'https://www.repress.cz/wp-content/themes/repress/assets/img/home-dark.png';
+        homeImg.alt = item.name;
+        itemDiv.appendChild(homeImg);
+      }
+      
+      if (item.url) {
+        const link = document.createElement('a');
+        link.href = item.url;
+        link.textContent = item.name;
+        itemDiv.appendChild(link);
+      } else {
+        const span = document.createElement('span');
+        span.textContent = item.name;
+        itemDiv.appendChild(span);
+      }
+      
+      breadcrumbsContainer.appendChild(itemDiv);
+      
+      if (index < breadcrumbsData.length - 1) {
+        const dividerDiv = document.createElement('div');
+        dividerDiv.role = 'presentation';
+        dividerDiv.className = 'page-breadcrumbs-item-divider';
+        dividerDiv.textContent = '»';
+        breadcrumbsContainer.appendChild(dividerDiv);
+      }
+    });
+  }
 
   // Gallery slider logic
   const mainImage = document.getElementById('ppc-main-product-image');
