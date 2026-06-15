@@ -340,7 +340,7 @@ class CheckoutInit {
         }
 
         if (! empty($cart_item['qty'])) {
-            $unit = !empty($cart_item['unit']) ? $cart_item['unit'] : 'pcs';
+            $unit = !empty($cart_item['unit']) ? __($cart_item['unit'], 'printing-pricing-calculator') : __('pcs', 'printing-pricing-calculator');
             $item_data[] = [
 
                 'key'   => __('Quantity', 'printing-pricing-calculator'),
@@ -796,7 +796,7 @@ class CheckoutInit {
         }
 
         if (! empty($values['qty'])) {
-            $unit = !empty($values['unit']) ? $values['unit'] : 'pcs';
+            $unit = !empty($values['unit']) ? __($values['unit'], 'printing-pricing-calculator') : __('pcs', 'printing-pricing-calculator');
             $item->add_meta_data('Quantity', intval($values['qty']) . ' ' . $unit);
 
         }

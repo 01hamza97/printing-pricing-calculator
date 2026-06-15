@@ -88,6 +88,13 @@ add_action('plugins_loaded', function() {
 
 require_once plugin_dir_path(__FILE__) . 'includes/Core/Loader.php';
 
+// Load generated units translation registry file if it exists
+$registry_file = plugin_dir_path(__FILE__) . 'includes/dynamic-units-registry.php';
+if (file_exists($registry_file)) {
+    require_once $registry_file;
+}
+
+
 
 
 

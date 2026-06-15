@@ -545,6 +545,8 @@ class ProductEdit
                 }
             }
 
+            $this->generate_dynamic_units_file();
+
             echo "<script>location.href='" . admin_url('admin.php?page=ppc-product-edit&id=' . $id . '&updated=1') . "'</script>";
             exit;
         }
@@ -616,6 +618,8 @@ class ProductEdit
                 $id
             ))
             : [];
+
+        $this->generate_dynamic_units_file();
 
         include plugin_dir_path(__FILE__) . '/../Templates/Products/form.php';
     }
@@ -709,5 +713,34 @@ class ProductEdit
             );
         }
         wp_send_json_success();
+    }
+
+    public function generate_dynamic_units_file()
+    {
+        global $wpdb;
+        $product_table = PRODUCT_TABLE;
+        
+        // Get all unique units from the database
+        $units = $wpdb->get_col("SELECT DISTINCT unit FROM $product_table WHERE unit IS NOT NULL AND unit != ''");
+        
+        $content = "<?php\n";
+        $content .= "// Generated file for Loco Translate scanning. Do not edit manually.\n";
+        $content .= "defined('ABSPATH') || exit;\n\n";
+        
+        // Ensure default units are also registered just in case
+        $default_units = ['pcs', 'Piece', 'PCS'];
+        $all_units = array_merge($default_units, $units);
+        
+        $unique_units = array_unique(array_map('trim', $all_units));
+        sort($unique_units);
+        
+        foreach ($unique_units as $unit) {
+            if ($unit === '') continue;
+            $escaped_unit = str_replace("'", "\\'", $unit);
+            $content .= "__('{$escaped_unit}', 'printing-pricing-calculator');\n";
+        }
+        
+        $file_path = dirname(plugin_dir_path(__FILE__)) . '/dynamic-units-registry.php';
+        @file_put_contents($file_path, $content);
     }
 }

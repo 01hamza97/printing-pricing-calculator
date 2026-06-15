@@ -151,6 +151,134 @@ textarea::placeholder {
 
 }
 
+/* Premium Lightbox styling */
+.ppc-zoomable-img {
+  cursor: zoom-in;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
+}
+.ppc-zoomable-img:hover {
+  transform: scale(1.02);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+}
+
+.ppc-lightbox-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+}
+.ppc-lightbox-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.ppc-lightbox-container {
+  position: relative;
+  max-width: 90%;
+  max-height: 85%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.ppc-lightbox-img {
+  max-width: 100%;
+  max-height: 85vh;
+  object-fit: contain;
+  border-radius: 8px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  transform: scale(0.95);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+}
+.ppc-lightbox-overlay.active .ppc-lightbox-img {
+  transform: scale(1);
+}
+
+.ppc-lightbox-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 24px;
+  z-index: 100000;
+  backdrop-filter: blur(4px);
+}
+.ppc-lightbox-close:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: scale(1.05);
+  color: #00a3ca;
+  border-color: #00a3ca;
+}
+
+.ppc-lightbox-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 20px;
+  z-index: 100000;
+  backdrop-filter: blur(4px);
+  user-select: none;
+}
+.ppc-lightbox-nav:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateY(-50%) scale(1.05);
+  color: #00a3ca;
+  border-color: #00a3ca;
+}
+.ppc-lightbox-prev {
+  left: 24px;
+}
+.ppc-lightbox-next {
+  right: 24px;
+}
+
+.ppc-lightbox-caption {
+  margin-top: 16px;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 14px;
+  font-weight: 500;
+  text-align: center;
+  max-width: 80%;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 8px 16px;
+  border-radius: 20px;
+  backdrop-filter: blur(8px);
+  display: none;
+}
+
 </style>
 
 <div class="w-full mx-auto my-8 font-sans">
@@ -462,7 +590,7 @@ textarea::placeholder {
 
                       <span class="font-normal text-sm text-zinc-700">
 
-                        <?php echo (int)$q; ?> <?php echo esc_html(!empty($product['unit']) ? $product['unit'] : __( 'PCS', 'printing-pricing-calculator' )); ?>
+                        <?php echo (int)$q; ?> <?php echo esc_html(!empty($product['unit']) ? __($product['unit'], 'printing-pricing-calculator') : __( 'PCS', 'printing-pricing-calculator' )); ?>
 
                       </span>
 
@@ -510,7 +638,7 @@ textarea::placeholder {
 
           <div class="text-end">
 
-            <div class="text-sm font-medium mb-2"><?php printf( esc_html__( 'Price Per %s', 'printing-pricing-calculator' ), !empty($product['unit']) ? $product['unit'] : __( 'Piece', 'printing-pricing-calculator' ) ); ?></div>
+            <div class="text-sm font-medium mb-2"><?php printf( esc_html__( 'Price Per %s', 'printing-pricing-calculator' ), !empty($product['unit']) ? __($product['unit'], 'printing-pricing-calculator') : __( 'Piece', 'printing-pricing-calculator' ) ); ?></div>
 
             <label for="ppc-price-unit-toggle" class="inline-flex items-center cursor-pointer">
 
@@ -562,7 +690,7 @@ textarea::placeholder {
 
                   />
 
-                  <span class=""><?php echo esc_html(!empty($product['unit']) ? $product['unit'] : __( 'PCS', 'printing-pricing-calculator' )); ?></span>
+                  <span class=""><?php echo esc_html(!empty($product['unit']) ? __($product['unit'], 'printing-pricing-calculator') : __( 'PCS', 'printing-pricing-calculator' )); ?></span>
 
                 </div>
 
@@ -2360,6 +2488,138 @@ document.addEventListener("DOMContentLoaded", function() {
     setLabel(initialFile ? initialFile.name : DEFAULT_LABEL);
 
     toggleTrash(!!initialFile);
+
+
+    // Lightbox implementation for popis_1, popis_2, and content images
+    const lightboxImages = Array.from(document.querySelectorAll('.ppc-popis-1 img, .ppc-product-content img, .ppc-popis-2 img'));
+    
+    if (lightboxImages.length > 0) {
+      let lightboxOverlay = document.querySelector('.ppc-lightbox-overlay');
+      let lightboxImg, lightboxCaption, prevBtn, nextBtn;
+      let currentLightboxIndex = 0;
+
+      // Create lightbox markup dynamically if it doesn't exist
+      if (!lightboxOverlay) {
+        lightboxOverlay = document.createElement('div');
+        lightboxOverlay.className = 'ppc-lightbox-overlay';
+        lightboxOverlay.innerHTML = `
+          <button class="ppc-lightbox-close" aria-label="Close">&times;</button>
+          <button class="ppc-lightbox-nav ppc-lightbox-prev" aria-label="Previous"><i class="fas fa-chevron-left"></i></button>
+          <div class="ppc-lightbox-container">
+            <img class="ppc-lightbox-img" src="" alt="">
+          </div>
+          <button class="ppc-lightbox-nav ppc-lightbox-next" aria-label="Next"><i class="fas fa-chevron-right"></i></button>
+          <div class="ppc-lightbox-caption"></div>
+        `;
+        document.body.appendChild(lightboxOverlay);
+      }
+
+      lightboxImg = lightboxOverlay.querySelector('.ppc-lightbox-img');
+      lightboxCaption = lightboxOverlay.querySelector('.ppc-lightbox-caption');
+      prevBtn = lightboxOverlay.querySelector('.ppc-lightbox-prev');
+      nextBtn = lightboxOverlay.querySelector('.ppc-lightbox-next');
+
+      // Add CSS class to trigger zoom-in cursor & hover zoom effect
+      lightboxImages.forEach(img => {
+        img.classList.add('ppc-zoomable-img');
+      });
+
+      const updateLightboxImage = (index) => {
+        currentLightboxIndex = index;
+        const targetImg = lightboxImages[index];
+        if (!targetImg) return;
+
+        // Add a small scale/fade transition when switching images
+        lightboxImg.style.transform = 'scale(0.95)';
+        lightboxImg.style.opacity = '0';
+
+        setTimeout(() => {
+          lightboxImg.src = targetImg.src;
+          lightboxImg.alt = targetImg.alt || '';
+          
+          // Update caption
+          const captionText = targetImg.alt || targetImg.title || '';
+          if (captionText) {
+            lightboxCaption.textContent = captionText;
+            lightboxCaption.style.display = 'block';
+          } else {
+            lightboxCaption.style.display = 'none';
+          }
+
+          // Show/hide navigation arrows
+          if (lightboxImages.length > 1) {
+            prevBtn.style.display = 'flex';
+            nextBtn.style.display = 'flex';
+          } else {
+            prevBtn.style.display = 'none';
+            nextBtn.style.display = 'none';
+          }
+
+          lightboxImg.style.transform = 'scale(1)';
+          lightboxImg.style.opacity = '1';
+        }, 150);
+      };
+
+      const openLightbox = (index) => {
+        updateLightboxImage(index);
+        lightboxOverlay.classList.add('active');
+        document.body.style.overflow = 'hidden'; // Prevent page scroll
+      };
+
+      const closeLightbox = () => {
+        lightboxOverlay.classList.remove('active');
+        document.body.style.overflow = ''; // Restore page scroll
+      };
+
+      const navigateLightbox = (direction) => {
+        let newIndex = currentLightboxIndex + direction;
+        if (newIndex < 0) {
+          newIndex = lightboxImages.length - 1;
+        } else if (newIndex >= lightboxImages.length) {
+          newIndex = 0;
+        }
+        updateLightboxImage(newIndex);
+      };
+
+      // Attach click listeners to content images
+      lightboxImages.forEach((img, index) => {
+        img.addEventListener('click', (e) => {
+          e.preventDefault();
+          openLightbox(index);
+        });
+      });
+
+      // Close on clicking overlay or close button
+      lightboxOverlay.addEventListener('click', (e) => {
+        if (e.target === lightboxOverlay || e.target.closest('.ppc-lightbox-close')) {
+          closeLightbox();
+        }
+      });
+
+      // Prev/Next handlers
+      prevBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        navigateLightbox(-1);
+      });
+
+      nextBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        navigateLightbox(1);
+      });
+
+      // Keyboard controls
+      document.addEventListener('keydown', (e) => {
+        if (!lightboxOverlay.classList.contains('active')) return;
+
+        if (e.key === 'Escape') {
+          closeLightbox();
+        } else if (e.key === 'ArrowLeft' && lightboxImages.length > 1) {
+          navigateLightbox(-1);
+        } else if (e.key === 'ArrowRight' && lightboxImages.length > 1) {
+          navigateLightbox(1);
+        }
+      });
+    }
 
 });
 

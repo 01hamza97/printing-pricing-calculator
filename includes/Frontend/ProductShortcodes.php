@@ -57,6 +57,7 @@ class ProductShortcodes
             'show_button' => 0,
             'paginate'    => 0,
             'per_page'    => 10,
+            'option'      => 1,
         ], $atts, 'ppc_products_list');
 
         $order       = strtoupper($atts['order']) === 'DESC' ? 'DESC' : 'ASC';
@@ -66,6 +67,7 @@ class ProductShortcodes
         $show_button = filter_var($atts['show_button'], FILTER_VALIDATE_BOOLEAN) || intval($atts['show_button']) === 1;
         $paginate    = filter_var($atts['paginate'], FILTER_VALIDATE_BOOLEAN) || intval($atts['paginate']) === 1;
         $per_page    = max(1, intval($atts['per_page']));
+        $option      = max(1, min(2, intval($atts['option'])));
 
         $category_id = 0;
         if (!empty($atts['category_id'])) {
@@ -204,70 +206,100 @@ class ProductShortcodes
         ?>
         <div class="w-11/12 mx-auto my-10 font-sans">
             <?php if (!empty($products)): ?>
-                <div class="<?php echo esc_attr($colClass); ?>">
-                    <?php foreach ($products as $p): ?>
-                        <?php
-                        $title = $p['title'] ?? '';
-                        $pslug = $p['slug'] ?? '';
-                        $img   = $p['image_url'] ?? '';
-                        $url   = $product_url($pslug);
-                        ?>
-                        <article class="group bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl border border-gray-100 hover:border-sky-500 transition-all duration-300 flex flex-col h-full transform hover:-translate-y-1">
-                            <a href="<?php echo esc_url($url); ?>" class="block flex flex-col h-full !no-underline">
-                                <!-- Image Wrapper -->
-                                <div class="aspect-[4/3] w-full bg-gray-50 overflow-hidden relative">
-                                    <?php if ($img): ?>
-                                        <img src="<?php echo esc_url($img); ?>" alt="<?php echo esc_attr($title); ?>" class="block w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105">
-                                    <?php else: ?>
-                                        <div class="w-full h-full flex flex-col items-center justify-center text-gray-400 text-sm">
-                                            <i class="fa-regular fa-image text-3xl mb-2 text-gray-300"></i>
-                                            <span><?php echo esc_html__('No image', 'printing-pricing-calculator'); ?></span>
-                                        </div>
-                                    <?php endif; ?>
-                                </div>
-
-                                <!-- Content Container -->
-                                <div class="p-5 flex flex-col justify-between flex-grow">
-                                    <div>
-                                        <!-- Product Title -->
-                                        <h3 class="font-semibold text-gray-800 group-hover:text-sky-600 transition-colors duration-200 text-base leading-snug line-clamp-2 mb-2">
-                                            <?php echo esc_html($title); ?>
-                                        </h3>
-
-                                        <!-- Optional description snippet -->
-                                        <?php if (!empty($p['popis_1'])): ?>
-                                            <p class="text-xs text-gray-500 line-clamp-2 mb-3">
-                                                <?php echo esc_html(wp_strip_all_tags($p['popis_1'])); ?>
-                                            </p>
-                                        <?php endif; ?>
-                                    </div>
-
-                                    <div class="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between">
-                                        <!-- Price Display -->
-                                        <?php if ($show_price && isset($p['base_price'])): ?>
-                                            <div class="text-xs text-gray-500 flex flex-col">
-                                                <span class="text-[9px] uppercase tracking-wider text-gray-400 font-semibold"><?php echo esc_html__('From', 'printing-pricing-calculator'); ?></span>
-                                                <span class="text-base font-bold text-gray-900"><?php echo wc_price((float)$p['base_price']); ?></span>
+                <?php if($option == 1): ?>
+                    <div class="<?php echo esc_attr($colClass); ?>">
+                        <?php foreach ($products as $p): ?>
+                            <?php
+                            $title = $p['title'] ?? '';
+                            $pslug = $p['slug'] ?? '';
+                            $img   = $p['image_url'] ?? '';
+                            $url   = $product_url($pslug);
+                            ?>
+                            <article class="group bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl border border-gray-100 hover:border-sky-500 transition-all duration-300 flex flex-col h-full transform hover:-translate-y-1">
+                                <a href="<?php echo esc_url($url); ?>" class="block flex flex-col h-full !no-underline">
+                                    <!-- Image Wrapper -->
+                                    <div class="aspect-[4/3] w-full bg-gray-50 overflow-hidden relative">
+                                        <?php if ($img): ?>
+                                            <img src="<?php echo esc_url($img); ?>" alt="<?php echo esc_attr($title); ?>" class="block w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105">
+                                        <?php else: ?>
+                                            <div class="w-full h-full flex flex-col items-center justify-center text-gray-400 text-sm">
+                                                <i class="fa-regular fa-image text-3xl mb-2 text-gray-300"></i>
+                                                <span><?php echo esc_html__('No image', 'printing-pricing-calculator'); ?></span>
                                             </div>
                                         <?php endif; ?>
+                                    </div>
 
-                                        <!-- Button or Arrow Link -->
-                                        <?php if ($show_button): ?>
-                                            <span class="inline-flex items-center justify-center px-3.5 py-1.5 text-xs font-semibold text-white bg-sky-600 group-hover:bg-sky-700 transition rounded-lg shadow-sm">
-                                                <?php echo esc_html__('Configure', 'printing-pricing-calculator'); ?>
-                                                <i class="fa-solid fa-chevron-right ml-1.5 text-[9px]"></i>
-                                            </span>
+                                    <!-- Content Container -->
+                                    <div class="p-5 flex flex-col justify-between flex-grow">
+                                        <div>
+                                            <!-- Product Title -->
+                                            <h3 class="font-semibold text-gray-800 group-hover:text-sky-600 transition-colors duration-200 text-base leading-snug line-clamp-2 mb-2">
+                                                <?php echo esc_html($title); ?>
+                                            </h3>
+
+                                            <!-- Optional description snippet -->
+                                            <?php if (!empty($p['popis_1'])): ?>
+                                                <p class="text-xs text-gray-500 line-clamp-2 mb-3">
+                                                    <?php echo esc_html(wp_strip_all_tags($p['popis_1'])); ?>
+                                                </p>
+                                            <?php endif; ?>
+                                        </div>
+
+                                        <div class="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between">
+                                            <!-- Price Display -->
+                                            <?php if ($show_price && isset($p['base_price'])): ?>
+                                                <div class="text-xs text-gray-500 flex flex-col">
+                                                    <span class="text-[9px] uppercase tracking-wider text-gray-400 font-semibold"><?php echo esc_html__('From', 'printing-pricing-calculator'); ?></span>
+                                                    <span class="text-base font-bold text-gray-900"><?php echo wc_price((float)$p['base_price']); ?></span>
+                                                </div>
+                                            <?php endif; ?>
+
+                                            <!-- Button or Arrow Link -->
+                                            <?php if ($show_button): ?>
+                                                <span class="inline-flex items-center justify-center px-3.5 py-1.5 text-xs font-semibold text-white bg-sky-600 group-hover:bg-sky-700 transition rounded-lg shadow-sm">
+                                                    <?php echo esc_html__('Configure', 'printing-pricing-calculator'); ?>
+                                                    <i class="fa-solid fa-chevron-right ml-1.5 text-[9px]"></i>
+                                                </span>
+                                            <?php else: ?>
+                                                <span class="text-sky-500 group-hover:translate-x-1.5 transition-transform duration-300 ml-auto">
+                                                    <i class="fa-solid fa-arrow-right-long text-lg"></i>
+                                                </span>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+                                </a>
+                            </article>
+                        <?php endforeach; ?>
+                    </div>
+                <?php elseif ($option == 2): ?>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+                        <?php foreach ($products as $p): ?>
+                            <?php
+                                $title = $p['title'] ?? '';
+                                $pslug = $p['slug']  ?? '';
+                                $img   = $p['image_url'] ?? '';
+                                $url   = $product_url($pslug);
+                            ?>
+                            <article class="bg-white shadow hover:shadow-md transition p-3 flex flex-col border border-transparent hover:border-black">
+                                <a href="<?php echo esc_url($url); ?>" class="block !no-underline">
+                                    <div class="bg-white shadow hover:shadow-md transition overflow-hidden">
+                                        <?php if ($img): ?>
+                                            <img src="<?php echo esc_url($img); ?>" alt="<?php echo esc_attr($title); ?>" class="block w-full h-full object-cover transform-gpu will-change-transform transition-transform duration-500 ease-out group-hover:scale-105">
                                         <?php else: ?>
-                                            <span class="text-sky-500 group-hover:translate-x-1.5 transition-transform duration-300 ml-auto">
-                                                <i class="fa-solid fa-arrow-right-long text-lg"></i>
-                                            </span>
+                                            <div class="w-full h-full grid place-items-center text-gray-400 text-sm">
+                                                <?php echo esc_html__( 'No image', 'printing-pricing-calculator' ); ?>
+                                            </div>
                                         <?php endif; ?>
                                     </div>
-                                </div>
-                            </a>
-                        </article>
-                    <?php endforeach; ?>
-                </div>
+                                    <p class="mt-3 font-semibold group-hover:[color:rgb(0,163,202)] line-clamp-2">
+                                        <?php echo esc_html($title); ?>
+                                    </p>
+                                </a>
+                            </article>
+                        <?php endforeach; ?>
+                    </div>
+                <?php endif ?>
+
 
                 <!-- Pagination -->
                 <?php if ($paginate && $total_pages > 1): ?>

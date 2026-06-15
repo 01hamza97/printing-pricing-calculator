@@ -161,17 +161,6 @@ class CategoryShortcodes {
                                     <?php echo esc_html($title); ?>
                                 </p>
                             </a>
-                            <!--
-                            <div class="text-sm text-gray-600 mt-1">
-                                <?php // printf( esc_html__( 'From %s', 'printing-pricing-calculator' ), number_format_i18n( (float) $p['base_price'], 2 ) ); ?>
-                            </div>
-                            <div class="mt-3">
-                                <a href="<?php // echo esc_url($url); ?>"
-                                   class="inline-flex items-center justify-center px-3 py-2 rounded-lg bg-blue-600 text-white text-sm hover:bg-blue-700">
-                                    <?php // echo esc_html__( 'Configure & Price', 'printing-pricing-calculator' ); ?>
-                                </a>
-                            </div>
-                            -->
                         </article>
                     <?php endforeach; ?>
                 </div>
