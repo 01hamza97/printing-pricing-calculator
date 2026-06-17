@@ -524,27 +524,47 @@ textarea::placeholder {
 
               $minQty = isset($min_order_qty) ? max(1, (int)$min_order_qty) : 1;
 
+              $discount_rules = (!empty($product_discount_rules)) ? $product_discount_rules : $global_discount_rules;
+              if (!is_array($discount_rules)) {
+                  $discount_rules = [];
+              }
+
+              $valid_rules = [];
+              foreach ($discount_rules as $rule) {
+                  $pct = isset($rule['percent']) ? $rule['percent'] : null;
+                  if ($pct !== null && $pct !== '') {
+                      $valid_rules[] = $rule;
+                  }
+              }
+
+              usort($valid_rules, function($a, $b) {
+                  return intval($a['qty']) - intval($b['qty']);
+              });
+
               $quantities = [];
-
-              // always include the minimum first
-
               $quantities[] = $minQty;
 
-              // then the next completed 100 (if it's not the same as min), and continue +100 up to 1000
-
-              $nextHundred = (int)ceil($minQty / 100) * 100;
-
-              if ($nextHundred === $minQty) {
-
-                  $nextHundred += 100;
-
+              foreach ($valid_rules as $rule) {
+                  $q = intval($rule['qty']);
+                  if ($q > $minQty) {
+                      if (!in_array($q, $quantities)) {
+                          $quantities[] = $q;
+                      }
+                  }
               }
 
-              for ($q = $nextHundred; $q <= 1000; $q += 100) {
+              // if (count($quantities) > 5) {
+              //     $quantities = array_slice($quantities, 0, 5);
+              // }
 
-                  $quantities[] = $q;
-
-              }
+              // while (count($quantities) < 5) {
+              //     $last = end($quantities);
+              //     $next = (int)ceil($last / 100) * 100;
+              //     if ($next <= $last) {
+              //         $next += 100;
+              //     }
+              //     $quantities[] = $next;
+              // }
 
               ?>
 
@@ -1168,8 +1188,9 @@ document.addEventListener('DOMContentLoaded', function () {
     // assumes rules are sorted desc by qty threshold
 
     for (let i = 0; i < rules.length; i++) {
-
-      if (qty >= parseInt(rules[i].qty)) return parseFloat(rules[i].percent);
+      const pct = rules[i].percent;
+      if (pct === null || pct === undefined || pct === '') continue;
+      if (qty >= parseInt(rules[i].qty)) return parseFloat(pct);
 
     }
 

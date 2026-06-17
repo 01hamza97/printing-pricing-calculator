@@ -1099,8 +1099,9 @@ document.addEventListener('DOMContentLoaded', function () {
     // assumes rules are sorted desc by qty threshold
 
     for (let i = 0; i < rules.length; i++) {
-
-      if (qty >= parseInt(rules[i].qty)) return parseFloat(rules[i].percent);
+      const pct = rules[i].percent;
+      if (pct === null || pct === undefined || pct === '') continue;
+      if (qty >= parseInt(rules[i].qty)) return parseFloat(pct);
 
     }
 

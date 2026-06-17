@@ -67,9 +67,14 @@ class AdminInit {
             $percents = $_POST['discount_percent'];
             for ($i = 0; $i < count($qtys); $i++) {
                 $qty = intval($qtys[$i]);
-                $percent = floatval($percents[$i]);
-                if ($qty > 0 && $percent > 0) {
-                    $discounts[] = ['qty' => $qty, 'percent' => $percent];
+                $percent_input = isset($percents[$i]) ? trim($percents[$i]) : '';
+                if ($qty > 0) {
+                    if ($percent_input === '') {
+                        $discounts[] = ['qty' => $qty, 'percent' => null];
+                    } else {
+                        $percent = floatval($percent_input);
+                        $discounts[] = ['qty' => $qty, 'percent' => $percent];
+                    }
                 }
             }
             // Sort by qty descending for easy matching

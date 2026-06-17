@@ -270,9 +270,14 @@ class ProductEdit
                 $percents = $_POST['discount_percent'];
                 for ($i = 0; $i < count($qtys); $i++) {
                     $qty = intval($qtys[$i]);
-                    $percent = floatval($percents[$i]);
-                    if ($qty > 0 && $percent > 0) {
-                        $discount_rules[] = ['qty' => $qty, 'percent' => $percent];
+                    $percent_input = isset($percents[$i]) ? trim($percents[$i]) : '';
+                    if ($qty > 0) {
+                        if ($percent_input === '') {
+                            $discount_rules[] = ['qty' => $qty, 'percent' => null];
+                        } else {
+                            $percent = floatval($percent_input);
+                            $discount_rules[] = ['qty' => $qty, 'percent' => $percent];
+                        }
                     }
                 }
                 usort($discount_rules, function($a, $b) {
